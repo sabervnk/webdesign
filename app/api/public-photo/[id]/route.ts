@@ -1,0 +1,4 @@
+import {database,bucket} from '@/db/storage';
+import {identity} from '@/lib/server/access';
+export const dynamic='force-dynamic';
+export async function GET(r:Request,{params}:{params:Promise<{id:string}>}){try{const {id}=await params;const row=await database().prepare("SELECT p.owner_id,p.published,json_extract(w.data,'$.profile.photo') AS photo FROM teacher_public_profiles p INNER JOIN teacher_workspaces w ON w.owner_id=p.owner_id WHERE p.id=?").bind(id).first<{owner_id:string,published:number,photo:string}>();if(!row||!row.photo||(!row.published&&identity(r)?.id!==row.owner_id))return new Response('Not found',{status:404});const file=await bucket().get('profiles/'+row.owner_id);if(!file)return new Response('Not found',{status:404});return new Response(file.body,{headers:{'Content-Type':file.httpMetadata?.contentType||'image/jpeg','Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}})}catch{return new Response('Unavailable',{status:503})}}
