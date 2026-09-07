@@ -1,4 +1,4 @@
-# انتشار نسخه آزمایشی روی Netlify
+# انتشار MissMahta روی Netlify
 
 این مخزن دو مسیر انتشار دارد. `npm run build` مسیر فعلی Sites/Cloudflare را حفظ می‌کند؛ Netlify با فایل `netlify.toml` از `npm run build:netlify` و خروجی `.next` استفاده می‌کند. فایل `tsconfig.netlify.json` پیاده‌سازی ورود و ذخیره‌سازی مخصوص Netlify را انتخاب می‌کند.
 
