@@ -1,0 +1,3 @@
+'use client';
+import {useState} from 'react';
+export default function Logout(){const [error,setError]=useState('');return <main className="auth-page"><section className="panel auth-card"><h1>خروج از حساب</h1><p>برای پایان‌دادن به نشست فعلی، خروج را انتخاب کنید.</p><button className="btn primary" onClick={async()=>{try{const r=await fetch('/api/auth/logout',{method:'POST'});if(!r.ok)throw new Error();window.location.assign('/')}catch{setError('خروج انجام نشد. دوباره تلاش کنید.')}}}>خروج از حساب</button>{error&&<p role="alert">{error}</p>}<a className="text-link" href="/dashboard">بازگشت به پنل</a></section></main>}

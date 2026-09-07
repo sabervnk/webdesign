@@ -38,6 +38,7 @@ next-env.d.ts
 /dist/
 /.wrangler/
 /.sites-runtime/
+/.netlify/
 /outputs/
 /work/
 

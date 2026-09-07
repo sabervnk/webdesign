@@ -1,0 +1,10 @@
+[
+  {
+    "name": "0000_foamy_wolfsbane.sql",
+    "sql": "CREATE TABLE `teacher_workspaces` (\n\t`owner_id` text PRIMARY KEY NOT NULL,\n\t`data` text NOT NULL,\n\t`version` integer DEFAULT 1 NOT NULL,\n\t`updated_at` text NOT NULL\n);\n"
+  },
+  {
+    "name": "0001_left_kang.sql",
+    "sql": "CREATE TABLE `site_inquiries` (\n\t`id` text PRIMARY KEY NOT NULL,\n\t`email` text NOT NULL,\n\t`data` text NOT NULL,\n\t`status` text DEFAULT 'new' NOT NULL,\n\t`version` integer DEFAULT 1 NOT NULL,\n\t`created_at` text NOT NULL,\n\t`updated_at` text NOT NULL\n);\n--> statement-breakpoint\nCREATE INDEX `inquiries_email_date_idx` ON `site_inquiries` (`email`,`created_at`);--> statement-breakpoint\nCREATE INDEX `inquiries_created_idx` ON `site_inquiries` (`created_at`);--> statement-breakpoint\nCREATE TABLE `teacher_articles` (\n\t`id` text PRIMARY KEY NOT NULL,\n\t`owner_id` text NOT NULL,\n\t`teacher_id` text NOT NULL,\n\t`data` text NOT NULL,\n\t`status` text DEFAULT 'draft' NOT NULL,\n\t`version` integer DEFAULT 1 NOT NULL,\n\t`created_at` text NOT NULL,\n\t`updated_at` text NOT NULL,\n\tFOREIGN KEY (`teacher_id`) REFERENCES `teacher_public_profiles`(`id`) ON UPDATE no action ON DELETE no action\n);\n--> statement-breakpoint\nCREATE INDEX `articles_owner_idx` ON `teacher_articles` (`owner_id`,`updated_at`);--> statement-breakpoint\nCREATE INDEX `articles_published_idx` ON `teacher_articles` (`status`,`created_at`,`teacher_id`);--> statement-breakpoint\nCREATE INDEX `articles_teacher_idx` ON `teacher_articles` (`teacher_id`);--> statement-breakpoint\nCREATE TABLE `teacher_public_profiles` (\n\t`id` text PRIMARY KEY NOT NULL,\n\t`owner_id` text NOT NULL,\n\t`data` text NOT NULL,\n\t`published` integer DEFAULT 0 NOT NULL,\n\t`version` integer DEFAULT 1 NOT NULL,\n\t`updated_at` text NOT NULL\n);\n--> statement-breakpoint\nCREATE UNIQUE INDEX `teacher_public_profiles_owner_id_unique` ON `teacher_public_profiles` (`owner_id`);--> statement-breakpoint\nCREATE INDEX `public_profiles_listing_idx` ON `teacher_public_profiles` (`published`,`updated_at`);"
+  }
+]

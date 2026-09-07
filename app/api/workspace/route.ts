@@ -1,11 +1,11 @@
-import {identity} from '@/lib/server/access';
+import {identity,validOrigin} from '@/lib/server/access';
 import {database} from '@/db/storage';
 import {workspaceSchema,validateWorkspace,sampleWorkspace,dateKey} from '@/lib/model';
 export const dynamic='force-dynamic';
-function owner(r:Request){return r.headers.get('oai-authenticated-user-id')}
+function owner(r:Request){return identity(r)?.id}
 const json=(data:unknown,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'private, no-store'}});
 export async function GET(r:Request){
- const id=owner(r);if(!id)return json({error:'برای ورود به فضای معلم، وارد حساب ChatGPT شوید. / Sign in to continue.'},401);
+ const id=owner(r);if(!id)return json({error:'برای ورود به فضای معلم، وارد حساب خود شوید. / Sign in to continue.'},401);
  try{const db=database();let row=await db.prepare('SELECT data,version FROM teacher_workspaces WHERE owner_id = ?').bind(id).first<{data:string,version:number}>();
  if(!row){const tzDay=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Tehran',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());const state=sampleWorkspace(/^\d{4}-\d{2}-\d{2}$/.test(tzDay)?tzDay:dateKey(new Date()));await db.prepare('INSERT OR IGNORE INTO teacher_workspaces (owner_id,data,version,updated_at) VALUES (?,?,1,?)').bind(id,JSON.stringify(state),new Date().toISOString()).run();row=await db.prepare('SELECT data,version FROM teacher_workspaces WHERE owner_id = ?').bind(id).first<{data:string,version:number}>();}
  return json({data:workspaceSchema.parse(JSON.parse(row!.data)),version:row!.version,isAdmin:identity(r)?.isAdmin||false});
@@ -13,7 +13,7 @@ export async function GET(r:Request){
 }
 export async function PUT(r:Request){
  const id=owner(r);if(!id)return json({error:'ورود به حساب لازم است. / Sign-in required.'},401);
- const origin=r.headers.get('origin');if(origin&&origin!==new URL(r.url).origin)return json({error:'درخواست نامعتبر است. / Invalid request.'},403);
+ if(!validOrigin(r))return json({error:'درخواست نامعتبر است. / Invalid request.'},403);
  try{const raw=await r.text();if(raw.length>1500000)return json({error:'حجم اطلاعات از ظرفیت این فضای کاری بیشتر است. / Workspace capacity exceeded.'},413);let payload;try{payload=JSON.parse(raw)}catch{return json({error:'اطلاعات نامعتبر است. / Invalid data.'},400)}
  const parsed=workspaceSchema.safeParse(payload.data);if(!parsed.success||!Number.isSafeInteger(payload.version))return json({error:'لطفاً فیلدها را بررسی کنید. / Please check the form fields.'},400);
  const db=database(),row=await db.prepare('SELECT data,version FROM teacher_workspaces WHERE owner_id = ?').bind(id).first<{data:string,version:number}>();if(!row||row.version!==payload.version)return json({error:'اطلاعات در پنجره دیگری تغییر کرده است. ابتدا تازه‌سازی کنید. / Workspace changed in another tab. Reload before saving.'},409);

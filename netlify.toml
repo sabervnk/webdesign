@@ -1,0 +1,14 @@
+[build]
+  command = "npm run build:netlify"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+  NEXT_TELEMETRY_DISABLED = "1"
+  NEXT_PUBLIC_HOSTING_TARGET = "netlify"
+
+[functions]
+  node_bundler = "esbuild"
+
+# Netlify automatically supplies the OpenNext adapter for standard Next.js.
+# Runtime secrets belong in Netlify Environment variables, never in this file.

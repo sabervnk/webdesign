@@ -1,3 +1,5 @@
+> **Netlify deployment:** See [NETLIFY.md](./NETLIFY.md) for the `missmahta` build settings, administrator setup, and teacher invitations.
+
 # MahELA — Language teachers and learning
 
 Persian / English website and private teacher workspace, extending the supplied MahELA prototype. The public experience includes a responsive homepage, teacher directory, portfolios, teacher-authored articles and contact / class-request forms. The existing student, IELTS assessment, scheduling, fee settlement and message-draft tools remain available at `/dashboard`.
