@@ -38,3 +38,7 @@ Persian / English website and private teacher workspace, extending the supplied 
 Use the preserved Sites build scripts. After building, `node --test tests/*.test.mjs` checks scheduling, money precision, legacy records, ownership, draft visibility, admin restrictions, quote snapshots, concurrency, persistence and photo uploads against the built Worker. `npx tsc --noEmit` checks TypeScript. Browser and screenshot testing have not been performed for this revision.
 
 Font: Vazirmatn, SIL Open Font License; see `public/fonts/OFL.txt`. The original generated homepage image shows a fictional teacher, not any listed teacher.
+
+## Versioned releases
+
+Design and source snapshots are kept in [GitHub Releases](https://github.com/sabervnk/webdesign/releases). See [VERSIONING.md](VERSIONING.md) for the version numbering and release process, and [releases/v0.1.0.md](releases/v0.1.0.md) for the initial baseline. Releases preserve source code; publishing the live website is a separate step.
