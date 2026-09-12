@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {readFile,readdir} from 'node:fs/promises';
-import {Miniflare} from 'miniflare';
+import {Miniflare,convertV4MiniflareOptions} from 'miniflare';
 test('workspace API persists changes, isolates users, rejects stale writes, and stores photos',async()=>{
  const moduleFiles=(await readdir('dist/server',{recursive:true})).filter(p=>p.endsWith('.js')&&p!=='index.js');
- const mf=new Miniflare({modules:[{type:'ESModule',path:'dist/server/index.js'},...moduleFiles.map(p=>({type:'ESModule',path:'dist/server/'+p}))],compatibilityDate:'2026-05-15',compatibilityFlags:['nodejs_compat'],d1Databases:['DB'],r2Buckets:['BUCKET'],serviceBindings:{ASSETS:()=>new Response('Not found',{status:404})}});
+ const mf=new Miniflare(convertV4MiniflareOptions({workers:[{name:'app',modules:[{type:'ESModule',path:'dist/server/index.js'},...moduleFiles.map(p=>({type:'ESModule',path:'dist/server/'+p}))],compatibilityDate:'2026-05-15',compatibilityFlags:['nodejs_compat'],d1Databases:['DB'],r2Buckets:['BUCKET'],serviceBindings:{ASSETS:()=>new Response('Not found',{status:404})}}]}));
  try{
   const db=await mf.getD1Database('DB');for(const file of (await readdir('drizzle')).filter(f=>f.endsWith('.sql')).sort())for(const sql of (await readFile('drizzle/'+file,'utf8')).split('--> statement-breakpoint'))if(sql.trim())await db.exec(sql.replace(/\n/g,' '));
   const req=(user,method='GET',body)=>mf.dispatchFetch('http://workspace.test/api/workspace',{method,headers:{...(user?{'oai-authenticated-user-id':user}:{}),...(body?{'Content-Type':'application/json',Origin:'http://workspace.test'}:{})},...(body?{body:JSON.stringify(body)}:{})});

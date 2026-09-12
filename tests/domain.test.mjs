@@ -21,3 +21,18 @@ test('legacy records default to toman, and paid historical currency cannot chang
  next.profile.currency='USD';next.students[0].currency='USD';next.students[0].rate=24.99;validateWorkspace(next,old);
  const paid=next.sessions.find(s=>s.paid);paid.currency='USD';assert.throws(()=>validateWorkspace(next,old),/cannot be changed/);
 });
+
+test('a real workspace cannot re-enter demo mode to bypass settled history protection',()=>{
+ const before=fresh();before.demo=false;
+ const forged=structuredClone(before);forged.demo=true;
+ assert.throws(()=>validateWorkspace(forged,before),/cannot return to demo/);
+ const start=structuredClone(fresh());start.demo=false;validateWorkspace(start,fresh());
+});
+test('settlement timestamps must agree with the paid status',()=>{
+ const w=fresh();const paid=w.sessions.find(s=>s.paid);paid.paidAt='';
+ assert.throws(()=>validateWorkspace(w),/timestamp/);
+ paid.paidAt='not-a-date';assert.throws(()=>validateWorkspace(w),/timestamp/);
+ paid.paidAt=new Date().toISOString();validateWorkspace(w);
+ const unpaid=w.sessions.find(s=>!s.paid);unpaid.paidAt=new Date().toISOString();
+ assert.throws(()=>validateWorkspace(w),/Unpaid sessions/);
+});

@@ -1,3 +1,4 @@
+import {requestFailure} from '@/lib/server/http';
 import {randomBytes,scrypt,createHash} from 'node:crypto';
 import {store} from './storage';
 import {administratorEmail,configured,createSession,cookieName,sessionSeconds,equal,json,validOrigin,payload,safeReturn} from './access';
@@ -46,5 +47,5 @@ export async function POST(r:Request,{params}:{params:Promise<{action:string}>})
    account=saved;
   }
   return new Response(JSON.stringify({redirect:safeReturn(String(body.returnTo||'/dashboard'))}),{headers:{'Content-Type':'application/json','Cache-Control':'private, no-store','Set-Cookie':`${cookieName}=${createSession(account)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${sessionSeconds}`}});
- }catch(e){console.error('Account request failed',e);return json({error:'ورود انجام نشد. کمی بعد دوباره تلاش کنید.'},503)}
+ }catch(e){console.error('Account request failed',e);return requestFailure(e,'ورود انجام نشد. کمی بعد دوباره تلاش کنید.')}
 }

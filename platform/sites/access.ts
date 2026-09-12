@@ -5,4 +5,4 @@ export function identity(r:Request){const id=r.headers.get('oai-authenticated-us
 export function isAdministrator(email:string){return email.toLowerCase()===administratorEmail}
 export function validOrigin(r:Request){const origin=r.headers.get('origin');return !origin||origin===new URL(r.url).origin}
 export const json=(data:unknown,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'private, no-store'}});
-export async function payload(r:Request,max=200000){const body=await r.text();if(body.length>max)throw new Error('اطلاعات بیش از حد مجاز است. / Payload too large.');return JSON.parse(body)}
+export {payload} from '@/lib/server/http';

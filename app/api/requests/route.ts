@@ -1,4 +1,50 @@
 import {database} from '@/db/storage';
 import {inquirySchema,type Teacher} from '@/lib/catalogue';
 import {json,validOrigin,payload} from '@/lib/server/access';
-export async function POST(r:Request){if(!validOrigin(r))return json({error:'Invalid origin'},403);try{const p=inquirySchema.safeParse(await payload(r,15000));if(!p.success)return json({error:'نام، ایمیل و متن پیام را کامل و معتبر وارد کنید. / Enter a valid name, email and message.'},400);const {website,...data}=p.data;if(website)return json({error:'درخواست معتبر نیست. / Invalid request.'},400);const db=database();let teacher:Teacher|undefined;if(data.kind==='class'){const row=await db.prepare('SELECT data,version FROM teacher_public_profiles WHERE id=? AND published=1').bind(data.teacherId).first<{data:string,version:number}>();if(!row)return json({error:'این معلم اکنون درخواست جدید نمی‌پذیرد. / This teacher is not available.'},400);if(data.teacherVersion!==row.version)return json({error:'مشخصات یا نرخ معلم تغییر کرده است؛ صفحه را تازه کنید و دوباره بررسی کنید. / Teacher details changed. Refresh and review the current fee.'},409);teacher=JSON.parse(row.data);if(!teacher!.languages.includes(data.language as Teacher['languages'][number])||!teacher!.formats.includes(data.format as 'online'|'in-person'))return json({error:'زبان یا نوع کلاس با خدمات معلم مطابقت ندارد. / Select a language and format offered by this teacher.'},400)}const existing=await db.prepare('SELECT id FROM site_inquiries WHERE id=?').bind(data.id).first();if(existing)return json({id:data.id,reference:data.id.slice(0,8).toUpperCase()},200);const count=await db.prepare('SELECT COUNT(*) AS n FROM site_inquiries WHERE email=? AND created_at>?').bind(data.email.toLowerCase(),new Date(Date.now()-3600000).toISOString()).first<{n:number}>();if((count?.n||0)>=5)return json({error:'درخواست‌های زیادی ثبت کرده‌اید؛ کمی بعد دوباره تلاش کنید. / Please try again later.'},429);const now=new Date().toISOString();const stored={...data,email:data.email.toLowerCase(),teacherName:teacher?.name||'',rate:teacher?.rate??null,currency:teacher?.currency??null,duration:teacher?.duration??null,adminNote:''};await db.prepare('INSERT INTO site_inquiries (id,email,data,status,version,created_at,updated_at) VALUES (?,?,?,\'new\',1,?,?)').bind(data.id,stored.email,JSON.stringify(stored),now,now).run();return json({id:data.id,reference:data.id.slice(0,8).toUpperCase()},201)}catch(e){console.error('Inquiry failed',e);return json({error:'ارسال درخواست انجام نشد؛ متن شما حفظ شده است. / Could not send your request. Please retry.'},503)}}
+import {requestFailure} from '@/lib/server/http';
+
+export async function POST(r:Request){
+ if(!validOrigin(r))return json({error:'Invalid origin'},403);
+ try{
+  const parsed=inquirySchema.safeParse(await payload(r,15000));
+  if(!parsed.success)return json({error:'نام، ایمیل و متن پیام را کامل و معتبر وارد کنید. / Enter a valid name, email and message.'},400);
+  const {website,...input}=parsed.data;
+  if(website)return json({error:'درخواست معتبر نیست. / Invalid request.'},400);
+  const data={...input,email:input.email.toLowerCase()};
+  const db=database();
+  const receipt=()=>({id:data.id,reference:data.id.slice(0,8).toUpperCase()});
+  async function duplicate(){
+   const row=await db.prepare('SELECT data FROM site_inquiries WHERE id=?').bind(data.id).first<{data:string}>();
+   if(!row)return null;
+   const saved=JSON.parse(row.data);
+   const same=Object.entries(data).every(([key,value])=>saved[key]===value);
+   return same?json(receipt()):json({error:'این شناسه برای درخواست دیگری ثبت شده است. فرم را دوباره باز کنید. / Request identifier already used for different details.'},409);
+  }
+  // A successful retry must still work after the teacher changes their offer.
+  const repeated=await duplicate();if(repeated)return repeated;
+  let teacher:Teacher|undefined;
+  if(data.kind==='class'){
+   const row=await db.prepare('SELECT data,version FROM teacher_public_profiles WHERE id=? AND published=1').bind(data.teacherId).first<{data:string,version:number}>();
+   if(!row)return json({error:'این معلم اکنون درخواست جدید نمی‌پذیرد. / This teacher is not available.'},400);
+   if(data.teacherVersion!==row.version)return json({error:'مشخصات یا نرخ معلم تغییر کرده است؛ صفحه را تازه کنید و دوباره بررسی کنید. / Teacher details changed. Refresh and review the current fee.'},409);
+   teacher=JSON.parse(row.data) as Teacher;
+   if(!teacher.languages.includes(data.language as Teacher['languages'][number])||!teacher.formats.includes(data.format as 'online'|'in-person'))return json({error:'زبان یا نوع کلاس با خدمات معلم مطابقت ندارد. / Select a language and format offered by this teacher.'},400);
+  }
+  const now=new Date().toISOString();
+  const stored={...data,teacherName:teacher?.name||'',rate:teacher?.rate??null,currency:teacher?.currency??null,duration:teacher?.duration??null,adminNote:''};
+  // One conditional write makes both duplicate handling and the hourly limit
+  // atomic on D1 and across Netlify snapshot compare-and-swap retries.
+  const result=await db.prepare(`INSERT OR IGNORE INTO site_inquiries (id,email,data,status,version,created_at,updated_at)
+   SELECT ?,?,?,'new',1,?,?
+   WHERE (SELECT COUNT(*) FROM site_inquiries WHERE email=? AND created_at>?)<5
+   AND (?='contact' OR EXISTS(SELECT 1 FROM teacher_public_profiles WHERE id=? AND published=1 AND version=?))`)
+   .bind(data.id,data.email,JSON.stringify(stored),now,now,data.email,new Date(Date.now()-3600000).toISOString(),data.kind,data.teacherId,data.teacherVersion??0).run();
+  if(result.meta.changes)return json(receipt(),201);
+  const raced=await duplicate();if(raced)return raced;
+  if(data.kind==='class'){
+   const current=await db.prepare('SELECT version,published FROM teacher_public_profiles WHERE id=?').bind(data.teacherId).first<{version:number,published:number}>();
+   if(!current?.published||current.version!==data.teacherVersion)return json({error:'پیشنهاد معلم تغییر کرده است؛ صفحه را تازه کنید. / Teacher offer changed. Refresh before requesting.'},409);
+  }
+  return json({error:'درخواست‌های زیادی ثبت کرده‌اید؛ کمی بعد دوباره تلاش کنید. / Please try again later.'},429);
+ }catch(e){console.error('Inquiry failed',e);return requestFailure(e,'ارسال درخواست انجام نشد؛ متن شما حفظ شده است. / Could not send your request. Please retry.')}
+}

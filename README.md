@@ -42,3 +42,5 @@ Font: Vazirmatn, SIL Open Font License; see `public/fonts/OFL.txt`. The original
 ## Versioned releases
 
 Design and source snapshots are kept in [GitHub Releases](https://github.com/sabervnk/webdesign/releases). See [VERSIONING.md](VERSIONING.md) for the version numbering and release process, and [releases/v0.1.0.md](releases/v0.1.0.md) for the initial baseline. Releases preserve source code; publishing the live website is a separate step.
+
+Current reviewed snapshot: **v0.1.1**. See [the full project review and prioritized feature gaps](docs/PROJECT_REVIEW.md) and [v0.1.1 release notes](releases/v0.1.1.md).

@@ -22,6 +22,7 @@ export function billable(s:Session){return s.status==='held'||(s.status==='cance
 export function average(s:Skills){return Math.round((s.listening+s.speaking+s.reading+s.writing)/4*10)/10}
 export function validateWorkspace(next:Workspace,previous?:Workspace){
  if(previous)previous=workspaceSchema.parse(previous);
+ if(previous&&!previous.demo&&next.demo)throw new Error('فضای واقعی نمی‌تواند به حالت نمونه برگردد. / A real workspace cannot return to demo mode.');
  for(const x of [...next.students,...next.sessions])if(!validMoney(x.rate,x.currency||'TOMAN'))throw new Error('مبلغ تومان باید عدد صحیح و مبلغ دلار حداکثر دو رقم اعشار داشته باشد. / Invalid currency precision.');
  for(const list of [next.students,next.sessions,next.assessments,next.messages]){if(new Set(list.map(x=>x.id)).size!==list.length)throw new Error('شناسه تکراری است. / Duplicate identifier.');}
  const ids=new Set(next.students.map(x=>x.id));
@@ -32,6 +33,8 @@ export function validateWorkspace(next:Workspace,previous?:Workspace){
   if(timeNumber(s.time)+s.duration>1440)throw new Error('پایان جلسه باید در همین روز باشد. / Session must end on the same day.');
   if(s.status==='cancelled'&&s.cancelReason==='teacher'&&s.charge)throw new Error('لغو از طرف معلم بدون شهریه است. / Teacher cancellations cannot be charged.');
   if(s.paid&&!billable(s))throw new Error('فقط جلسات مشمول شهریه قابل تسویه هستند. / Only billable sessions can be settled.');
+  if(s.paid&&(!s.paidAt||!Number.isFinite(Date.parse(s.paidAt))))throw new Error('تاریخ تسویه معتبر لازم است. / A valid settlement timestamp is required.');
+  if(!s.paid&&s.paidAt)throw new Error('جلسه تسویه‌نشده نباید تاریخ تسویه داشته باشد. / Unpaid sessions cannot have a settlement timestamp.');
  }
  const active=next.sessions.filter(s=>s.status!=='cancelled').sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
  for(let i=1;i<active.length;i++){const a=active[i-1],b=active[i];if(a.date===b.date&&timeNumber(a.time)+a.duration>timeNumber(b.time))throw new Error('این زمان با یک کلاس دیگر تداخل دارد. / This session overlaps another class.');}

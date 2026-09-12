@@ -43,6 +43,17 @@ test('Netlify production: persistent data, safe login, teacher isolation and pub
   await ok(await request('/api/workspace',a,'PUT',workspace));
   assert.equal((await request('/api/workspace',a,'PUT',workspace)).status,409);
   assert.notEqual((await ok(await request('/api/workspace',b))).data.profile.name,'Persistent teacher');
+  // Bad input is a client error, not a temporary server outage.
+  for(const [path,method] of [['/api/workspace','PUT'],['/api/studio/profile','PUT'],['/api/studio/posts','POST'],['/api/requests','POST'],['/api/auth/login','POST']]){
+   const malformed=await fetch(origin+path,{method,headers:{Cookie:a,Origin:origin,'Content-Type':'application/json'},body:'null'});
+   assert.equal(malformed.status,400,path);
+  }
+  const oversized=await fetch(origin+'/api/requests',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify({message:'x'.repeat(16000)})});
+  assert.equal(oversized.status,413);
+  const real=await ok(await request('/api/workspace',a));real.data.demo=false;
+  await ok(await request('/api/workspace',a,'PUT',real));
+  const forged=await ok(await request('/api/workspace',a));forged.data.demo=true;
+  assert.equal((await request('/api/workspace',a,'PUT',forged)).status,400);
   const studio=await ok(await request('/api/studio',a));
   const profile={...studio.profile,name:'معلم آزمایشی',headline:'تمرین مکالمه انگلیسی',bio:'معرفی واقعی برای بررسی مسیر انتشار پرتفولیو و ارائه کلاس‌های زبان با تمرین و بازخورد آموزشی.',published:true,currency:'USD',rate:24.99,languages:['en'],formats:['online']};
   await ok(await request('/api/studio/profile',a,'PUT',{profile,version:1}));
@@ -53,8 +64,20 @@ test('Netlify production: persistent data, safe login, teacher isolation and pub
   assert.equal((await request('/blog/'+post.id)).status,200);
   const inquiry={id:crypto.randomUUID(),kind:'class',teacherId:profile.id,teacherVersion:2,name:'Learner',email:'learner@example.com',phone:'09121234567',language:'en',format:'online',message:'I would like to arrange a class.',rate:1,currency:'TOMAN'};
   await ok(await request('/api/requests',null,'POST',inquiry),201);
+  const retries=await Promise.all([request('/api/requests',null,'POST',inquiry),request('/api/requests',null,'POST',inquiry)]);
+  assert(retries.every(r=>r.status===200));
+  assert.equal((await request('/api/requests',null,'POST',{...inquiry,message:'Different message using the same identifier'})).status,409);
+  await ok(await request('/api/studio/profile',a,'PUT',{profile:{...profile,rate:30},version:2}));
+  await ok(await request('/api/requests',null,'POST',inquiry));
+  const contact={kind:'contact',name:'Parallel learner',email:'parallel@example.com',message:'Please help me choose a teacher.'};
+  const sameId={...contact,id:crypto.randomUUID()};
+  const firstRace=await Promise.all([request('/api/requests',null,'POST',sameId),request('/api/requests',null,'POST',sameId)]);
+  assert.deepEqual(firstRace.map(r=>r.status).sort(),[200,201]);
+  const quotaRace=await Promise.all(Array.from({length:7},()=>request('/api/requests',null,'POST',{...contact,id:crypto.randomUUID()})));
+  assert.equal(quotaRace.filter(r=>r.status===201).length,4);
+  assert.equal(quotaRace.filter(r=>r.status===429).length,3);
   const inbox=await ok(await request('/api/admin/requests',admin));
-  assert.equal(inbox.requests[0].rate,24.99);assert.equal(inbox.requests[0].currency,'USD');
+  assert.equal(inbox.requests.find(x=>x.id===inquiry.id).rate,24.99);assert.equal(inbox.requests.find(x=>x.id===inquiry.id).currency,'USD');
   assert.equal((await request('/api/studio/profile',a,'PUT',{profile,version:2},{Origin:'https://evil.example'})).status,403);
   const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jPdwAAAAASUVORK5CYII=','base64');
   await ok(await fetch(origin+'/api/photo',{method:'POST',headers:{Cookie:a,Origin:origin,'Content-Type':'image/png'},body:png}));
@@ -67,7 +90,7 @@ test('Netlify production: persistent data, safe login, teacher isolation and pub
   await stop();output='';await start();
   assert.equal((await ok(await request('/api/workspace',a))).data.profile.name,'Parallel A');
   assert.equal((await request('/api/photo',a)).status,200);
-  assert.equal((await ok(await request('/api/admin/requests',admin))).requests.length,1);
+  assert.equal((await ok(await request('/api/admin/requests',admin))).requests.length,6);
   const logout=await request('/api/auth/logout',a,'POST');assert.equal(logout.status,204);assert.match(logout.headers.get('set-cookie'),/Max-Age=0/);
  }finally{await stop();await blobs.stop();await rm(directory,{recursive:true,force:true})}
 });

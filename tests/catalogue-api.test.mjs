@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {readFile,readdir} from 'node:fs/promises';
-import {Miniflare} from 'miniflare';
+import {Miniflare,convertV4MiniflareOptions} from 'miniflare';
 
 test('portfolios, articles, enquiries and admin access preserve ownership and quoted currency',async()=>{
  const files=(await readdir('dist/server',{recursive:true})).filter(p=>p.endsWith('.js')&&p!=='index.js');
- const mf=new Miniflare({modules:[{type:'ESModule',path:'dist/server/index.js'},...files.map(p=>({type:'ESModule',path:'dist/server/'+p}))],compatibilityDate:'2026-05-15',compatibilityFlags:['nodejs_compat'],d1Databases:['DB'],r2Buckets:['BUCKET'],serviceBindings:{ASSETS:()=>new Response('Not found',{status:404})}});
+ const mf=new Miniflare(convertV4MiniflareOptions({workers:[{name:'app',modules:[{type:'ESModule',path:'dist/server/index.js'},...files.map(p=>({type:'ESModule',path:'dist/server/'+p}))],compatibilityDate:'2026-05-15',compatibilityFlags:['nodejs_compat'],d1Databases:['DB'],r2Buckets:['BUCKET'],serviceBindings:{ASSETS:()=>new Response('Not found',{status:404})}}]}));
  try{
   const db=await mf.getD1Database('DB');
   for(const file of (await readdir('drizzle')).filter(f=>f.endsWith('.sql')).sort())for(const sql of (await readFile('drizzle/'+file,'utf8')).split('--> statement-breakpoint'))if(sql.trim())await db.exec(sql.replace(/\n/g,' '));
@@ -64,5 +64,13 @@ test('portfolios, articles, enquiries and admin access preserve ownership and qu
   const own=await ok(await req('/api/studio','teacher-a'));assert.equal(own.articles.length,1);
   await ok(await req('/api/studio/posts','teacher-a','DELETE',{id:created.id,version:2}));
   assert.equal((await ok(await req('/api/studio','teacher-a'))).articles.length,0);
+  // An old portfolio and its articles remain reachable outside the discovery cap.
+  const inserts=Array.from({length:501},(_,i)=>db.prepare('INSERT INTO teacher_public_profiles (id,owner_id,data,published,version,updated_at) VALUES (?,?,?,1,1,?)').bind('cap-'+i,'cap-owner-'+i,JSON.stringify({...profile,name:'Teacher '+i}),i===0?'2020-01-01T00:00:00Z':'2030-01-01T00:00:00Z'));
+  await db.batch(inserts);
+  await db.prepare("INSERT INTO teacher_articles (id,owner_id,teacher_id,data,status,version,created_at,updated_at) VALUES (?,?,?, ?,'published',1,?,?)").bind('cap-post','cap-owner-0','cap-0',JSON.stringify({...article,title:'Older teacher article',status:'published'}),'2020-01-01T00:00:00Z','2020-01-01T00:00:00Z').run();
+  assert(!(await ok(await req('/api/catalogue'))).teachers.some(t=>t.id==='cap-0'));
+  const older=await req('/teachers/cap-0');assert.equal(older.status,200);assert((await older.text()).includes('Older teacher article'));
+  const olderPost=await req('/blog/cap-post');assert.equal(olderPost.status,200);assert((await olderPost.text()).includes('Teacher 0'));
+
  }finally{await mf.dispose()}
 });
