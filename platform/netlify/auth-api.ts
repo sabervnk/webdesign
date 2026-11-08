@@ -25,9 +25,10 @@ export async function POST(r:Request,{params}:{params:Promise<{action:string}>})
  try{
   const body=await payload(r,8000);const email=String(body.email||'').trim().toLowerCase();const password=String(body.password||'');
   if(email.length>254||!/^\S+@\S+\.\S+$/.test(email)||password.length<12||password.length>256)return json({error:'ایمیل معتبر و رمز بین ۱۲ تا ۲۵۶ کاراکتر وارد کنید.'},400);
+  if(!await allowAttempt(email))return json({error:'تلاش‌های زیادی انجام شده است. ۱۵ دقیقه دیگر دوباره تلاش کنید.'},429);
   const invite=process.env.MAHELA_TEACHER_INVITE_CODE;
   if(action==='register'&&(!invite||invite.length<16||!equal(String(body.invite||''),invite)))return json({error:'کد دعوت معتبر از مدیر سایت دریافت کنید.'},403);
-  if(!await allowAttempt(email))return json({error:'تلاش‌های زیادی انجام شده است. ۱۵ دقیقه دیگر دوباره تلاش کنید.'},429);
+
   let account:Pick<Account,'id'|'email'|'displayName'>;
   const accounts=store('accounts');const key=digest(email);
   if(action==='register'){

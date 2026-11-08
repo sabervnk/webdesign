@@ -1,3 +1,4 @@
+import {mutationOriginAllowed} from '@/lib/server/origin';
 import {createHmac,timingSafeEqual} from 'node:crypto';
 export const siteOrigin=(process.env.MAHELA_SITE_URL||process.env.URL||'https://missmahta.netlify.app').replace(/\/$/,'');
 export const administratorEmail=(process.env.MAHELA_ADMIN_EMAIL||'lahzetv@gmail.com').toLowerCase();
@@ -23,7 +24,7 @@ export function identity(r:Request){
  }catch{return null}
 }
 export function isAdministrator(email:string){return email.toLowerCase()===administratorEmail}
-export function validOrigin(r:Request){const origin=r.headers.get('origin');return !origin||origin===new URL(r.url).origin||origin===siteOrigin}
+export function validOrigin(r:Request){return mutationOriginAllowed(r,siteOrigin)}
 export const json=(data:unknown,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'private, no-store'}});
 export {payload} from '@/lib/server/http';
 export function safeReturn(value:string){try{const u=new URL(value,siteOrigin);return value.startsWith('/')&&!value.startsWith('//')&&u.origin===siteOrigin&&!['/signin','/signout'].includes(u.pathname)?u.pathname+u.search+u.hash:'/dashboard'}catch{return '/dashboard'}}

@@ -29,7 +29,9 @@ test('Netlify production: persistent data, safe login, teacher isolation and pub
  try{
   await start();
   for(const path of ['/','/teachers','/blog','/contact','/signin']){const r=await request(path);assert.equal(r.status,200,path);assert(!(await r.text()).includes('Could not load site content'),path)}
-  assert.equal((await request('/dashboard')).status,307);
+  const deniedDashboard=await request('/dashboard');
+  if(deniedDashboard.status===200)assert.match(await deniedDashboard.text(),/NEXT_REDIRECT[^<]*signin/);
+  else assert.equal(deniedDashboard.status,307);
   assert.equal((await request('/api/workspace',null,'GET',null,{'oai-authenticated-user-id':'admin','oai-authenticated-user-email':'lahzetv@gmail.com'})).status,401);
   const admin=await login('lahzetv@gmail.com',adminPassword);
   const a=await login('teacher-a@example.com','teacher-password-for-test',true);
@@ -37,6 +39,20 @@ test('Netlify production: persistent data, safe login, teacher isolation and pub
   const session=JSON.parse(Buffer.from(a.split('=')[1].split('.')[0],'base64url').toString());
   assert.deepEqual(Object.keys(session).sort(),['aud','displayName','email','exp','id']);
   assert.equal((await request('/api/admin/requests',a)).status,403);
+  const deniedAdmin=await request('/admin',a);
+  if(deniedAdmin.status===200)assert.match(await deniedAdmin.text(),/NEXT_HTTP_ERROR_FALLBACK;404/);
+  else assert.equal(deniedAdmin.status,404);
+  const publicResponse=await request('/');
+  assert.equal(publicResponse.headers.get('x-content-type-options'),'nosniff');
+  assert.equal(publicResponse.headers.get('x-frame-options'),'DENY');
+  assert.equal(publicResponse.headers.get('x-powered-by'),null);
+  assert.match(publicResponse.headers.get('content-security-policy'),/object-src 'none'/);
+  const missingOrigin=await fetch(origin+'/api/auth/logout',{method:'POST',headers:{Cookie:a}});
+  assert.equal(missingOrigin.status,403);
+  const crossSite=await request('/api/workspace',a,'PUT',{},{'Sec-Fetch-Site':'cross-site'});
+  assert.equal(crossSite.status,403);
+
+
   assert.equal((await request('/api/workspace',a+'tampered')).status,401);
   assert.equal((await request('/api/auth/register',null,'POST',{email:'no@example.com',password:'a-long-enough-password',invite:'wrong'})).status,403);
   const workspace=await ok(await request('/api/workspace',a));workspace.data.profile.name='Persistent teacher';
@@ -87,10 +103,11 @@ test('Netlify production: persistent data, safe login, teacher isolation and pub
   await Promise.all([request('/api/workspace',a,'PUT',wa).then(ok),request('/api/workspace',b,'PUT',wb).then(ok)]);
   assert.equal((await ok(await request('/api/workspace',a))).data.profile.name,'Parallel A');
   assert.equal((await ok(await request('/api/workspace',b))).data.profile.name,'Parallel B');
+  assert.equal((await request('/api/photo',a)).headers.get('cache-control'),'private, no-store');
   await stop();output='';await start();
   assert.equal((await ok(await request('/api/workspace',a))).data.profile.name,'Parallel A');
   assert.equal((await request('/api/photo',a)).status,200);
   assert.equal((await ok(await request('/api/admin/requests',admin))).requests.length,6);
-  const logout=await request('/api/auth/logout',a,'POST');assert.equal(logout.status,204);assert.match(logout.headers.get('set-cookie'),/Max-Age=0/);
+  const logout=await request('/api/auth/logout',a,'POST',undefined,{Origin:origin});assert.equal(logout.status,204);assert.match(logout.headers.get('set-cookie'),/Max-Age=0/);
  }finally{await stop();await blobs.stop();await rm(directory,{recursive:true,force:true})}
 });

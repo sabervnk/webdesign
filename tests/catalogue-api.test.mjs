@@ -9,7 +9,7 @@ test('portfolios, articles, enquiries and admin access preserve ownership and qu
  try{
   const db=await mf.getD1Database('DB');
   for(const file of (await readdir('drizzle')).filter(f=>f.endsWith('.sql')).sort())for(const sql of (await readFile('drizzle/'+file,'utf8')).split('--> statement-breakpoint'))if(sql.trim())await db.exec(sql.replace(/\n/g,' '));
-  const req=(path,user,method='GET',body)=>mf.dispatchFetch('http://workspace.test'+path,{method,headers:{...(user?{'oai-authenticated-user-id':user,'oai-authenticated-user-email':user==='admin'?'lahzetv@gmail.com':user+'@example.com'}:{}),...(body?{'Content-Type':'application/json',Origin:'http://workspace.test'}:{})},...(body?{body:JSON.stringify(body)}:{})});
+  const req=(path,user,method='GET',body)=>mf.dispatchFetch('https://mahela-classroom.lahzehtv.chatgpt.site'+path,{method,headers:{...(user?{'oai-authenticated-user-id':user,'oai-authenticated-user-email':user==='admin'?'lahzetv@gmail.com':user+'@example.com'}:{}),...(body?{'Content-Type':'application/json',Origin:'https://mahela-classroom.lahzehtv.chatgpt.site'}:{})},...(body?{body:JSON.stringify(body)}:{})});
   const ok=async(response,status=200)=>{assert.equal(response.status,status,await response.clone().text());return response.json()};
   for(const path of ['/','/teachers','/blog','/contact','/teachers/sample-sara','/blog/sample-small-steps'])assert.equal((await req(path)).status,200,path);
   assert.equal((await req('/api/studio')).status,401);
@@ -56,7 +56,7 @@ test('portfolios, articles, enquiries and admin access preserve ownership and qu
   const contact={id:crypto.randomUUID(),kind:'contact',name:'Learner One',email:'learner@example.com',message:'Please help me choose a teacher.'};
   for(let i=0;i<4;i++)await ok(await req('/api/requests',undefined,'POST',{...contact,id:crypto.randomUUID()}),201);
   assert.equal((await req('/api/requests',undefined,'POST',{...contact,id:crypto.randomUUID()})).status,429);
-  assert.equal((await mf.dispatchFetch('http://workspace.test/api/requests',{method:'POST',headers:{Origin:'http://untrusted.test','Content-Type':'application/json'},body:JSON.stringify(contact)})).status,403);
+  assert.equal((await mf.dispatchFetch('https://mahela-classroom.lahzehtv.chatgpt.site/api/requests',{method:'POST',headers:{Origin:'http://untrusted.test','Content-Type':'application/json'},body:JSON.stringify(contact)})).status,403);
   await ok(await req('/api/studio/profile','teacher-a','PUT',{profile:{...profile,published:false},version:3}));
   listing=await ok(await req('/api/catalogue'));assert.equal(listing.teachers.length,0);assert.equal(listing.articles.length,0);
   assert.equal((await req('/api/public-photo/'+profile.id)).status,404);

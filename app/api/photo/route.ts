@@ -2,7 +2,7 @@ import {readBytes,requestFailure} from '@/lib/server/http';
 import {identity,validOrigin} from '@/lib/server/access';
 import {bucket} from '@/db/storage';
 export const dynamic='force-dynamic';
-export async function GET(r:Request){const id=identity(r)?.id;if(!id)return new Response('Unauthorized',{status:401});try{const file=await bucket().get('profiles/'+id);if(!file)return new Response('Not found',{status:404});return new Response(file.body,{headers:{'Content-Type':file.httpMetadata?.contentType||'image/jpeg','Cache-Control':'private, max-age=300','X-Content-Type-Options':'nosniff'}})}catch(e){console.error('Profile photo read failed',e);return new Response('Unavailable',{status:503})}}
+export async function GET(r:Request){const id=identity(r)?.id;if(!id)return new Response('Unauthorized',{status:401});try{const file=await bucket().get('profiles/'+id);if(!file)return new Response('Not found',{status:404});return new Response(file.body,{headers:{'Content-Type':file.httpMetadata?.contentType||'image/jpeg','Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}})}catch(e){console.error('Profile photo read failed',e);return new Response('Unavailable',{status:503})}}
 export async function POST(r:Request){
  const id=identity(r)?.id;if(!id)return Response.json({error:'ورود لازم است'},{status:401});if(!validOrigin(r))return new Response('Forbidden',{status:403});
  const type=r.headers.get('content-type')?.split(';')[0]||'';const max=5*1024*1024;
