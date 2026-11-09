@@ -1,4 +1,4 @@
-# نسخه‌بندی MissMahta
+# نسخه‌بندی Classer
 
 هر نسخه طراحی و کد در همین مخزن `sabervnk/webdesign` با یک تگ و یک GitHub Release جداگانه نگهداری می‌شود. صفحه نسخه‌ها:
 

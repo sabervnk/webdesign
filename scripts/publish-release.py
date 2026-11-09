@@ -24,10 +24,10 @@ def main():
         raise SystemExit('Root package and lockfile versions must match.')
     tag = f'v{version}'
     body = (root / 'releases' / f'{tag}.md').read_text().strip()
-    if not body or f'MissMahta {tag}' not in body.splitlines()[0]:
-        raise SystemExit('Release notes must start with the matching MissMahta version.')
+    if not body or f'Classer {tag}' not in body.splitlines()[0]:
+        raise SystemExit('Release notes must start with the matching Classer version.')
     sha = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip()
-    payload = dict(tag_name=tag, target_commitish=sha, name=f'MissMahta {tag}',
+    payload = dict(tag_name=tag, target_commitish=sha, name=f'Classer {tag}',
                    body=body, draft=False, prerelease=version.startswith('0.'),
                    make_latest='false' if version.startswith('0.') else 'true')
     if args.dry_run:
