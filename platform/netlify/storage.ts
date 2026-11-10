@@ -65,3 +65,8 @@ export function bucket(){return {
  async get(key:string){const file=await store('photos').getWithMetadata(key,{type:'arrayBuffer'});return file?{body:file.data,httpMetadata:{contentType:String(file.metadata.contentType||'image/jpeg')}}:null},
  async put(key:string,value:ArrayBuffer,options:{httpMetadata:{contentType:string}}){await store('photos').set(key,value,{metadata:{contentType:options.httpMetadata.contentType}})},
 }}
+export async function readVideo(key:string,range?:{offset:number,length:number}){
+ const file=await bucket().get(key);
+ return file&&range?{body:file.body.slice(range.offset,range.offset+range.length)}:file;
+}
+export function deleteVideo(key:string){return store('photos').delete(key)}

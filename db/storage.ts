@@ -1,1 +1,1 @@
-export {database, bucket} from '@platform/storage';
+export {database, bucket, readVideo, deleteVideo} from '@platform/storage';

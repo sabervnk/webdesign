@@ -7,6 +7,7 @@ import {database} from '@/db/storage';
 import {sampleTeachers,sampleArticles,type Catalogue} from '@/lib/catalogue';
 export async function PublicPage({view,id}:{view:'home'|'teachers'|'teacher'|'blog'|'article'|'contact',id?:string}){
  let data:Catalogue;
+ let videoUrl:string|undefined;
  try{
   const h=await headers();data=await publicCatalogue(identity(new Request(siteOrigin,{headers:h}))?.isAdmin||false);
   const db=database();let teacherId=view==='teacher'?id:undefined;
@@ -22,11 +23,13 @@ export async function PublicPage({view,id}:{view:'home'|'teachers'|'teacher'|'bl
   if(view==='teacher'&&id&&data.teachers.some(t=>t.id===id)){
    const posts=await db.prepare("SELECT id,owner_id,teacher_id,json_remove(data,'$.content') AS data,status,version,created_at,updated_at FROM teacher_articles WHERE teacher_id=? AND status='published' ORDER BY created_at DESC LIMIT 500").bind(id).all<ArticleRow>();
    data.articles=posts.results.map(articleView);
+   const video=await db.prepare('SELECT v.object_key FROM teacher_public_profiles p JOIN teacher_videos v ON v.owner_id=p.owner_id WHERE p.id=? AND p.published=1 AND v.visible=1').bind(id).first<{object_key:string}>();
+   if(video)videoUrl='/api/public-video/'+encodeURIComponent(id);
   }
  }catch(e){console.error('Public content unavailable',e);data={teachers:[],articles:[],isAdmin:false,error:'دریافت اطلاعات سایت ممکن نشد. لطفاً دوباره تلاش کنید. / Could not load site content.'}}
  if(!data.error&&view==='teacher'&&id&&!data.teachers.some(t=>t.id===id)&&!(data.teachers.length===0&&sampleTeachers.some(t=>t.id===id)))notFound();
  if(!data.error&&view==='article'&&id&&!data.articles.some(t=>t.id===id)&&!(data.teachers.length===0&&sampleArticles.some(t=>t.id===id)))notFound();
- return <PublicSite view={view} initialCatalogue={data} recordId={id}/>;
+ return <PublicSite view={view} initialCatalogue={data} recordId={id} videoUrl={videoUrl}/>;
 }
 export async function publicMetadata(kind:'teacher'|'article',id:string){
  try{

@@ -1,0 +1,1 @@
+export const avatar=Buffer.from('UklGRoIAAABXRUJQVlA4IHYAAADwCgCdASrAAMAAPm02mUmkIyKhIEgAgA2JaW7hdrEbQBWb0VcIMghqqTXbaLhBkENVSa7bRcIMghqqTXbaLhBkENVSa7bRcIMghqqTXbaLhBkENVSa7bRcIMghqqTXaYAA/v7cN9xTTP/3Q99XlTmQAAAAAAAA','base64');

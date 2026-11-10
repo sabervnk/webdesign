@@ -1,3 +1,4 @@
+import {avatar} from './fixtures/avatar.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {readFile,readdir} from 'node:fs/promises';
@@ -25,6 +26,45 @@ test('portfolios, articles, enquiries and admin access preserve ownership and qu
   assert.equal(listing.teachers[0].rate,24.99);assert.equal(listing.teachers[0].currency,'USD');
   assert(!JSON.stringify(listing).includes('private@example.com'));assert(!JSON.stringify(listing).includes('owner_id'));
   assert.equal((await req('/api/studio/profile','teacher-a','PUT',{profile,version:1})).status,409);
+  const origin='https://mahela-classroom.lahzehtv.chatgpt.site';
+  const binary=(path,user,body,type)=>mf.dispatchFetch(origin+path,{method:'POST',headers:{'oai-authenticated-user-id':user,Origin:origin,'Content-Type':type},body});
+  const ownPhoto='/api/photo', publicPhoto='/api/public-photo/'+profile.id;
+  const bucket=await mf.getR2Bucket('BUCKET');
+  await bucket.put('profiles/teacher-a','legacy original');
+  assert.equal((await req(ownPhoto,'teacher-a')).status,404);
+  assert.equal((await req(publicPhoto)).status,404);
+  assert.equal((await binary(ownPhoto,'teacher-a',Buffer.from('original'),'image/jpeg')).status,400);
+  const uploaded=await ok(await binary(ownPhoto,'teacher-a',avatar,'image/webp'));
+  assert.match(uploaded.url,/^\/api\/photo\?v=\d+$/);
+  const photo=await req(ownPhoto,'teacher-a');
+  assert.equal(photo.headers.get('content-type'),'image/webp');
+  assert.deepEqual(Buffer.from(await photo.arrayBuffer()),avatar);
+  assert.equal((await req(ownPhoto,'teacher-b')).status,404);
+  const withPhoto=await ok(await req('/api/workspace','teacher-a'));
+  withPhoto.data.profile.photo=uploaded.url;
+  await ok(await req('/api/workspace','teacher-a','PUT',withPhoto));
+  assert.deepEqual(Buffer.from(await (await req(publicPhoto)).arrayBuffer()),avatar);
+
+  const studioVideo='/api/studio/video', publicVideo='/api/public-video/'+profile.id;
+  // A minimal ISO-BMFF header exercises storage and byte ranges without a codec dependency.
+  const mp4=Buffer.from('000000186674797069736f6d0000020069736f6d6d703431','hex');
+  assert.equal((await req(studioVideo)).status,401);
+  const {video}=await ok(await binary(studioVideo,'teacher-a',mp4,'video/mp4'));
+  assert.equal(video.visible,false);
+  assert.equal((await req(publicVideo)).status,404);
+  assert.equal((await req(video.url,'teacher-b')).status,404);
+  assert.equal((await req(studioVideo,'teacher-b','PATCH',{visible:true,url:video.url})).status,409);
+  await ok(await req(studioVideo,'teacher-a','PATCH',{visible:true,url:video.url}));
+  const part=await mf.dispatchFetch(origin+publicVideo,{headers:{Range:'bytes=4-7'}});
+  assert.equal(part.status,206);
+  assert.equal(part.headers.get('Content-Range'),'bytes 4-7/24');
+  assert.equal(await part.text(),'ftyp');
+  await ok(await req(studioVideo,'teacher-a','PATCH',{visible:false,url:video.url}));
+  assert.equal((await req(publicVideo)).status,404);
+  const replacement=await ok(await binary(studioVideo,'teacher-a',mp4,'video/mp4'));
+  assert.notEqual(replacement.video.url,video.url);
+  assert.equal(replacement.video.visible,false);
+  await ok(await req(studioVideo,'teacher-a','PATCH',{visible:true,url:replacement.video.url}));
   const article={title:'Learning through conversation',excerpt:'A teacher-authored article.',content:'A private draft paragraph with useful learning advice. '.repeat(8),category:'learning',status:'draft'};
   const created=await ok(await req('/api/studio/posts','teacher-a','POST',{article}),201);
   assert.equal((await ok(await req('/api/catalogue'))).articles.length,0);
@@ -60,6 +100,7 @@ test('portfolios, articles, enquiries and admin access preserve ownership and qu
   await ok(await req('/api/studio/profile','teacher-a','PUT',{profile:{...profile,published:false},version:3}));
   listing=await ok(await req('/api/catalogue'));assert.equal(listing.teachers.length,0);assert.equal(listing.articles.length,0);
   assert.equal((await req('/api/public-photo/'+profile.id)).status,404);
+  assert.equal((await req(publicVideo)).status,404);
   assert.equal((await req('/api/requests',undefined,'POST',{...inquiry,id:crypto.randomUUID(),teacherVersion:4})).status,400);
   const own=await ok(await req('/api/studio','teacher-a'));assert.equal(own.articles.length,1);
   await ok(await req('/api/studio/posts','teacher-a','DELETE',{id:created.id,version:2}));

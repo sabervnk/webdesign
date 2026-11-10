@@ -1,3 +1,4 @@
+import {avatar} from './fixtures/avatar.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {readFile,readdir} from 'node:fs/promises';
@@ -15,8 +16,8 @@ test('workspace API persists changes, isolates users, rejects stale writes, and 
   assert.equal((await req('teacher-a','PUT',a)).status,409);
   const current=await(await req('teacher-a')).json();current.data.sessions.push({...current.data.sessions[0],id:'overlap',time:'09:30'});assert.equal((await req('teacher-a','PUT',current)).status,400);
   assert.equal((await mf.dispatchFetch('https://mahela-classroom.lahzehtv.chatgpt.site/api/workspace',{method:'PUT',headers:{'oai-authenticated-user-id':'teacher-a',Origin:'http://untrusted.test'},body:JSON.stringify(current)})).status,403);
-  const uploaded=await mf.dispatchFetch('https://mahela-classroom.lahzehtv.chatgpt.site/api/photo',{method:'POST',headers:{'oai-authenticated-user-id':'teacher-a',Origin:'https://mahela-classroom.lahzehtv.chatgpt.site','Content-Type':'image/png'},body:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jPdwAAAAASUVORK5CYII=','base64')});assert.equal(uploaded.status,200,await uploaded.clone().text());
-  const photo=await mf.dispatchFetch('https://mahela-classroom.lahzehtv.chatgpt.site/api/photo',{headers:{'oai-authenticated-user-id':'teacher-a'}});assert.equal(photo.status,200);assert.equal(photo.headers.get('Content-Type'),'image/png');
+  const uploaded=await mf.dispatchFetch('https://mahela-classroom.lahzehtv.chatgpt.site/api/photo',{method:'POST',headers:{'oai-authenticated-user-id':'teacher-a',Origin:'https://mahela-classroom.lahzehtv.chatgpt.site','Content-Type':'image/webp'},body:avatar});assert.equal(uploaded.status,200,await uploaded.clone().text());
+  const photo=await mf.dispatchFetch('https://mahela-classroom.lahzehtv.chatgpt.site/api/photo',{headers:{'oai-authenticated-user-id':'teacher-a'}});assert.equal(photo.status,200);assert.equal(photo.headers.get('Content-Type'),'image/webp');
   assert.equal((await mf.dispatchFetch('https://mahela-classroom.lahzehtv.chatgpt.site/api/photo',{headers:{'oai-authenticated-user-id':'teacher-b'}})).status,404);
  }finally{await mf.dispose()}
 });

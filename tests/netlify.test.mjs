@@ -1,3 +1,4 @@
+import {avatar} from './fixtures/avatar.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {mkdtemp,rm} from 'node:fs/promises';
@@ -95,8 +96,8 @@ test('Netlify production: persistent data, safe login, teacher isolation and pub
   const inbox=await ok(await request('/api/admin/requests',admin));
   assert.equal(inbox.requests.find(x=>x.id===inquiry.id).rate,24.99);assert.equal(inbox.requests.find(x=>x.id===inquiry.id).currency,'USD');
   assert.equal((await request('/api/studio/profile',a,'PUT',{profile,version:2},{Origin:'https://evil.example'})).status,403);
-  const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jPdwAAAAASUVORK5CYII=','base64');
-  await ok(await fetch(origin+'/api/photo',{method:'POST',headers:{Cookie:a,Origin:origin,'Content-Type':'image/png'},body:png}));
+  const png=avatar;
+  await ok(await fetch(origin+'/api/photo',{method:'POST',headers:{Cookie:a,Origin:origin,'Content-Type':'image/webp'},body:png}));
   assert.equal((await request('/api/photo',a)).status,200);assert.equal((await request('/api/photo',b)).status,404);
   // Parallel requests must not discard either independent user's changes.
   const wa=await ok(await request('/api/workspace',a));const wb=await ok(await request('/api/workspace',b));wa.data.profile.name='Parallel A';wb.data.profile.name='Parallel B';
