@@ -69,5 +69,8 @@ export function sampleWorkspace(today:string):Workspace{
 export function validMoney(rate:number,currency:Currency){return Number.isFinite(rate)&&rate>=0&&(currency==='TOMAN'?Number.isSafeInteger(rate):Math.abs(Math.round(rate*100)-rate*100)<1e-6)}
 export function moneyTotals(rows:Pick<Session,'rate'|'currency'>[]){const minor={TOMAN:0,USD:0};for(const r of rows){const c=r.currency||'TOMAN';minor[c]+=Math.round(r.rate*(c==='USD'?100:1))}return {TOMAN:minor.TOMAN,USD:minor.USD/100}}
 export function currencyName(c:Currency,lang='fa'){return c==='USD'?(lang==='fa'?'دلار':'USD'):(lang==='fa'?'تومان':'toman')}
-export function formatMoney(amount:number,currency:Currency,lang='fa'){return new Intl.NumberFormat(lang==='fa'?'fa-IR':'en-US',{maximumFractionDigits:currency==='USD'?2:0}).format(amount)+' '+currencyName(currency,lang)}
+export function formatAmount(amount:number,currency:Currency,lang='fa'){
+ return new Intl.NumberFormat(lang==='fa'?'fa-IR':'en-US',{useGrouping:true,maximumFractionDigits:currency==='USD'?2:0}).formatToParts(amount).map(part=>part.type==='group'?',':part.value).join('');
+}
+export function formatMoney(amount:number,currency:Currency,lang='fa'){return formatAmount(amount,currency,lang)+' '+currencyName(currency,lang)}
 export function formatTotals(rows:Pick<Session,'rate'|'currency'>[],lang='fa'){const totals=moneyTotals(rows);return currencies.filter(c=>totals[c]>0||rows.some(r=>r.currency===c)).map(c=>formatMoney(totals[c],c,lang)).join(' + ')||formatMoney(0,'TOMAN',lang)}

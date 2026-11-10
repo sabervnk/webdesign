@@ -1,4 +1,5 @@
 'use client';
+import {AmountInput} from '@/components/amount-input';
 import {TeacherVideoSettings} from '@/components/profile-media';
 import PageSkeleton from '@/components/page-skeleton';
 import React,{useState,useEffect} from 'react';
@@ -23,18 +24,6 @@ function PortfolioItems({title,placeholder,items,onChange,t}:{title:string,place
   {items.map((item,i)=><div className="studio-item-row" key={i}><input aria-label={title+' '+(i+1)} dir="auto" value={item} maxLength={2000} placeholder={placeholder} onChange={e=>onChange(items.map((x,j)=>j===i?e.target.value:x))}/><button type="button" className="icon-button" aria-label={t('حذف مورد','Remove item')+' '+(i+1)} onClick={()=>onChange(items.filter((_,j)=>j!==i))}><Trash2 size={16}/></button></div>)}
   <button className="btn compact studio-add-item" type="button" disabled={items.length>=PROFILE_ITEMS_MAX} onClick={()=>onChange([...items,''])}><Plus size={16}/>{t('افزودن مورد','Add item')}</button>
  </fieldset>;
-}
-function ClassFee({rate,currency,onChange}:{rate:number,currency:Teacher['currency'],onChange:(v:number)=>void}){
- const [raw,setRaw]=useState(String(rate));
- const group=(value:string)=>{const [whole,fraction]=value.split('.');return whole.replace(/\B(?=(\d{3})+(?!\d))/g,',')+(fraction!==undefined?'.'+fraction:'')};
- return <input type="text" dir="ltr" inputMode={currency==='USD'?'decimal':'numeric'} value={group(raw)} required onChange={e=>{
-  const input=e.currentTarget;
-  const normalize=(v:string)=>v.replace(/[۰-۹٠-٩]/g,d=>String(d.charCodeAt(0)&15)).replace(/٫/g,'.').replace(/[,٬\s]/g,'');
-  const next=normalize(input.value),caret=normalize(input.value.slice(0,input.selectionStart??input.value.length)).length;
-  if(!(currency==='USD'?/^\d{0,9}(?:\.\d{0,2})?$/:/^\d{0,9}$/).test(next)||Number(next)>100000000)return;
-  setRaw(next);onChange(Number(next)||0);
-  requestAnimationFrame(()=>{if(document.activeElement!==input)return;let pos=0,seen=0;while(pos<input.value.length&&seen<caret){if(input.value[pos]!==',')seen++;pos++}input.setSelectionRange(pos,pos)});
- }}/>;
 }
 const formatLabel=(format:ClassOffer['format'],t:T)=>format==='online'?t('آنلاین','Online'):t('حضوری','In person');
 const localeOptions=(t:T)=>languageCodes.map(k=>[k,t(languages[k][0],languages[k][1])] as const);
@@ -61,7 +50,7 @@ function FeeMatrix({p,lang,t,onChange}:{p:PublicProfileInput,lang:Lang,t:T,onCha
     {!offers.length&&<p className="small muted">{t('حداقل یک نوع کلاس انتخاب کنید.','Select at least one class format.')}</p>}
     {offers.map(o=>{const Icon=o.format==='online'?Video:MapPin;return <div className="studio-fee-row" key={o.format}>
      <div className={`studio-fee-format ${o.format}`}><Icon size={18}/><strong>{formatLabel(o.format,t)}</strong></div>
-     <label className="field"><span>{t('مبلغ هر جلسه','Fee per class')}</span><ClassFee key={o.currency} rate={o.rate} currency={o.currency} onChange={rate=>change({...o,rate})}/></label>
+     <label className="field"><span>{t('مبلغ هر جلسه','Fee per class')}</span><AmountInput key={o.currency} value={o.rate} currency={o.currency} required onAmountChange={v=>change({...o,rate:Number(v)})}/></label>
      <label className="field"><span>{t('مدت (دقیقه)','Duration (minutes)')}</span><input type="number" dir="ltr" required min={15} max={300} step={1} value={o.duration||''} onChange={e=>change({...o,duration:Number(e.target.value)})}/></label>
      <div className="field"><label htmlFor={`fee-${language}-${o.format}`}>{t('واحد پول','Currency')}</label><SelectField id={`fee-${language}-${o.format}`} label={t('واحد پول','Currency')} lang={lang} value={o.currency} onChange={v=>change({...o,currency:v as ClassOffer['currency'],rate:0})} options={[[ "TOMAN",t('تومان','Toman')],[ "USD",t('دلار آمریکا','US dollar')]]}/></div>
     </div>})}
