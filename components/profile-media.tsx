@@ -1,8 +1,8 @@
 'use client';
 import {useEffect,useRef,useState,type PointerEvent,type KeyboardEvent} from 'react';
-import {Crop,RotateCcw} from 'lucide-react';
+import {Crop,RotateCcw,Trash2} from 'lucide-react';
 import {Dialog,DialogContent,DialogHeader,DialogTitle,DialogDescription} from '@/components/ui/dialog';
-import {AVATAR_EDGE,AVATAR_MAX,VIDEO_MAX} from '@/lib/profile-media';
+import {AVATAR_EDGE,AVATAR_MAX,VIDEO_MAX,VIDEO_MAX_SECONDS} from '@/lib/profile-media';
 
 type Translate=(fa:string,en:string)=>string;
 type Frame={x:number,y:number,size:number};
@@ -109,13 +109,28 @@ export function PhotoCrop({file,t,onClose,onSave}:{file:File,t:Translate,onClose
 }
 type Clip={url:string,visible:boolean};
 export function TeacherVideoSettings({t,published}:{t:Translate,published:boolean}){
+ const [confirmDelete,setConfirmDelete]=useState(false);
  const [video,setVideo]=useState<Clip|null>(null),[busy,setBusy]=useState(true),[error,setError]=useState(''),[status,setStatus]=useState('');
  const endpoint='/api/studio/video';
  async function read(response:Response){const data=await response.json() as {video:Clip|null,error?:string};if(!response.ok)throw Error(data.error||t('عملیات انجام نشد. دوباره تلاش کنید.','Could not complete the operation. Try again.'));setVideo(data.video)}
  useEffect(()=>{fetch(endpoint,{cache:'no-store'}).then(read).catch(()=>setError('دریافت ویدئو ممکن نشد. / Could not load video.')).finally(()=>setBusy(false))},[]);
- async function change(method:'POST'|'PATCH',body:File|string){
+ async function change(method:'POST'|'PATCH'|'DELETE',body:File|string){
   setBusy(true);setError('');setStatus('');
-  try{await read(await fetch(endpoint,{method,body,headers:{'Content-Type':method==='POST'?'video/mp4':'application/json'}}));setStatus(t('تغییرات ویدئو ذخیره شد.','Video changes saved.'))}
+  try{
+   if(method==='POST'&&body instanceof File){
+    const url=URL.createObjectURL(body),media=document.createElement('video');
+    try{
+     await new Promise<void>((resolve,reject)=>{
+      const fail=()=>reject(Error(t('مرورگر نتوانست ویدئو را باز کند. یک MP4 با کدک H.264 امتحان کنید.','Could not open the video. Try an H.264 MP4.')));
+      const timer=setTimeout(fail,8000);
+      media.onloadedmetadata=()=>{clearTimeout(timer);resolve()};media.onerror=()=>{clearTimeout(timer);fail()};
+      media.preload='metadata';media.src=url;
+     });
+     if(!media.videoWidth||!Number.isFinite(media.duration)||media.duration<=0)throw Error(t('فایل ویدئویی معتبر نیست.','Choose a valid video.'));
+     if(media.duration>VIDEO_MAX_SECONDS)throw Error(t('مدت ویدئو نباید بیشتر از ۵ دقیقه باشد.','Maximum video length is 5 minutes.'));
+    }finally{media.onloadedmetadata=null;media.onerror=null;media.removeAttribute('src');media.load();URL.revokeObjectURL(url)}
+   }
+   await read(await fetch(endpoint,{method,body,headers:{'Content-Type':method==='POST'?'video/mp4':'application/json'}}));setConfirmDelete(false);setStatus(method==='DELETE'?t('ویدئو حذف شد.','Video removed.'):t('تغییرات ویدئو ذخیره شد.','Video changes saved.'))}
   catch(e){setError((e as Error).message)}finally{setBusy(false)}
  }
  return <section className="panel studio-video">
@@ -123,8 +138,9 @@ export function TeacherVideoSettings({t,published}:{t:Translate,published:boolea
   <div className="panel-body studio-video-body">
    {video&&<video key={video.url} src={video.url} controls playsInline preload="none" aria-label={t('پیش‌نمایش ویدئوی معرفی','Introduction video preview')}/>}
    <label className="field">{video?t('جایگزینی ویدئو','Replace video'):t('انتخاب ویدئو','Choose video')}<input type="file" accept="video/mp4,.mp4" disabled={busy} onChange={e=>{const f=e.currentTarget.files?.[0];e.currentTarget.value='';if(!f)return;setStatus('');if(f.size>VIDEO_MAX||(!f.name.toLowerCase().endsWith('.mp4')&&f.type!=='video/mp4')){setError(t('فایل MP4 حداکثر ۲۴ مگابایت انتخاب کنید.','Choose an MP4 up to 24 MB.'));return}void change('POST',f)}}/></label>
-   <p className="small muted">{t('MP4 تا ۲۴ مگابایت. ویدئوی تازه پس از بارگذاری پنهان است.','MP4 up to 24 MB. New uploads are hidden by default.')}</p>
+   <p className="small muted">{t('MP4، حداکثر ۵ دقیقه و ۲۴ مگابایت. برای پخش بهتر H.264 پیشنهاد می‌شود. ویدئوی تازه ابتدا پنهان است.','MP4, up to 5 minutes and 24 MB. H.264 is recommended. New uploads start hidden.')}</p>
    {video&&<label className="video-visibility"><input type="checkbox" checked={video.visible} disabled={busy} onChange={e=>void change('PATCH',JSON.stringify({visible:e.target.checked,url:video.url}))}/>{t('ویدئو در پروفایل منتشرشده نمایش داده شود','Show video on my published profile')}</label>}
+   {video&&<div className="video-delete-actions">{confirmDelete?<><span className="small">{t('ویدئوی معرفی حذف شود؟','Remove the introduction video?')}</span><button className="btn compact danger" type="button" disabled={busy} onClick={()=>void change('DELETE',JSON.stringify({url:video.url}))}>{t('بله، حذف شود','Yes, remove')}</button><button className="btn compact" type="button" disabled={busy} onClick={()=>setConfirmDelete(false)}>{t('انصراف','Cancel')}</button></>:<button className="btn compact danger" type="button" disabled={busy} onClick={()=>setConfirmDelete(true)}><Trash2 size={16}/>{t('حذف ویدئو','Remove video')}</button>}</div>}
    {busy&&<p role="status" className="small muted">{t('لطفاً صبر کنید…','Please wait…')}</p>}
    {status&&<p role="status" className="small">{status}</p>}
    {error&&<p role="alert" className="form-error">{error}</p>}

@@ -20,9 +20,13 @@ test('portfolios, articles, enquiries and admin access preserve ownership and qu
   const studio=await ok(await req('/api/studio','teacher-a'));
   assert.equal(studio.profile.published,false);
   assert.equal((await ok(await req('/api/catalogue'))).teachers.length,0);
-  const profile={...studio.profile,name:'معلم آزمایشی',headline:'تمرین مکالمه انگلیسی',bio:'معرفی واقعی برای بررسی مسیر انتشار پرتفولیو و ارائه کلاس‌های زبان با تمرین و بازخورد آموزشی.',published:true,currency:'USD',rate:24.99,languages:['en'],formats:['online']};
+  const profile={...studio.profile,name:'معلم آزمایشی',headline:'تمرین مکالمه انگلیسی',educationLevel:'bachelor',educationField:'English literature',certificateItems:['Teaching diploma',' '],specialtyItems:['Interview, exam and travel practice'],bio:'معرفی واقعی برای بررسی مسیر انتشار پرتفولیو و ارائه کلاس‌های زبان با تمرین و بازخورد آموزشی.',published:true,currency:'USD',rate:24.99,languages:['en'],formats:['online']};
   await ok(await req('/api/studio/profile','teacher-a','PUT',{profile,version:1}));
   let listing=await ok(await req('/api/catalogue'));
+  assert.equal(listing.teachers[0].educationLevel,'bachelor');
+  assert.equal(listing.teachers[0].educationField,'English literature');
+  assert.deepEqual(listing.teachers[0].certificateItems,['Teaching diploma']);
+  assert.deepEqual(listing.teachers[0].specialtyItems,['Interview, exam and travel practice']);
   assert.equal(listing.teachers[0].rate,24.99);assert.equal(listing.teachers[0].currency,'USD');
   assert(!JSON.stringify(listing).includes('private@example.com'));assert(!JSON.stringify(listing).includes('owner_id'));
   assert.equal((await req('/api/studio/profile','teacher-a','PUT',{profile,version:1})).status,409);
@@ -46,8 +50,14 @@ test('portfolios, articles, enquiries and admin access preserve ownership and qu
   assert.deepEqual(Buffer.from(await (await req(publicPhoto)).arrayBuffer()),avatar);
 
   const studioVideo='/api/studio/video', publicVideo='/api/public-video/'+profile.id;
-  // A minimal ISO-BMFF header exercises storage and byte ranges without a codec dependency.
-  const mp4=Buffer.from('000000186674797069736f6d0000020069736f6d6d703431','hex');
+  // One-frame H.264 MP4, generated with ffmpeg.
+  const mp4=Buffer.from('AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAMVbW9vdgAAAGxtdmhkAAAAAAAAAAAAAAAAAAAD6AAAA+gAAQAAAQAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAkB0cmFrAAAAXHRraGQAAAADAAAAAAAAAAAAAAABAAAAAAAAA+gAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAACAAAAAgAAAAAAAkZWR0cwAAABxlbHN0AAAAAAAAAAEAAAPoAAAAAAABAAAAAAG4bWRpYQAAACBtZGhkAAAAAAAAAAAAAAAAAABAAAAAQABVxAAAAAAALWhkbHIAAAAAAAAAAHZpZGUAAAAAAAAAAAAAAABWaWRlb0hhbmRsZXIAAAABY21pbmYAAAAUdm1oZAAAAAEAAAAAAAAAAAAAACRkaW5mAAAAHGRyZWYAAAAAAAAAAQAAAAx1cmwgAAAAAQAAASNzdGJsAAAAv3N0c2QAAAAAAAAAAQAAAK9hdmMxAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAACAAIABIAAAASAAAAAAAAAABFUxhdmM2MS4xOS4xMDEgbGlieDI2NAAAAAAAAAAAAAAAGP//AAAANWF2Y0MBZAAK/+EAGGdkAAqs2UlsBEAAAAMAQAAAAwCDxIllgAEABmjr48siwP34+AAAAAAQcGFzcAAAAAEAAAABAAAAFGJ0cnQAAAAAAAAWUAAAAAAAAAAYc3R0cwAAAAAAAAABAAAAAQAAQAAAAAAcc3RzYwAAAAAAAAABAAAAAQAAAAEAAAABAAAAFHN0c3oAAAAAAAACygAAAAEAAAAUc3RjbwAAAAAAAAABAAADRQAAAGF1ZHRhAAAAWW1ldGEAAAAAAAAAIWhkbHIAAAAAAAAAAG1kaXJhcHBsAAAAAAAAAAAAAAAALGlsc3QAAAAkqXRvbwAAABxkYXRhAAAAAQAAAABMYXZmNjEuNy4xMDMAAAAIZnJlZQAAAtJtZGF0AAACrQYF//+p3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE2NCByMzEwOCAzMWUxOWY5IC0gSC4yNjQvTVBFRy00IEFWQyBjb2RlYyAtIENvcHlsZWZ0IDIwMDMtMjAyMyAtIGh0dHA6Ly93d3cudmlkZW9sYW4ub3JnL3gyNjQuaHRtbCAtIG9wdGlvbnM6IGNhYmFjPTEgcmVmPTMgZGVibG9jaz0xOjA6MCBhbmFseXNlPTB4MzoweDExMyBtZT1oZXggc3VibWU9NyBwc3k9MSBwc3lfcmQ9MS4wMDowLjAwIG1peGVkX3JlZj0xIG1lX3JhbmdlPTE2IGNocm9tYV9tZT0xIHRyZWxsaXM9MSA4eDhkY3Q9MSBjcW09MCBkZWFkem9uZT0yMSwxMSBmYXN0X3Bza2lwPTEgY2hyb21hX3FwX29mZnNldD0tMiB0aHJlYWRzPTEgbG9va2FoZWFkX3RocmVhZHM9MSBzbGljZWRfdGhyZWFkcz0wIG5yPTAgZGVjaW1hdGU9MSBpbnRlcmxhY2VkPTAgYmx1cmF5X2NvbXBhdD0wIGNvbnN0cmFpbmVkX2ludHJhPTAgYmZyYW1lcz0zIGJfcHlyYW1pZD0yIGJfYWRhcHQ9MSBiX2JpYXM9MCBkaXJlY3Q9MSB3ZWlnaHRiPTEgb3Blbl9nb3A9MCB3ZWlnaHRwPTIga2V5aW50PTI1MCBrZXlpbnRfbWluPTEgc2NlbmVjdXQ9NDAgaW50cmFfcmVmcmVzaD0wIHJjX2xvb2thaGVhZD00MCByYz1jcmYgbWJ0cmVlPTEgY3JmPTIzLjAgcWNvbXA9MC42MCBxcG1pbj0wIHFwbWF4PTY5IHFwc3RlcD00IGlwX3JhdGlvPTEuNDAgYXE9MToxLjAwAIAAAAAVZYiEABX//vfJ78Cm69vetb9gAQD5','base64');
+  const tooLong=Buffer.from(mp4);
+  const movieHeader=tooLong.indexOf('mvhd');
+  const scale=tooLong.readUInt32BE(movieHeader+16);
+  tooLong.writeUInt32BE(scale*301,movieHeader+20);
+  assert.equal((await binary(studioVideo,'teacher-a',tooLong,'video/mp4')).status,400);
+  assert.equal((await binary(studioVideo,'teacher-a',mp4.subarray(0,24),'video/mp4')).status,400);
   assert.equal((await req(studioVideo)).status,401);
   const {video}=await ok(await binary(studioVideo,'teacher-a',mp4,'video/mp4'));
   assert.equal(video.visible,false);
@@ -57,7 +67,7 @@ test('portfolios, articles, enquiries and admin access preserve ownership and qu
   await ok(await req(studioVideo,'teacher-a','PATCH',{visible:true,url:video.url}));
   const part=await mf.dispatchFetch(origin+publicVideo,{headers:{Range:'bytes=4-7'}});
   assert.equal(part.status,206);
-  assert.equal(part.headers.get('Content-Range'),'bytes 4-7/24');
+  assert.equal(part.headers.get('Content-Range'),`bytes 4-7/${mp4.length}`);
   assert.equal(await part.text(),'ftyp');
   await ok(await req(studioVideo,'teacher-a','PATCH',{visible:false,url:video.url}));
   assert.equal((await req(publicVideo)).status,404);
@@ -65,6 +75,11 @@ test('portfolios, articles, enquiries and admin access preserve ownership and qu
   assert.notEqual(replacement.video.url,video.url);
   assert.equal(replacement.video.visible,false);
   await ok(await req(studioVideo,'teacher-a','PATCH',{visible:true,url:replacement.video.url}));
+  assert.equal((await req(studioVideo,'teacher-b','DELETE',{url:replacement.video.url})).status,409);
+  assert.equal((await req(studioVideo,'teacher-a','DELETE',{url:video.url})).status,409);
+  assert.equal((await ok(await req(studioVideo,'teacher-a','DELETE',{url:replacement.video.url}))).video,null);
+  assert.equal((await req(publicVideo)).status,404);
+  assert.equal(await bucket.head('teacher-videos/'+replacement.video.url.split('=').at(-1)),null);
   const article={title:'Learning through conversation',excerpt:'A teacher-authored article.',content:'A private draft paragraph with useful learning advice. '.repeat(8),category:'learning',status:'draft'};
   const created=await ok(await req('/api/studio/posts','teacher-a','POST',{article}),201);
   assert.equal((await ok(await req('/api/catalogue'))).articles.length,0);

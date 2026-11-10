@@ -1,7 +1,8 @@
 import {bucket,database,deleteVideo} from '@/db/storage';
 import {identity,validOrigin,json,payload} from '@/lib/server/access';
 import {readBytes,requestFailure} from '@/lib/server/http';
-import {VIDEO_MAX} from '@/lib/profile-media';
+import {VIDEO_MAX,VIDEO_MAX_SECONDS} from '@/lib/profile-media';
+import {mp4Duration} from '@/lib/server/mp4';
 import {playVideo,videoHeaders,type VideoRow} from '@/lib/server/video';
 export const dynamic='force-dynamic';
 const current=(id:string)=>database().prepare('SELECT object_key,size,visible FROM teacher_videos WHERE owner_id=?').bind(id).first<VideoRow>();
@@ -19,8 +20,9 @@ export async function POST(r:Request){
  if(r.headers.get('content-type')!=='video/mp4')return json({error:'فایل MP4 انتخاب کنید. / Choose an MP4 file.'},400);
  try{
   const a=await readBytes(r,VIDEO_MAX);
-  const size=a.length>=16?new DataView(a.buffer,a.byteOffset).getUint32(0):0;
-  if(size<16||size>a.length||String.fromCharCode(...a.subarray(4,8))!=='ftyp')return json({error:'فایل MP4 معتبر نیست. / Invalid MP4 file.'},400);
+  const duration=mp4Duration(a);
+  if(duration===null)return json({error:'فایل ویدئویی MP4 معتبر نیست. / Choose a valid MP4 video.'},400);
+  if(duration>VIDEO_MAX_SECONDS)return json({error:'مدت ویدئو نباید بیشتر از ۵ دقیقه باشد. / Maximum video length is 5 minutes.'},400);
   const previous=await current(id);
   const key='teacher-videos/'+crypto.randomUUID();
   await bucket().put(key,a.buffer as ArrayBuffer,{httpMetadata:{contentType:'video/mp4'}});
@@ -42,5 +44,19 @@ export async function PATCH(r:Request){
   if(typeof visible!=='boolean'||typeof url!=='string'||!/^\/api\/studio\/video\?play=[0-9a-f-]{36}$/.test(url))return json({},400);
   const result=await database().prepare('UPDATE teacher_videos SET visible=? WHERE owner_id=? AND object_key=?').bind(Number(visible),id,'teacher-videos/'+url.split('=').at(-1)).run();
   return result.meta.changes?report(await current(id)):json({error:'ویدئو تغییر کرده است؛ صفحه را دوباره باز کنید. / Reload to see the current video.'},409);
+ }catch(e){return unavailable(e)}
+}
+export async function DELETE(r:Request){
+ const id=identity(r)?.id;
+ if(!id)return json({},401);
+ if(!validOrigin(r))return json({},403);
+ try{
+  const {url}=await payload(r,1024);
+  if(typeof url!=='string'||!/^\/api\/studio\/video\?play=[0-9a-f-]{36}$/.test(url))return json({},400);
+  const key='teacher-videos/'+url.split('=').at(-1);
+  const result=await database().prepare('DELETE FROM teacher_videos WHERE owner_id=? AND object_key=?').bind(id,key).run();
+  if(!result.meta.changes)return json({error:'ویدئو تغییر کرده است؛ صفحه را دوباره باز کنید. / Reload to see the current video.'},409);
+  await deleteVideo(key).catch(e=>console.error('Deleted video cleanup failed',e));
+  return report(null);
  }catch(e){return unavailable(e)}
 }

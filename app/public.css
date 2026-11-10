@@ -61,3 +61,24 @@ html[dir=ltr] .pub-back svg,html[dir=ltr] .pub-quiet-link>.lucide-chevron-left{t
 .video-visibility{display:flex;gap:9px;align-items:center}
 @media(max-width:900px){.home-steps{grid-template-columns:minmax(0,1fr);gap:14px}}
 @media(max-width:700px){.home-stage-inner{grid-template-columns:1fr;gap:22px}.home-figure{grid-row:3;aspect-ratio:4/3}.home-discovery{grid-row:2}.home-copy h1{margin-block:14px}.home-step-list{grid-template-columns:minmax(0,1fr)}.home-step{padding:14px}.home-step-connector{inset-inline-start:calc(50% - 13px);inset-block-start:calc(100% + 1px);translate:none;width:26px;height:var(--step-gap)}.home-step-connector::before{inset-inline:50% auto;inset-block:0;border-block-start:0;border-inline-start:1px solid currentColor}.home-steps .home-step-connector svg,.home-steps:dir(rtl) .home-step-connector svg{transform:rotate(90deg)}.home-stage-inner{padding-block:34px 22px}}
+
+.studio-items{display:grid;gap:8px;padding:12px;border:1px solid var(--border);border-radius:12px;min-width:0}
+.studio-items legend{padding-inline:6px;font-weight:650}
+.studio-item-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px}
+.studio-item-row .icon-button{color:var(--destructive)}
+.studio-add-item{justify-self:start}
+.portfolio-topics,.portfolio-certificates{list-style:none;margin:0;padding:0}
+.portfolio-education,.portfolio-certificates{display:grid;gap:10px}
+.portfolio-education>div,.portfolio-certificates>li{padding:11px 13px;background:var(--muted);border-radius:10px;overflow-wrap:anywhere}
+.portfolio-education dt{font-size:.75rem;color:var(--muted-foreground)}
+.portfolio-education dd{margin:3px 0 0;white-space:pre-wrap}
+.portfolio-certificates>li{display:flex;gap:8px;align-items:start;white-space:pre-wrap}
+.portfolio-certificates svg{flex:none;margin-top:4px;color:var(--primary)}
+.portfolio-video{background:linear-gradient(145deg,#0d3028,#172720);border-radius:18px;padding:clamp(12px,2vw,20px);color:#f2faef}
+.portfolio-video header{display:flex;align-items:center;gap:12px;padding:0 2px 14px}
+.portfolio-video header span{display:block;color:#bedbc6;font-size:.72rem;font-weight:700}
+.portfolio-video h2{margin:1px 0 0;font-size:1.15rem}
+.portfolio-video-icon{display:grid;place-items:center;width:43px;height:43px;border-radius:12px;background:#d0ee98;color:#193329}
+.portfolio-video-frame{border:1px solid #ffffff25;border-radius:12px;overflow:hidden;background:#08130e}
+.portfolio-video .portfolio-video-frame video{width:100%;border-radius:0;object-fit:contain;max-height:65svh;background:#08130e}
+.video-delete-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
