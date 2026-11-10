@@ -11,7 +11,15 @@ test('workspace API persists changes, isolates users, rejects stale writes, and 
   const req=(user,method='GET',body)=>mf.dispatchFetch('https://mahela-classroom.lahzehtv.chatgpt.site/api/workspace',{method,headers:{...(user?{'oai-authenticated-user-id':user}:{}),...(body?{'Content-Type':'application/json',Origin:'https://mahela-classroom.lahzehtv.chatgpt.site'}:{})},...(body?{body:JSON.stringify(body)}:{})});
   assert.equal((await req()).status,401);
   const res=await req('teacher-a');assert.equal(res.status,200);const a=await res.json();assert.equal(a.data.students.length,5);
-  a.data.profile.name='آزمایش ذخیره';let saved=await req('teacher-a','PUT',a);assert.equal(saved.status,200,await saved.clone().text());assert.equal((await (await req('teacher-a')).json()).data.profile.name,'آزمایش ذخیره');
+  Object.assign(a.data.profile,{name:'آزمایش ذخیره',nameFa:'آزمایش ذخیره',nameEn:'Test Teacher',specializationEn:'English tutor'});
+  a.data.sessions[0].note='تمرین مکالمه\nReview the homework';
+  const saved=await req('teacher-a','PUT',a);
+  assert.equal(saved.status,200,await saved.clone().text());
+  const stored=(await (await req('teacher-a')).json()).data;
+  assert.equal(stored.profile.nameFa,'آزمایش ذخیره');
+  assert.equal(stored.profile.nameEn,'Test Teacher');
+  assert.equal(stored.profile.specializationEn,'English tutor');
+  assert.equal(stored.sessions[0].note,'تمرین مکالمه\nReview the homework');
   const b=await(await req('teacher-b')).json();assert.notEqual(b.data.profile.name,a.data.profile.name);
   assert.equal((await req('teacher-a','PUT',a)).status,409);
   const current=await(await req('teacher-a')).json();current.data.sessions.push({...current.data.sessions[0],id:'overlap',time:'09:30'});assert.equal((await req('teacher-a','PUT',current)).status,400);

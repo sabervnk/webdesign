@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {sampleWorkspace,workspaceSchema,validateWorkspace,billable,weekStart,addDays,moneyTotals,formatTotals,validMoney} from '../lib/model.ts';
+import {localizedAccount,sampleWorkspace,workspaceSchema,validateWorkspace,billable,weekStart,addDays,moneyTotals,formatTotals,validMoney} from '../lib/model.ts';
 const fresh=()=>sampleWorkspace('2026-09-05');
 test('sample data has valid records, consistent balances and no collisions',()=>{const w=fresh();workspaceSchema.parse(w);validateWorkspace(w);assert.equal(w.students.length,5);assert.equal(w.sessions.filter(s=>billable(s)&&!s.paid).length,8);assert.equal(weekStart('2026-09-05'),'2026-09-05');assert.equal(addDays('2028-02-28',1),'2028-02-29')});
 test('overlapping sessions are rejected; adjacent sessions are allowed',()=>{const w=fresh(),s={...w.sessions[0],id:'extra',time:'09:30'};w.sessions.push(s);assert.throws(()=>validateWorkspace(w),/overlaps/);s.time='10:00';validateWorkspace(w)});
@@ -35,4 +35,14 @@ test('settlement timestamps must agree with the paid status',()=>{
  paid.paidAt=new Date().toISOString();validateWorkspace(w);
  const unpaid=w.sessions.find(s=>!s.paid);unpaid.paidAt=new Date().toISOString();
  assert.throws(()=>validateWorkspace(w),/Unpaid sessions/);
+});
+
+test('account names and teaching titles follow the interface language without losing legacy names',()=>{
+ const legacy=fresh().profile;
+ assert.equal(localizedAccount(legacy,'fa-IR').name,legacy.name);
+ assert.equal(localizedAccount(legacy,'en-US').name,'Teacher');
+ assert.equal(localizedAccount(legacy,'en-US').specialty,'English teacher');
+ const profile={...legacy,nameFa:'مهتا احمدی',nameEn:'Mahta Ahmadi',specializationEn:'Conversation tutor'};
+ for(const locale of ['fa','ar-SA'])assert.equal(localizedAccount(profile,locale).name,'مهتا احمدی');
+ for(const locale of ['en','fr-FR'])assert.deepEqual(localizedAccount(profile,locale),{name:'Mahta Ahmadi',specialty:'Conversation tutor'});
 });

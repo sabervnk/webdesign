@@ -40,3 +40,14 @@ html[dir=rtl] .lucide-arrow-left{transform:rotate(180deg)}
 .crop-size input{width:100%;margin:0;accent-color:#267354}
 .crop-reset.btn{padding-inline:10px;min-height:36px;font-size:.75rem}
 @media(max-width:420px){.avatar-crop.modal{padding:15px}.crop-tools{padding:8px;gap:8px}.crop-live canvas{width:42px;height:42px}.crop-reset.btn{padding-inline:7px}.crop-reset svg{display:none}}
+
+.profile-small-copy{flex:1;min-width:0}
+.profile-small-copy strong,.profile-small-copy p{overflow-wrap:anywhere}
+.session-info{display:flex;flex-wrap:wrap;align-items:center;gap:10px 20px}
+.session-person{flex:0 1 auto;min-width:0;overflow-wrap:anywhere}
+.session-note{display:flex;align-items:flex-start;gap:8px;flex:1 1 200px;min-width:0;max-width:54ch;padding:8px 10px;border:1px solid var(--border);border-inline-start:2px solid var(--primary);border-radius:9px;background:var(--muted)}
+.session-note>svg{flex:none;margin-top:3px;color:var(--primary)}
+.session-note>div{min-width:0}
+.session-note-label{display:block;font-size:.68rem;font-weight:750;color:var(--muted-foreground)}
+.session-note-text{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.8rem;line-height:1.65;color:var(--foreground)}
+@media(max-width:600px){.session-info{gap:7px}.session-note{flex-basis:100%;padding:6px 8px}}
