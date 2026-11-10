@@ -99,6 +99,26 @@ html[dir=ltr] .pub-back svg,html[dir=ltr] .pub-quiet-link>.lucide-chevron-left{t
 .studio-reuse{margin-top:12px}
 .studio-account-content{margin-top:20px}
 .studio-tabs{flex-wrap:wrap}
-.studio-fee-row{grid-template-columns:minmax(56px,.65fr) minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr)}
+.studio-fee-row{grid-template-columns:minmax(86px,.75fr) minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr)}
 .teacher-offers small{white-space:nowrap;color:var(--muted-foreground);font-size:.72rem}
 @media(max-width:600px){.studio-fee-row{grid-template-columns:repeat(2,minmax(0,1fr))}.studio-fee-row>.badge{align-self:center}.studio-group{padding:12px}}
+
+.studio-language-heading{display:flex;gap:9px;align-items:center}
+.studio-language-icon{display:grid;place-items:center;width:35px;height:35px;border-radius:10px;background:var(--accent);color:var(--primary)}
+.studio-format-toggles{display:flex;flex-wrap:wrap;gap:8px}
+.studio-format-toggle,.studio-fee-format{display:inline-flex;align-items:center;gap:6px}
+.studio-format-toggle{padding:7px 11px;border:1px solid var(--border);border-radius:100px;background:var(--card);color:var(--muted-foreground);font-size:.8rem}
+.studio-format-toggle[aria-pressed=true]{border-color:var(--primary);background:var(--accent);color:var(--foreground);font-weight:750}
+.studio-fee-row{padding:10px;border:1px solid var(--border);border-radius:10px;background:var(--card);align-items:end}
+.studio-fee-format{align-self:center;justify-self:start;padding:7px 9px;border-radius:9px;background:var(--accent);color:var(--primary);font-size:.77rem;white-space:nowrap}
+.studio-fee-format.in-person{background:#e7ddf2;color:#55326d}
+.studio-fee-row .field{min-width:0}
+.studio-fee-row .field input,.studio-fee-row .select-input{width:100%;min-width:0}
+.studio-fee-row .field span,.studio-fee-row .field label{font-size:.75rem}
+.studio-text-pair{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start;margin-block:4px}
+.studio-text-pair>.wide{grid-column:auto!important}
+.studio-lang-tag{font-size:.68rem;color:var(--muted-foreground);font-weight:650}
+.studio-profile-intro{margin-block:12px}
+.studio-account-content>.settings-layout{margin-top:16px}
+@media(max-width:760px){.studio-fee-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.studio-text-pair{grid-template-columns:minmax(0,1fr)}}

@@ -110,15 +110,15 @@ test('portfolios, articles, enquiries and admin access preserve ownership and qu
   const multirate={...profile,city:'تهران',languages:['en','fr'],formats:['online','in-person'],translations:{en:{name:'Test Teacher',bio:'English biography'}},offers:[
    {language:'en',format:'online',rate:15,duration:45,currency:'USD'},
    {language:'en',format:'in-person',rate:400000,duration:60,currency:'TOMAN'},
-   {language:'fr',format:'online',rate:500000,duration:75,currency:'TOMAN'},
    {language:'fr',format:'in-person',rate:33,duration:90,currency:'USD'},
   ]};
-  assert.equal((await req('/api/studio/profile','teacher-a','PUT',{profile:{...multirate,offers:multirate.offers.slice(1)},version:2})).status,400);
+  assert.equal((await req('/api/studio/profile','teacher-a','PUT',{profile:{...multirate,offers:multirate.offers.filter(o=>o.language!=='fr')},version:2})).status,400);
   await ok(await req('/api/studio/profile','teacher-a','PUT',{profile:multirate,version:2}));
   const multiple=await ok(await req('/api/catalogue'));
   assert.deepEqual(multiple.teachers[0].offers,multirate.offers);
   assert.equal(multiple.teachers[0].translations.en.bio,'English biography');
   const second={...inquiry,id:crypto.randomUUID(),email:'french@example.com',teacherVersion:3,language:'fr',format:'in-person'};
+  assert.equal((await req('/api/requests',undefined,'POST',{...second,id:crypto.randomUUID(),format:'online'})).status,400);
   await ok(await req('/api/requests',undefined,'POST',second),201);
   const quoted=(await ok(await req('/api/admin/requests','admin'))).requests.find(x=>x.id===second.id);
   assert.equal(quoted.rate,33);

@@ -52,9 +52,9 @@ test('a filter must match currency, price, language and format on the same offer
  const teacher={...sampleTeachers[0],languages:['en','fr'],offers:[
   {language:'en',format:'online',rate:10,currency:'USD'},
   {language:'en',format:'in-person',rate:350000,currency:'TOMAN'},
-  {language:'fr',format:'online',rate:420000,currency:'TOMAN'},
   {language:'fr',format:'in-person',rate:25,currency:'USD'},
  ]};
+ assert.equal(matchesTeacher(teacher,{language:'fr',format:'online'}),false);
  assert.equal(matchesTeacher(teacher,{language:'fr',format:'in-person',currency:'USD',maxPrice:'20'}),false);
  assert.equal(matchesTeacher(teacher,{language:'fr',format:'in-person',currency:'TOMAN'}),false);
  assert.equal(matchesTeacher(teacher,{language:'fr',format:'in-person',currency:'USD',maxPrice:'25'}),true);
