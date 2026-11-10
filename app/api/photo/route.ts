@@ -2,7 +2,7 @@ import {readBytes,requestFailure} from '@/lib/server/http';
 import {identity,validOrigin,json} from '@/lib/server/access';
 import {bucket} from '@/db/storage';
 import {AVATAR_MAX,avatarKey} from '@/lib/profile-media';
-import {validAvatar,avatarResponse} from '@/lib/server/avatar';
+import {normalizeAvatar,avatarResponse} from '@/lib/server/avatar';
 export const dynamic='force-dynamic';
 export async function GET(r:Request){
  const id=identity(r)?.id;
@@ -15,8 +15,9 @@ export async function POST(r:Request){
  if(!validOrigin(r))return new Response(null,{status:403});
  try{
   const bytes=await readBytes(r,AVATAR_MAX);
-  if(r.headers.get('content-type')!=='image/webp'||!validAvatar(bytes))return json({error:'تصویر مربعی WebP معتبر نیست. / Invalid square WebP avatar.'},400);
-  await bucket().put(avatarKey(id),new Uint8Array(bytes).buffer,{httpMetadata:{contentType:'image/webp'}});
+  const avatar=r.headers.get('content-type')==='image/webp'?normalizeAvatar(bytes):null;
+  if(!avatar)return json({error:'تصویر مربعی WebP معتبر نیست. / Invalid square WebP avatar.'},400);
+  await bucket().put(avatarKey(id),avatar,{httpMetadata:{contentType:'image/webp'}});
   return json({url:'/api/photo?v='+Date.now()});
  }catch(e){return requestFailure(e,'ذخیره عکس ناموفق بود. / Could not save the photo.')}
 }

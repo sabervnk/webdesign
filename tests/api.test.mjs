@@ -16,8 +16,23 @@ test('workspace API persists changes, isolates users, rejects stale writes, and 
   assert.equal((await req('teacher-a','PUT',a)).status,409);
   const current=await(await req('teacher-a')).json();current.data.sessions.push({...current.data.sessions[0],id:'overlap',time:'09:30'});assert.equal((await req('teacher-a','PUT',current)).status,400);
   assert.equal((await mf.dispatchFetch('https://mahela-classroom.lahzehtv.chatgpt.site/api/workspace',{method:'PUT',headers:{'oai-authenticated-user-id':'teacher-a',Origin:'http://untrusted.test'},body:JSON.stringify(current)})).status,403);
-  const uploaded=await mf.dispatchFetch('https://mahela-classroom.lahzehtv.chatgpt.site/api/photo',{method:'POST',headers:{'oai-authenticated-user-id':'teacher-a',Origin:'https://mahela-classroom.lahzehtv.chatgpt.site','Content-Type':'image/webp'},body:avatar});assert.equal(uploaded.status,200,await uploaded.clone().text());
-  const photo=await mf.dispatchFetch('https://mahela-classroom.lahzehtv.chatgpt.site/api/photo',{headers:{'oai-authenticated-user-id':'teacher-a'}});assert.equal(photo.status,200);assert.equal(photo.headers.get('Content-Type'),'image/webp');
+  const photoUrl='https://mahela-classroom.lahzehtv.chatgpt.site/api/photo';
+  const upload=(body)=>mf.dispatchFetch(photoUrl,{method:'POST',headers:{'oai-authenticated-user-id':'teacher-a',Origin:'https://mahela-classroom.lahzehtv.chatgpt.site','Content-Type':'image/webp'},body});
+  // Chromium canvas writes a VP8X header and ICCP chunk before the pixel data.
+  const header=Buffer.from('VP8X\x0a\x00\x00\x00\x20\x00\x00\x00\xbf\x00\x00\xbf\x00\x00','latin1');
+  const icc=Buffer.from('ICCP\x08\x00\x00\x00test-icc','latin1');
+  const extended=Buffer.concat([avatar.subarray(0,12),header,icc,avatar.subarray(12)]);
+  extended.writeUInt32LE(extended.length-8,4);
+  const wrongSize=Buffer.from(extended);wrongSize[24]=127;
+  assert.equal((await upload(wrongSize)).status,400);
+  const animated=Buffer.from(extended);animated[20]|=2;
+  assert.equal((await upload(animated)).status,400);
+  const uploaded=await upload(extended);
+  assert.equal(uploaded.status,200,await uploaded.clone().text());
+  const photo=await mf.dispatchFetch(photoUrl,{headers:{'oai-authenticated-user-id':'teacher-a'}});
+  assert.equal(photo.status,200);
+  assert.equal(photo.headers.get('Content-Type'),'image/webp');
+  assert.deepEqual(Buffer.from(await photo.arrayBuffer()),avatar,'stored image must omit the extended header and ICC metadata');
   assert.equal((await mf.dispatchFetch('https://mahela-classroom.lahzehtv.chatgpt.site/api/photo',{headers:{'oai-authenticated-user-id':'teacher-b'}})).status,404);
  }finally{await mf.dispose()}
 });
