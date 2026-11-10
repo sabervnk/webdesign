@@ -1,16 +1,16 @@
 import {readBytes,requestFailure} from '@/lib/server/http';
-import {identity,validOrigin,json} from '@/lib/server/access';
+import {teacherIdentity,validOrigin,json} from '@/lib/server/access';
 import {bucket} from '@/db/storage';
 import {AVATAR_MAX,avatarKey} from '@/lib/profile-media';
 import {normalizeAvatar,avatarResponse} from '@/lib/server/avatar';
 export const dynamic='force-dynamic';
 export async function GET(r:Request){
- const id=identity(r)?.id;
+ const id=(await teacherIdentity(r))?.id;
  if(!id)return new Response(null,{status:401});
  try{return await avatarResponse(id)}catch{return new Response(null,{status:503})}
 }
 export async function POST(r:Request){
- const id=identity(r)?.id;
+ const id=(await teacherIdentity(r))?.id;
  if(!id)return json({error:'ورود لازم است / Sign in first.'},401);
  if(!validOrigin(r))return new Response(null,{status:403});
  try{

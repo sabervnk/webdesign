@@ -1,0 +1,58 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import {randomBytes} from 'node:crypto';
+import {readFile,readdir} from 'node:fs/promises';
+import {Miniflare,convertV4MiniflareOptions} from 'miniflare';
+import {sampleWorkspace} from '../lib/model.ts';
+const fixturePassword=()=>randomBytes(24).toString('base64url');
+const origin='https://mahela-classroom.lahzehtv.chatgpt.site';
+test('owner provisions restricted accounts; recovery revokes sessions and site copy remains admin-only',async()=>{
+ const files=(await readdir('dist/server',{recursive:true})).filter(p=>p.endsWith('.js')&&p!=='index.js');
+ const mf=new Miniflare(convertV4MiniflareOptions({workers:[{name:'app',modules:[{type:'ESModule',path:'dist/server/index.js'},...files.map(p=>({type:'ESModule',path:'dist/server/'+p}))],compatibilityDate:'2026-05-15',compatibilityFlags:['nodejs_compat'],d1Databases:['DB'],r2Buckets:['BUCKET'],serviceBindings:{ASSETS:()=>new Response('Not found',{status:404})}}]}));
+ try{
+  const db=await mf.getD1Database('DB');
+  for(const f of (await readdir('drizzle')).filter(f=>f.endsWith('.sql')).sort())for(const sql of (await readFile('drizzle/'+f,'utf8')).split('--> statement-breakpoint'))if(sql.trim())await db.exec(sql.replace(/\n/g,' '));
+  const w=sampleWorkspace('2026-11-10');w.demo=false;
+  await db.prepare('INSERT INTO teacher_workspaces VALUES(?,?,1,?)').bind('legacy-teacher',JSON.stringify(w),new Date().toISOString()).run();
+  // Miniflare simulates the platform's verified identity on this local Worker only.
+  const siteAccess=await readFile('platform/sites/access.ts','utf8');
+  const ownerEmail=siteAccess.match(/const administratorEmail='([^']+)'/)?.[1];
+  assert(ownerEmail,'the Sites adapter needs a configured owner for this fixture');
+  const admin={'oai-authenticated-user-id':'fixture-owner','oai-authenticated-user-email':ownerEmail};
+  const request=(path,method='GET',body,head={})=>mf.dispatchFetch(origin+path,{method,redirect:'manual',headers:{...head,...(body?{'Content-Type':'application/json',Origin:origin}:{})},...(body?{body:JSON.stringify(body)}:{})});
+  const ok=async(r,status=200)=>{assert.equal(r.status,status,await r.clone().text());return r.json()};
+  const creds={username:'test-student',password:fixturePassword()};
+  const a={...creds,name:'Test learner',email:'',role:'student',teacherId:'legacy-teacher',studentId:'elena',active:true};
+  assert.equal((await request('/api/admin/accounts','POST',a)).status,403);
+  const {id}=await ok(await request('/api/admin/accounts','POST',a,admin),201);
+  const list=await ok(await request('/api/admin/accounts','GET',undefined,admin));
+  assert(!JSON.stringify(list).includes('password_hash'));assert(!JSON.stringify(list).includes(creds.password));
+  const login=await request('/api/auth/login','POST',creds);
+  assert.equal((await ok(login)).next,'/signin?mode=change');
+  const temp=login.headers.get('set-cookie');
+  assert.match(temp,/Secure; HttpOnly; SameSite=Lax/);
+  const tempCookie={Cookie:temp.split(';')[0]};
+  assert.equal((await request('/api/student','GET',undefined,tempCookie)).status,403);
+  const changed=await request('/api/auth/change','POST',{password:fixturePassword()},tempCookie);
+  assert.equal((await ok(changed)).next,'/student');
+  const cookie={Cookie:changed.headers.get('set-cookie').split(';')[0]};
+  const student=await ok(await request('/api/student','GET',undefined,cookie));
+  assert.equal(student.name,w.students[0].name);assert.equal(student.sessions.length,w.sessions.filter(x=>x.studentId==='elena').length);
+  for(const path of ['/api/admin/accounts','/api/admin/teachers','/api/admin/content'])assert.equal((await request(path,'GET',undefined,cookie)).status,403);
+  for(const path of ['/api/workspace','/api/studio'])assert.equal((await request(path,'GET',undefined,cookie)).status,401);
+  assert.equal((await request('/api/workspace','GET',undefined,{'oai-authenticated-user-id':'unassigned','oai-authenticated-user-email':'unassigned@example.com'})).status,401);
+  const {code}=await ok(await request('/api/admin/accounts','PATCH',{id,action:'recovery'},admin));
+  const reset={username:creds.username,code,password:fixturePassword()};
+  await ok(await request('/api/auth/reset','POST',reset));
+  assert.equal((await request('/api/auth/reset','POST',reset)).status,401);
+  assert.equal((await request('/api/student','GET',undefined,cookie)).status,403);
+  const fresh=await request('/api/auth/login','POST',{username:creds.username,password:reset.password});await ok(fresh);
+  await ok(await request('/api/admin/accounts','PATCH',{id,action:'deactivate'},admin));
+  assert.equal((await request('/api/student','GET',undefined,{Cookie:fresh.headers.get('set-cookie').split(';')[0]})).status,403);
+  await ok(await request('/api/admin/content','PATCH',{key:'site.brand',locale:'fa',value:'Classer Test',version:0},admin));
+  assert.equal((await request('/api/admin/content','PATCH',{key:'site.brand',locale:'fa',value:'stale',version:0},admin)).status,409);
+  const home=await request('/');assert((await home.text()).includes('Classer Test'),'SSR should include the custom brand; status '+home.status);
+  const t=await ok(await request('/api/admin/teachers?id=legacy-teacher','GET',undefined,admin));
+  assert.equal(t.workspace.data.students.length,w.students.length);
+ }finally{await mf.dispose()}
+});

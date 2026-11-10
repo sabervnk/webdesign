@@ -1,3 +1,4 @@
+import {loadSiteCopy} from '@/lib/server/site-copy';
 import {headers} from 'next/headers';
 import {notFound} from 'next/navigation';
 import PublicSite from './public-site';
@@ -9,7 +10,7 @@ export async function PublicPage({view,id}:{view:'home'|'teachers'|'teacher'|'bl
  let data:Catalogue;
  let videoUrl:string|undefined;
  try{
-  const h=await headers();data=await publicCatalogue(identity(new Request(siteOrigin,{headers:h}))?.isAdmin||false);
+  const h=await headers();data=await publicCatalogue((await identity(new Request(siteOrigin,{headers:h})))?.isAdmin||false);
   const db=database();let teacherId=view==='teacher'?id:undefined;
   if(view==='article'&&id){
    const row=await db.prepare("SELECT a.* FROM teacher_articles a INNER JOIN teacher_public_profiles p ON p.id=a.teacher_id WHERE a.id=? AND a.status='published' AND p.published=1").bind(id).first<ArticleRow>();
@@ -31,16 +32,22 @@ export async function PublicPage({view,id}:{view:'home'|'teachers'|'teacher'|'bl
  if(!data.error&&view==='article'&&id&&!data.articles.some(t=>t.id===id)&&!(data.teachers.length===0&&sampleArticles.some(t=>t.id===id)))notFound();
  return <PublicSite view={view} initialCatalogue={data} recordId={id} videoUrl={videoUrl}/>;
 }
+export async function sectionMetadata(title:string,description:string){
+ const {values}=await loadSiteCopy();
+ return {title:title+' | '+(values['site.brand']?.fa??'Classer'),description};
+}
 export async function publicMetadata(kind:'teacher'|'article',id:string){
+ const {values}=await loadSiteCopy();
+ const brand=values['site.brand']?.fa??'Classer';
  try{
   const db=database();
   if(kind==='teacher'){
    const row=await db.prepare('SELECT data FROM teacher_public_profiles WHERE id=? AND published=1').bind(id).first<{data:string}>();
-   if(row){const t=JSON.parse(row.data);return {title:t.name+' — '+t.headline+' | Classer',description:t.bio.slice(0,160),alternates:{canonical:siteOrigin+'/teachers/'+id}}}
+   if(row){const t=JSON.parse(row.data);return {title:t.name+' — '+t.headline+' | '+brand,description:t.bio.slice(0,160),alternates:{canonical:siteOrigin+'/teachers/'+id}}}
   }else{
    const row=await db.prepare("SELECT json_extract(a.data,'$.title') AS title,json_extract(a.data,'$.excerpt') AS excerpt FROM teacher_articles a INNER JOIN teacher_public_profiles p ON p.id=a.teacher_id WHERE a.id=? AND a.status='published' AND p.published=1").bind(id).first<{title:string,excerpt:string}>();
-   if(row)return {title:row.title+' | Classer',description:row.excerpt,alternates:{canonical:siteOrigin+'/blog/'+id}};
+   if(row)return {title:row.title+' | '+brand,description:row.excerpt,alternates:{canonical:siteOrigin+'/blog/'+id}};
   }
  }catch{}
- return {title:'پیش‌نمایش | Classer',robots:{index:false,follow:false}};
+ return {title:'پیش‌نمایش | '+brand,robots:{index:false,follow:false}};
 }

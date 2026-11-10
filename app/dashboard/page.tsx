@@ -1,4 +1,4 @@
 import TeacherWorkspace from '../workspace';
-import {requireChatGPTUser} from '../chatgpt-auth';
+import {requireRole} from '@/lib/server/access';
 export const dynamic='force-dynamic';
-export default async function Dashboard(){await requireChatGPTUser('/dashboard');return <TeacherWorkspace/>}
+export default async function Dashboard(){await requireRole('teacher');return <TeacherWorkspace/>}

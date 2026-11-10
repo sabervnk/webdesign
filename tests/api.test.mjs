@@ -1,3 +1,4 @@
+import {sampleWorkspace} from '../lib/model.ts';
 import {avatar} from './fixtures/avatar.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
@@ -8,6 +9,7 @@ test('workspace API persists changes, isolates users, rejects stale writes, and 
  const mf=new Miniflare(convertV4MiniflareOptions({workers:[{name:'app',modules:[{type:'ESModule',path:'dist/server/index.js'},...moduleFiles.map(p=>({type:'ESModule',path:'dist/server/'+p}))],compatibilityDate:'2026-05-15',compatibilityFlags:['nodejs_compat'],d1Databases:['DB'],r2Buckets:['BUCKET'],serviceBindings:{ASSETS:()=>new Response('Not found',{status:404})}}]}));
  try{
   const db=await mf.getD1Database('DB');for(const file of (await readdir('drizzle')).filter(f=>f.endsWith('.sql')).sort())for(const sql of (await readFile('drizzle/'+file,'utf8')).split('--> statement-breakpoint'))if(sql.trim())await db.exec(sql.replace(/\n/g,' '));
+  for(const id of ['teacher-a','teacher-b'])await db.prepare('INSERT INTO teacher_workspaces VALUES(?,?,1,?)').bind(id,JSON.stringify(sampleWorkspace('2026-11-10')),new Date().toISOString()).run();
   const req=(user,method='GET',body)=>mf.dispatchFetch('https://mahela-classroom.lahzehtv.chatgpt.site/api/workspace',{method,headers:{...(user?{'oai-authenticated-user-id':user}:{}),...(body?{'Content-Type':'application/json',Origin:'https://mahela-classroom.lahzehtv.chatgpt.site'}:{})},...(body?{body:JSON.stringify(body)}:{})});
   assert.equal((await req()).status,401);
   const res=await req('teacher-a');assert.equal(res.status,200);const a=await res.json();assert.equal(a.data.students.length,5);

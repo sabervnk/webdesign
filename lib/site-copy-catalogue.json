@@ -1,0 +1,3294 @@
+[
+  {
+    "key": "site.brand",
+    "fa": "Classer",
+    "en": "Classer",
+    "area": "هویت و صفحهٔ اصلی",
+    "label": "نام سایت"
+  },
+  {
+    "key": "home.image",
+    "fa": "/images/learning-hero.webp",
+    "en": "/images/learning-hero.webp",
+    "area": "هویت و صفحهٔ اصلی",
+    "label": "نشانی تصویر بنر"
+  },
+  {
+    "key": "home.metaTitle",
+    "fa": "Classer — معلم زبان، همراه مسیر تو",
+    "en": "Classer — Find your language teacher",
+    "area": "هویت و صفحهٔ اصلی",
+    "label": "عنوان صفحه در مرورگر"
+  },
+  {
+    "key": "home.metaDescription",
+    "fa": "پرتفولیوی معلم‌های زبان را ببینید، هزینه کلاس آنلاین و حضوری را مقایسه کنید و نوشته‌های آموزشی معلم‌ها را بخوانید.",
+    "en": "Explore language teachers, compare class fees and read their articles.",
+    "area": "هویت و صفحهٔ اصلی",
+    "label": "توضیح صفحه برای موتور جست‌وجو"
+  },
+  {
+    "key": "cj54lo",
+    "fa": "از ",
+    "en": "From ",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "8bernl",
+    "fa": "آنلاین",
+    "en": "Online",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "17bsfgr",
+    "fa": "حضوری",
+    "en": "In person",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "5qona3",
+    "fa": "دقیقه",
+    "en": "min",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "a09xyb",
+    "fa": "نمونه",
+    "en": "Sample",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "wa77m7",
+    "fa": "سال تجربه تدریس",
+    "en": "years teaching",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "voxt8n",
+    "fa": "آنلاین و حضوری",
+    "en": "Online & in person",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "cdmpti",
+    "fa": "هر جلسه",
+    "en": "per class",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "bakopy",
+    "fa": "مشاهده پرتفولیوی ",
+    "en": "View portfolio of ",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1bpy1z2",
+    "fa": "دقیقه مطالعه",
+    "en": "min read",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1ufofji",
+    "fa": "مقاله نمونه برای نمایش بلاگ",
+    "en": "Sample article for the blog preview",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1if8ygg",
+    "fa": "خانه",
+    "en": "Home",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "10possx",
+    "fa": "معلم‌ها",
+    "en": "Teachers",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "972mfk",
+    "fa": "بلاگ",
+    "en": "Journal",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "m9ldzm",
+    "fa": "ارتباط با ما",
+    "en": "Contact",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1kwkqtr",
+    "fa": "منوی اصلی",
+    "en": "Main navigation",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "i41y6a",
+    "fa": "تغییر حالت روشن و تیره",
+    "en": "Toggle theme",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1yee9hh",
+    "fa": "تغییر زبان",
+    "en": "Switch language",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "druhvz",
+    "fa": "ورود معلم",
+    "en": "Teacher workspace",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1owecj7",
+    "fa": "باز کردن منو",
+    "en": "Open menu",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "163cagg",
+    "fa": "فضای کار معلم",
+    "en": "Teacher workspace",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "12815jl",
+    "fa": "صندوق مدیریت",
+    "en": "Admin inbox",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "7gzi4w",
+    "fa": "تلاش دوباره",
+    "en": "Retry",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1yauk8b",
+    "fa": "فضای یادگیری زبان",
+    "en": "A SPACE TO LEARN LANGUAGES",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1ekzki7",
+    "fa": "زبان تازه،",
+    "en": "A new language.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "146sm0i",
+    "fa": "با معلمی که به تو می‌خورد.",
+    "en": "A teacher who fits.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1kn2jcq",
+    "fa": "از مکالمهٔ روزمره تا آمادگی آزمون؛ معلم‌ها را بر اساس زبان، نوع کلاس و بودجه مقایسه کن و برای شروع درخواست بده.",
+    "en": "From everyday conversation to exam prep, compare teachers by language, class format and budget, then request a class.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1cwze64",
+    "fa": "دیدن معلم‌ها",
+    "en": "Explore teachers",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "egosn",
+    "fa": "بلاگ معلم‌ها",
+    "en": "Teachers’ journal",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1dy951a",
+    "fa": "تصویر مفهومی یک معلم در فضای آموزش آنلاین",
+    "en": "Illustration of a teacher in an online learning space",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1qnkfz4",
+    "fa": "همه‌چیز از یک سلام شروع می‌شود.",
+    "en": "It all starts with hello.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "s4e5io",
+    "fa": "آنلاین یا حضوری، به انتخاب تو",
+    "en": "Online or in person, your choice",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1k1686p",
+    "fa": "مراحل انتخاب معلم",
+    "en": "How to find a teacher",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "12sxo22",
+    "fa": "از کجا شروع کنم؟",
+    "en": "HOW IT WORKS",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "uwg0hb",
+    "fa": "تا کلاس اول، سه قدم.",
+    "en": "Three steps to your first class.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "s0ehb9",
+    "fa": "آدم‌های پشت یادگیری",
+    "en": "PEOPLE BEHIND THE LEARNING",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "11xrjvz",
+    "fa": "همراه بعدی مسیر تو",
+    "en": "Your next learning partner",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1fafxvs",
+    "fa": "با روش تدریس، تجربه و هزینه کلاس هر معلم آشنا شو.",
+    "en": "Get to know each teacher’s approach, experience and class fees.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1ute8wv",
+    "fa": "همه معلم‌ها",
+    "en": "All teachers",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "d58n1x",
+    "fa": "یادگیری، بیرون از کلاس",
+    "en": "LEARNING BEYOND THE CLASSROOM",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "rr9sju",
+    "fa": "از دفتر معلم‌ها",
+    "en": "From our teachers’ notebooks",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "vpp4fr",
+    "fa": "تجربه‌ها، تمرین‌ها و نوشته‌هایی برای یک قدم جلوتر رفتن.",
+    "en": "Ideas, exercises and stories to take your learning a little further.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1n4aj6o",
+    "fa": "ورق زدن بلاگ",
+    "en": "Explore the journal",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "nlc0rh",
+    "fa": "اولین نوشته‌های معلم‌ها به‌زودی اینجا منتشر می‌شود.",
+    "en": "Our teachers’ first articles will appear here soon.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "15u9tie",
+    "fa": "با هم، مسیر مناسب را پیدا می‌کنیم",
+    "en": "LET’S FIND YOUR WAY FORWARD",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "rpiqgx",
+    "fa": "برای انتخاب معلم کمک می‌خواهی؟",
+    "en": "Need a hand choosing a teacher?",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1gj4kc3",
+    "fa": "از هدفت برایمان بنویس؛ مدیریت برای هماهنگی کلاس همراهت خواهد بود.",
+    "en": "Tell us what you want to learn. Our administrator will help coordinate your class.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1t5bns9",
+    "fa": "ارتباط با مدیریت",
+    "en": "Contact the administrator",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1g6v5c2",
+    "fa": "معلم‌ها را بشناس",
+    "en": "MEET YOUR TEACHER",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "umzqfy",
+    "fa": "یادگیری خوب، با یک انتخاب خوب.",
+    "en": "Great learning starts with a great fit.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1srnyfa",
+    "fa": "زبان، نوع کلاس و بودجه‌ات را انتخاب کن؛ معلم مناسب را با آگاهی پیدا کن.",
+    "en": "Choose your language, class format and budget, then find the right teacher for you.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "c5vdom",
+    "fa": "بازگشت به معلم‌ها",
+    "en": "Back to teachers",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "9qu7u3",
+    "fa": "این پرتفولیو منتشر نشده یا پیدا نشد.",
+    "en": "This portfolio is unpublished or could not be found.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "hydos2",
+    "fa": "دیدن معلم‌ها",
+    "en": "View teachers",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "g27qsn",
+    "fa": "مجلهٔ زبان",
+    "en": "Language journal",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "2u6wwt",
+    "fa": "کلمه به کلمه، جلوتر.",
+    "en": "Word by word, a little further.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "66wxrw",
+    "fa": "بلاگ معلم‌ها؛ جایی برای تجربه، تمرین و کشف راه‌های تازه یادگیری.",
+    "en": "The teachers’ journal. A space for practice, perspective and new ways to learn.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "11lxf12",
+    "fa": "این مقاله منتشر نشده یا پیدا نشد.",
+    "en": "This article is unpublished or could not be found.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "dfy9u0",
+    "fa": "بازگشت به بلاگ",
+    "en": "Back to the journal",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "weixyl",
+    "fa": "شروع یک گفت‌وگو",
+    "en": "START A CONVERSATION",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1yivb3o",
+    "fa": "از اینجا،",
+    "en": "It starts",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "ax04q2",
+    "fa": "با هم شروع کنیم.",
+    "en": "with a conversation.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "199f4hr",
+    "fa": "برای انتخاب معلم، هماهنگی کلاس یا همکاری آموزشی، برای مدیریت بنویس.",
+    "en": "For help choosing a teacher, arranging a class or starting an educational collaboration, write to our administrator.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1gcyl5",
+    "fa": "مستقیم به صندوق مدیریت",
+    "en": "Straight to the admin inbox",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "ip8myn",
+    "fa": "پیام و اطلاعات تماس شما فقط در اختیار مدیر سایت قرار می‌گیرد.",
+    "en": "Your message and contact details are visible only to the site administrator.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "176x1tm",
+    "fa": "معلمت را انتخاب کرده‌ای؟",
+    "en": "Already found your teacher?",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "15db5a6",
+    "fa": "از صفحه پرتفولیوی معلم درخواست بده تا اطلاعات کلاس هم به پیام اضافه شود.",
+    "en": "Send a request from their portfolio to include the class details.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "7xhrmd",
+    "fa": "مشاهده معلم‌ها",
+    "en": "Explore teachers",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "10v2t9v",
+    "fa": "پیامت را بنویس",
+    "en": "Write your message",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1f7i8g1",
+    "fa": "مدیریت از راه ارتباطی که وارد می‌کنی پاسخ خواهد داد.",
+    "en": "The administrator can use your contact details to respond.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "k6lx2s",
+    "fa": "یک فضای مشترک برای یاد دادن و یاد گرفتن.",
+    "en": "A shared space for teaching and learning.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1vdaums",
+    "fa": "پیوندهای پایین صفحه",
+    "en": "Footer navigation",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1w71247",
+    "fa": "ارتباط با مدیریت",
+    "en": "Contact",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1gtte38",
+    "fa": "پرتفولیو و بلاگ من",
+    "en": "My portfolio & blog",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1luhwbm",
+    "fa": "با هر زبان، یک راه تازه.",
+    "en": "A new language. A new way.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1m2ogn9",
+    "fa": "درخواست کلاس با ",
+    "en": "Request a class with ",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "be7llf",
+    "fa": "این درخواست برای هماهنگی و انتخاب معلم، به مدیریت سایت ارسال می‌شود.",
+    "en": "This request goes to the site administrator to coordinate your class.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1itiz3a",
+    "fa": "پیش‌نمایش با پروفایل‌ها و مقاله‌های نمونه؛ درخواست کلاس پس از انتشار پروفایل واقعی معلم فعال می‌شود.",
+    "en": "Preview with sample teachers and articles. Class requests become available for published, real teacher profiles.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "fcawi0",
+    "fa": "ساخت پرتفولیوی من",
+    "en": "Create my portfolio",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "nbdqg9",
+    "fa": "چه زبانی یاد بگیریم؟",
+    "en": "What will you learn?",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1khk9bq",
+    "fa": "زبان موردنظر",
+    "en": "Language",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "n382k4",
+    "fa": "زبان",
+    "en": "Language",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "17y5b15",
+    "fa": "همه زبان‌ها",
+    "en": "All languages",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "6420vk",
+    "fa": "نوع کلاس",
+    "en": "Class format",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1l5scnr",
+    "fa": "آنلاین و حضوری",
+    "en": "Any format",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1xed7pj",
+    "fa": "جستجوی معلم",
+    "en": "Find a teacher",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "gehu9r",
+    "fa": "نام یا تخصص معلم…",
+    "en": "Teacher name or specialty…",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "jpw608",
+    "fa": "جستجوی معلم",
+    "en": "Search teachers",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "v7hlmc",
+    "fa": "نوع کلاس",
+    "en": "Format",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "ak915i",
+    "fa": "همه کلاس‌ها",
+    "en": "All formats",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1suvu27",
+    "fa": "واحد قیمت",
+    "en": "Price currency",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "6hhfcq",
+    "fa": "همه واحدها",
+    "en": "Any currency",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "t78dw0",
+    "fa": "تومان",
+    "en": "Toman",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "oou7s0",
+    "fa": "دلار آمریکا",
+    "en": "US dollar",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1br2bca",
+    "fa": "ابتدا واحد قیمت را انتخاب کن",
+    "en": "Choose a currency first",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "8j2zfy",
+    "fa": "حداکثر هزینه هر جلسه",
+    "en": "Maximum fee per class",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "54b5pu",
+    "fa": "نام شهر…",
+    "en": "City…",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1ot9dct",
+    "fa": "شهر کلاس حضوری",
+    "en": "Class city",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1eh8jdm",
+    "fa": "معلم با انتخاب‌های شما",
+    "en": "teachers match your choices",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1r8y9s4",
+    "fa": "مرتب‌سازی",
+    "en": "Sort teachers",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1bgddbs",
+    "fa": "جدیدترین پروفایل‌ها",
+    "en": "Recently updated",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1krr387",
+    "fa": "کمترین هزینه",
+    "en": "Lowest price",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1iezcc2",
+    "fa": "پاک کردن فیلترها",
+    "en": "Clear filters",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "hbgx3p",
+    "fa": "قیمت‌ها برای مدت درج‌شده در هر کارت هستند. تومان و دلار جداگانه مقایسه می‌شوند و تبدیل ارز انجام نمی‌شود.",
+    "en": "Fees are per class for the displayed duration. Toman and US dollars are compared separately; no currency conversion is applied.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "11v1kyp",
+    "fa": "معلمی با این انتخاب‌ها پیدا نشد. یکی از فیلترها را تغییر بده.",
+    "en": "No teachers match these choices. Try changing a filter.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "ntcby3",
+    "fa": "از مدیریت راهنمایی بگیر",
+    "en": "Ask the administrator",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "12xkt4c",
+    "fa": "سال تجربه",
+    "en": "years of experience",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "168hoyz",
+    "fa": "پروفایل نمونه",
+    "en": "Sample profile",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1pbzmuh",
+    "fa": "درباره معلم",
+    "en": "About the teacher",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "i0swq0",
+    "fa": "رزومه",
+    "en": "Qualifications",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "hp462m",
+    "fa": "بلاگ معلم",
+    "en": "Teacher’s blog",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1i9wi5s",
+    "fa": "از زبان خود معلم",
+    "en": "IN THE TEACHER’S OWN WORDS",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "jfbxx7",
+    "fa": "ویدئوی معرفی",
+    "en": "Introduction video",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "fsouqq",
+    "fa": "آشنایی با من",
+    "en": "A little about me",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "vkjb46",
+    "fa": "در کلاس‌های من",
+    "en": "In my classes",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1kqkvqw",
+    "fa": "کلاس آنلاین",
+    "en": "Online classes",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "p389op",
+    "fa": "کلاس حضوری",
+    "en": "In-person classes",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "14rm082",
+    "fa": "از هرجا که راحت‌تری، یاد بگیر.",
+    "en": "Learn from wherever you feel comfortable.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1pmfx40",
+    "fa": "تحصیلات",
+    "en": "Education",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "14csfvu",
+    "fa": "مدرک",
+    "en": "Qualification",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "xalxqt",
+    "fa": "رشتهٔ تحصیلی",
+    "en": "Field of study",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "feibrt",
+    "fa": "گواهی‌ها و دستاوردها",
+    "en": "Certificates & achievements",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1thy7mn",
+    "fa": "از دفتر من",
+    "en": "From my notebook",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1ensxar",
+    "fa": "اولین نوشته این معلم به‌زودی منتشر می‌شود.",
+    "en": "This teacher’s first article will appear here soon.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "fh1y5h",
+    "fa": "کلاس خصوصی با این معلم",
+    "en": "YOUR ONE-TO-ONE CLASS",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1r658k2",
+    "fa": "مبلغ و مدت برای هر جلسه",
+    "en": "Fee and duration per class",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1f2s2jw",
+    "fa": "زمان‌بندی با هماهنگی مدیریت",
+    "en": "Scheduled with the administrator",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "rf65bs",
+    "fa": "درخواست کلاس با این معلم",
+    "en": "Request this teacher",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1uqk8w3",
+    "fa": "برای پروفایل نمونه، درخواست کلاس ثبت نمی‌شود.",
+    "en": "Class requests are disabled for sample profiles.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "j49uw2",
+    "fa": "درخواست به مدیریت ارسال می‌شود. پرداختی در این مرحله انجام نمی‌شود.",
+    "en": "Your request goes to the administrator. No payment is taken at this stage.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "z99ov3",
+    "fa": "سؤالی داری؟ از ما بپرس",
+    "en": "Questions? Ask us",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "alixxh",
+    "fa": "همه نوشته‌ها",
+    "en": "All stories",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1ndkq9",
+    "fa": "نویسنده",
+    "en": "Author",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1qj06nc",
+    "fa": "هنوز نوشته‌ای با این انتخاب منتشر نشده است.",
+    "en": "No articles match your selection yet.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "6kks4t",
+    "fa": "نویسنده این مقاله",
+    "en": "ABOUT THE AUTHOR",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "eaqmfo",
+    "fa": "پرتفولیو و کلاس‌ها",
+    "en": "Portfolio & classes",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "spa4zd",
+    "fa": "زبان و نوع کلاس را انتخاب کنید.",
+    "en": "Choose an available language and class format.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "81hakn",
+    "fa": "پیامت به مدیریت رسید.",
+    "en": "Your message is in the admin inbox.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "xh30kr",
+    "fa": "مدیریت درخواست را بررسی می‌کند و از طریق اطلاعات تماس واردشده با شما هماهنگ خواهد کرد.",
+    "en": "The administrator can review your request and contact you using the details you provided.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1didh0t",
+    "fa": "شماره درخواست",
+    "en": "Request reference",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "qey6hx",
+    "fa": "نام و نام خانوادگی *",
+    "en": "Full name *",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "10zookx",
+    "fa": "ایمیل *",
+    "en": "Email *",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1kv8y4e",
+    "fa": "شماره تماس (اختیاری)",
+    "en": "Phone number (optional)",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1gx4iyy",
+    "fa": "هدف یادگیری و توضیحات *",
+    "en": "Learning goals & details *",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "5alish",
+    "fa": "پیام شما *",
+    "en": "Your message *",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "yz0kj2",
+    "fa": "سطح فعلی، هدف یادگیری و زمان‌های مناسب برای کلاس…",
+    "en": "Your level, goals and preferred class times…",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "m3le6e",
+    "fa": "چطور می‌توانیم کمکت کنیم؟",
+    "en": "How can we help?",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "cyjmw5",
+    "fa": "در حال ارسال…",
+    "en": "Sending…",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "16pq8ax",
+    "fa": "ارسال به مدیریت",
+    "en": "Send to administrator",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1ohs76h",
+    "fa": "با ارسال فرم، اطلاعات تماس و متن پیام شما برای پیگیری این درخواست در اختیار مدیریت قرار می‌گیرد.",
+    "en": "By submitting, you share your message and contact details with the administrator to follow up on this request.",
+    "area": "سایت عمومی"
+  },
+  {
+    "key": "1qfz60l",
+    "fa": "پیشخوان",
+    "en": "Overview",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1bet9dk",
+    "fa": "زبان‌آموزان",
+    "en": "Students",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1px4xdf",
+    "fa": "برنامه کلاس‌ها",
+    "en": "Schedule",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1oljs80",
+    "fa": "شهریه و تسویه",
+    "en": "Finance",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1rutihg",
+    "fa": "گفتگوها",
+    "en": "Messages",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "c14va9",
+    "fa": "پرتفولیو و بلاگ",
+    "en": "Portfolio & blog",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1oyq5sf",
+    "fa": "صندوق مدیر",
+    "en": "Admin inbox",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "x34adb",
+    "fa": "شنیداری",
+    "en": "Listening",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "145716z",
+    "fa": "گفتاری",
+    "en": "Speaking",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "qw5uor",
+    "fa": "خواندن",
+    "en": "Reading",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "14wuuqj",
+    "fa": "نوشتاری",
+    "en": "Writing",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "se7pbc",
+    "fa": "برگزار شده",
+    "en": "Completed",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "c681fc",
+    "fa": "لغو شده",
+    "en": "Cancelled",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1vrua01",
+    "fa": "برنامه‌ریزی شده",
+    "en": "Scheduled",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1i2npcd",
+    "fa": "فضای رشد و یادگیری",
+    "en": "A SPACE FOR LEARNING",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "qzznkg",
+    "fa": "فضای کار معلم",
+    "en": "TEACHER WORKSPACE",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "lkdcnu",
+    "fa": "هر قدم، یک پیشرفت",
+    "en": "Every step is progress",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1ex6qo2",
+    "fa": "مسیر یادگیری هر زبان‌آموز را با ارزیابی‌های منظم دنبال کنید.",
+    "en": "Keep every student’s learning journey moving with regular assessments.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "s7fudc",
+    "fa": "مشاهده زبان‌آموزان",
+    "en": "View students",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "p8vmm4",
+    "fa": "کلاس آنلاین",
+    "en": "Online class",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1j58tq6",
+    "fa": "کلاس حضوری",
+    "en": "In person",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1qo11xw",
+    "fa": "توضیحات جلسه",
+    "en": "Class notes",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "a4zxq",
+    "fa": "جزئیات",
+    "en": "Details",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "dhojh9",
+    "fa": "مدیریت جلسه",
+    "en": "Manage session",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "kaz9pq",
+    "fa": "زبان‌آموز",
+    "en": "Student",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1anr1c",
+    "fa": "سطح",
+    "en": "Level",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1u5a8bk",
+    "fa": "میانگین مهارت",
+    "en": "Skill average",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "vc0kfs",
+    "fa": "جلسه بعد",
+    "en": "Next class",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "txgw7x",
+    "fa": "پرونده",
+    "en": "Profile",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1vfth8j",
+    "fa": "زبان انگلیسی",
+    "en": "English",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "thbqfy",
+    "fa": "پرونده ",
+    "en": "Profile of ",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "s0k8nq",
+    "fa": "ابتدا یک زبان‌آموز اضافه کنید.",
+    "en": "Add a student first.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1ywyc5s",
+    "fa": "صفحه پیدا نشد",
+    "en": "Page not found",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "15h6tu3",
+    "fa": "در حال ذخیره",
+    "en": "Saving",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1n9uq2g",
+    "fa": "تغییر زبان به انگلیسی",
+    "en": "Switch to Persian",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1dlv6sb",
+    "fa": "حساب کاربری",
+    "en": "My account",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "11k57h4",
+    "fa": "فضای کار شما آماده می‌شود…",
+    "en": "Loading your workspace…",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "199fkv8",
+    "fa": "امروز، یک قدم نزدیک‌تر به پیشرفت زبان‌آموزانتان.",
+    "en": "A little more progress for every learner, every day.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1yw2dv4",
+    "fa": "افزودن زبان‌آموز",
+    "en": "Add student",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "80vf1o",
+    "fa": "کلاس جدید",
+    "en": "New class",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "u66sqp",
+    "fa": "در حال مشاهده داده‌های نمونه هستید؛ امکانات را امتحان کنید.",
+    "en": "You’re exploring sample data. Try out your workspace.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1mhadf2",
+    "fa": "شروع با فضای خالی",
+    "en": "Start with an empty workspace",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "kn4f2b",
+    "fa": "زبان‌آموزان فعال",
+    "en": "Active students",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1580bfg",
+    "fa": "در مسیر یادگیری با شما",
+    "en": "Learning and growing with you",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1reitb6",
+    "fa": "کلاس‌های این هفته",
+    "en": "Classes this week",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1ceg28",
+    "fa": "جلسه برگزار شده",
+    "en": "classes completed",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "4vfo09",
+    "fa": "زمان آموزش این هفته",
+    "en": "Teaching this week",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "jmepon",
+    "fa": "ساعت",
+    "en": "hours",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "pqd13k",
+    "fa": "مجموع جلسات برگزارشده و پیش رو",
+    "en": "Completed and upcoming sessions",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1gtytoj",
+    "fa": "شهریه تسویه‌نشده",
+    "en": "Outstanding fees",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "kshu3k",
+    "fa": "جلسه در انتظار تسویه",
+    "en": "sessions awaiting settlement",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1mafghm",
+    "fa": "برنامه کلاس‌ها",
+    "en": "Your schedule",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "5c5e6z",
+    "fa": "هفته قبل",
+    "en": "Previous week",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1u9fl5v",
+    "fa": "امروز",
+    "en": "Today",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "3dyed",
+    "fa": "هفته بعد",
+    "en": "Next week",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "2resi8",
+    "fa": "برای این روز کلاسی ندارید.",
+    "en": "No classes planned for this day.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1b6f1ur",
+    "fa": "برنامه‌ریزی کلاس",
+    "en": "Schedule a class",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1updze7",
+    "fa": "مشاهده تقویم کامل",
+    "en": "View full schedule",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "icnfo1",
+    "fa": "زبان‌آموزان شما",
+    "en": "Your students",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "e9ve4t",
+    "fa": "مشاهده همه",
+    "en": "View all",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1ntcko6",
+    "fa": "اولین زبان‌آموزتان را اضافه کنید.",
+    "en": "Add your first student.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "12x1a46",
+    "fa": "ریتم آموزش شما",
+    "en": "Your teaching rhythm",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1gwyv2b",
+    "fa": "این هفته",
+    "en": "This week",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "d2jzdu",
+    "fa": "جلسه آموزشی",
+    "en": "teaching sessions",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1yqmvc",
+    "fa": "توزیع کلاس‌ها در طول هفته",
+    "en": "Your week, at a glance",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1c94lwv",
+    "fa": "نمودار تعداد کلاس‌ها در هر روز هفته",
+    "en": "Number of classes each day this week",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "hr7llg",
+    "fa": "تعداد جلسات",
+    "en": "Sessions",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "hvcwhg",
+    "fa": "نگاهی به پیشرفت‌ها",
+    "en": "Learning in focus",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "16ogsdm",
+    "fa": "آخرین میانگین ارزیابی مهارت‌ها",
+    "en": "Latest skill assessment averages",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "ly7lsu",
+    "fa": "ارزیابی‌ها اینجا نمایش داده می‌شوند.",
+    "en": "Assessments will appear here.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "jr0lac",
+    "fa": "هر زبان‌آموز، یک مسیر منحصربه‌فرد.",
+    "en": "A unique learning journey for every student.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1bt47gw",
+    "fa": "جستجوی زبان‌آموز",
+    "en": "Search students",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "gmecp9",
+    "fa": "جستجوی نام یا ایمیل…",
+    "en": "Search name or email…",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1y6apc5",
+    "fa": "فیلتر سطح",
+    "en": "Filter by level",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "yxowzf",
+    "fa": "همه سطوح",
+    "en": "All levels",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "2izoef",
+    "fa": "زبان‌آموز",
+    "en": "students",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1liqis2",
+    "fa": "زبان انگلیسی",
+    "en": "English learner",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "e1hp9h",
+    "fa": "/ جلسه",
+    "en": "/ class",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1aj2ypc",
+    "fa": "زبان‌آموزی با این مشخصات پیدا نشد.",
+    "en": "No students match your search.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1f6mw3b",
+    "fa": "هنوز زبان‌آموزی ندارید.",
+    "en": "No students yet.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "j6lugv",
+    "fa": "این زبان‌آموز پیدا نشد.",
+    "en": "Student not found.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1r2aigv",
+    "fa": "بازگشت به زبان‌آموزان",
+    "en": "Back to students",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "rkzal3",
+    "fa": "برنامه کلاس‌ها",
+    "en": "Class schedule",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1cxqon9",
+    "fa": "هفته‌تان را با خیال آسوده برنامه‌ریزی کنید.",
+    "en": "Make room for a well-planned week.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1tpyih9",
+    "fa": "کلاس جدید",
+    "en": "Add class",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "10dg0vk",
+    "fa": "بدون کلاس برنامه‌ریزی‌شده",
+    "en": "No classes scheduled",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1jyi2rl",
+    "fa": "شهریه و تسویه",
+    "en": "Fees & settlements",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1cmkupv",
+    "fa": "حساب کلاس‌ها، همیشه روشن و مرتب.",
+    "en": "A clear view of every class and payment.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "ye81g4",
+    "fa": "گفتگوها",
+    "en": "Conversations",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "22r2ph",
+    "fa": "یادداشت‌ها و پیش‌نویس پیام‌های هر زبان‌آموز، در یک جا.",
+    "en": "Keep student notes and message drafts together.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "bqf4li",
+    "fa": "این بخش فقط برای مدیر سایت است.",
+    "en": "This section is for the site administrator.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "uxbh58",
+    "fa": "صفحه مورد نظر پیدا نشد.",
+    "en": "This page could not be found.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "11hoqci",
+    "fa": "بازگشت به پیشخوان",
+    "en": "Back to overview",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1m7m5yz",
+    "fa": "فضای نمونه · ویژه معلم",
+    "en": "Sample workspace · Teacher view",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "xb3of",
+    "fa": "فضای شخصی معلم",
+    "en": "Your private teaching workspace",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1osq74q",
+    "fa": "ویرایش زبان‌آموز",
+    "en": "Edit student",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1px6y8y",
+    "fa": "زبان‌آموز جدید",
+    "en": "New student",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "qmonuu",
+    "fa": "مدیریت کلاس",
+    "en": "Manage class",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1tr6wxs",
+    "fa": "ارزیابی جدید",
+    "en": "New assessment",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "76e8xa",
+    "fa": "اطلاعات و برنامه آموزشی زبان‌آموز را وارد کنید.",
+    "en": "Add contact details and learning preferences.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "5b9c28",
+    "fa": "زمان، شیوه برگزاری و جزئیات کلاس را مشخص کنید.",
+    "en": "Set a time, class format and session details.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "mchfgz",
+    "fa": "نمره‌های IELTS از ۰ تا ۹، با گام نیم نمره.",
+    "en": "IELTS band scores from 0 to 9, in half-point steps.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "90dztt",
+    "fa": "اطلاعات زبان‌آموز ذخیره شد.",
+    "en": "Student saved.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1pnr98c",
+    "fa": "کلاس ذخیره شد.",
+    "en": "Class saved.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1t7em0z",
+    "fa": "جلسه حذف شد.",
+    "en": "Session deleted.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1375vyz",
+    "fa": "ارزیابی جدید ثبت شد.",
+    "en": "Assessment saved.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "v53iam",
+    "fa": "شروع با فضای خالی؟",
+    "en": "Start with an empty workspace?",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "3g970d",
+    "fa": "زبان‌آموزان، جلسات، ارزیابی‌ها و پیام‌های نمونه و تغییراتی که در فضای نمونه داده‌اید حذف می‌شوند. اطلاعات پروفایل شما حفظ می‌شود.",
+    "en": "Sample students, sessions, assessments, messages and any edits made in sample mode will be removed. Your profile is preserved.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1k25sq4",
+    "fa": "انصراف",
+    "en": "Cancel",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "cia05t",
+    "fa": "فضای کاری شما آماده است.",
+    "en": "Your workspace is ready.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "192evwe",
+    "fa": "شروع فضای کاری من",
+    "en": "Start my workspace",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "jhfsb5",
+    "fa": "نمودار مهارت‌های شنیداری، گفتاری، خواندن و نوشتاری",
+    "en": "Listening, speaking, reading and writing skill chart",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "andl3d",
+    "fa": "زبان‌آموز انگلیسی",
+    "en": "English learner",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "y1116j",
+    "fa": "ویرایش پرونده",
+    "en": "Edit profile",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "10e70zb",
+    "fa": "نمای کلی",
+    "en": "Overview",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "lijze1",
+    "fa": "مهارت‌ها",
+    "en": "Skills",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1rsiefs",
+    "fa": "شهریه",
+    "en": "Finance",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1oighcy",
+    "fa": "گفتگو",
+    "en": "Messages",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "188hyoq",
+    "fa": "نرخ هر جلسه",
+    "en": "Session rate",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "3unpbb",
+    "fa": "دقیقه آموزش",
+    "en": "minutes of teaching",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1jwhpyq",
+    "fa": "جلسات برگزارشده",
+    "en": "Completed classes",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1k93s9z",
+    "fa": "از شروع دوره آموزشی",
+    "en": "Since the beginning of the course",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "igiwo9",
+    "fa": "همراه شما از",
+    "en": "Learning since",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1diixoz",
+    "fa": "تصویر مهارت‌ها",
+    "en": "Skills at a glance",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "rid966",
+    "fa": "آخرین ارزیابی",
+    "en": "Latest assessment",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1v89aur",
+    "fa": "هنوز ارزیابی ثبت نشده",
+    "en": "No assessment yet",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "dq5qmu",
+    "fa": "مهارت‌های زبان",
+    "en": "Language skills",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1bza8j9",
+    "fa": "سابقه ارزیابی‌ها",
+    "en": "Assessment history",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "owa1lo",
+    "fa": "نمره‌های IELTS از ۹",
+    "en": "IELTS bands, out of 9",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "5na8vi",
+    "fa": "اولین ارزیابی را ثبت کنید.",
+    "en": "Record the first assessment.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1rxf3qp",
+    "fa": "همه جلسات",
+    "en": "All classes",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "yvplnh",
+    "fa": "هنوز کلاسی ثبت نشده است.",
+    "en": "No classes recorded yet.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "kqnkws",
+    "fa": "دریافت شهریه ثبت شد.",
+    "en": "Payment recorded.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1fi3ccg",
+    "fa": "پیش‌نویس درخواست تسویه ذخیره شد.",
+    "en": "Payment request draft saved.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "cfa4nu",
+    "fa": "مانده قابل تسویه",
+    "en": "Outstanding balance",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "wntrkv",
+    "fa": "جلسه تسویه‌نشده",
+    "en": "unpaid sessions",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "16rpt36",
+    "fa": "شهریه دریافت‌شده",
+    "en": "Fees received",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "qdsx7a",
+    "fa": "جلسه تسویه‌شده",
+    "en": "paid sessions",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "a27y9n",
+    "fa": "جلسات مشمول شهریه",
+    "en": "Billable classes",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "wc9qay",
+    "fa": "برگزارشده یا لغوشده با شهریه",
+    "en": "Completed or charged cancellations",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1lzkivx",
+    "fa": "جلسات در انتظار تسویه",
+    "en": "Awaiting settlement",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "z2fpdv",
+    "fa": "جلسه‌های موردنظر را برای ثبت دریافت انتخاب کنید.",
+    "en": "Select the sessions you have received payment for.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "l3lh5b",
+    "fa": "جلسه انتخاب شده",
+    "en": "sessions selected",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1rsvdcy",
+    "fa": "پیش‌نویس درخواست تسویه",
+    "en": "Draft payment request",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1d1cboq",
+    "fa": "ثبت دریافت شهریه",
+    "en": "Record payment",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "cpnww6",
+    "fa": "انتخاب همه جلسات",
+    "en": "Select all sessions",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1nblzyo",
+    "fa": "زبان‌آموز / جلسه",
+    "en": "Student / class",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1ludbvq",
+    "fa": "وضعیت",
+    "en": "Status",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "ag07xq",
+    "fa": "شهریه و واحد پول",
+    "en": "Fee & currency",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "on48px",
+    "fa": "انتخاب جلسه ",
+    "en": "Select class ",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "ffljtj",
+    "fa": "همه‌چیز مرتب است؛ شهریه تسویه‌نشده‌ای ندارید.",
+    "en": "All caught up. There are no outstanding fees.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1v6i25o",
+    "fa": "سابقه دریافت‌ها",
+    "en": "Payment history",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "12wet81",
+    "fa": "تاریخ جلسه",
+    "en": "Class date",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1drk7ec",
+    "fa": "تاریخ ثبت دریافت",
+    "en": "Payment date",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1coh8qo",
+    "fa": "مبلغ و واحد پول",
+    "en": "Amount & currency",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "fejxln",
+    "fa": "هنوز دریافتی ثبت نشده است.",
+    "en": "No payments recorded yet.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1guy979",
+    "fa": "دریافت شهریه ثبت شود؟",
+    "en": "Record this payment?",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "mdf73r",
+    "fa": "بله، دریافت شد",
+    "en": "Yes, payment received",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "m02rdz",
+    "fa": "پیش‌نویس ذخیره شد.",
+    "en": "Draft saved.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "12gs8hv",
+    "fa": "متن پیام کپی شد.",
+    "en": "Message copied.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1yur2p8",
+    "fa": "امکان کپی خودکار وجود ندارد؛ متن را انتخاب و کپی کنید.",
+    "en": "Select the text and copy it manually.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "tqpdbf",
+    "fa": "برای ثبت پیام، ابتدا زبان‌آموز اضافه کنید.",
+    "en": "Add a student to start a conversation.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "dddybc",
+    "fa": "گفتگوهای زبان‌آموزان",
+    "en": "Student conversations",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "825oxw",
+    "fa": "پیام و یادداشت",
+    "en": "messages & notes",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "5qernc",
+    "fa": "یادداشت و پیش‌نویس پیام",
+    "en": "Notes & message drafts",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1fudvtw",
+    "fa": "ذخیره‌شده",
+    "en": "Saved",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "fjfjqf",
+    "fa": "نمونه گفتگو",
+    "en": "Sample conversation",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "hedfxr",
+    "fa": "پیش‌نویس",
+    "en": "Draft",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "hhj3n3",
+    "fa": "اولین یادداشت یا پیام را بنویسید.",
+    "en": "Write your first note or draft.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "13sz4mk",
+    "fa": "متن پیام",
+    "en": "Message text",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "m450kl",
+    "fa": "پیامی برای زبان‌آموز بنویسید…",
+    "en": "Write a message for your student…",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "q8im8l",
+    "fa": "ثبت پیش‌نویس",
+    "en": "Save draft",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1kt1p0x",
+    "fa": "کپی متن پیام",
+    "en": "Copy message",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1rcwim9",
+    "fa": "پیام معلم",
+    "en": "Teacher message",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "n9st1k",
+    "fa": "باز کردن در برنامه ایمیل",
+    "en": "Open in your email app",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "qm9umr",
+    "fa": "پیام‌ها اینجا ذخیره می‌شوند. برای ارسال، متن را کپی کنید یا با آیکن ایمیل در برنامه ایمیل خود باز کنید. ارسال مستقیم و ورود مستقل زبان‌آموز هنوز فعال نیست.",
+    "en": "Messages are saved here. Copy the text or open it in your email app to send. Direct delivery and separate student sign-in are not enabled.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "9px6r7",
+    "fa": "حداکثر حجم عکس ۱۰ مگابایت است.",
+    "en": "Maximum source photo size is 10 MB.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1nstay1",
+    "fa": "ذخیره عکس ناموفق بود.",
+    "en": "Could not save photo.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "661seg",
+    "fa": "عکس پروفایل ذخیره شد.",
+    "en": "Profile photo saved.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1053cqe",
+    "fa": "تنظیمات ذخیره نشد. دوباره تلاش کنید.",
+    "en": "Settings were not saved. Try again.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1pkuws0",
+    "fa": "عکس و اطلاعات خصوصی حساب",
+    "en": "Photo & private account details",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "6o18pf",
+    "fa": "عکس در پرتفولیوی منتشرشده دیده می‌شود. ایمیل، تلفن و جنسیت فقط در حساب شما می‌مانند.",
+    "en": "Your photo appears on the published portfolio. Email, phone and gender stay private.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1g5bw72",
+    "fa": "تنظیمات ذخیره شد.",
+    "en": "Settings saved.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "2of2jr",
+    "fa": "در حال بارگذاری…",
+    "en": "Uploading…",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "188pr0s",
+    "fa": "تغییر عکس",
+    "en": "Upload photo",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "d882a8",
+    "fa": "JPG، PNG یا WEBP · حداکثر ۱۰ مگابایت",
+    "en": "JPG, PNG or WEBP · up to 10 MB",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1ehyon2",
+    "fa": "عکس از پروفایل برداشته شد.",
+    "en": "Photo removed from profile.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "uh0xa4",
+    "fa": "حذف عکس",
+    "en": "Remove photo",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1446ns2",
+    "fa": "جنسیت (اختیاری)",
+    "en": "Gender (optional)",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "ccs66k",
+    "fa": "ترجیح می‌دهم نگویم",
+    "en": "Prefer not to say",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1bley72",
+    "fa": "آقا",
+    "en": "Man",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1weu28p",
+    "fa": "خانم",
+    "en": "Woman",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "bzmvoo",
+    "fa": "دیگر",
+    "en": "Other",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "hlduzt",
+    "fa": "ایمیل",
+    "en": "Email",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1xhkcaf",
+    "fa": "شماره تماس",
+    "en": "Phone number",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1lnbmee",
+    "fa": "ترجیحات فضای کار",
+    "en": "Workspace preferences",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1vk6fhp",
+    "fa": "واحد پول پیش‌فرض کلاس‌ها",
+    "en": "Default class currency",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "111v2il",
+    "fa": "برای زبان‌آموزان جدید؛ مبلغ و واحد پول سوابق تغییر نمی‌کند. نرخ عمومی را در پرتفولیو تنظیم کنید.",
+    "en": "For new students; existing fees retain their currency. Set public pricing in your portfolio.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "17xk1i2",
+    "fa": "نمایش تقویم",
+    "en": "Calendar display",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "davwqw",
+    "fa": "خودکار بر اساس زبان",
+    "en": "Automatic, based on language",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "18vvt7v",
+    "fa": "هجری شمسی",
+    "en": "Persian (Jalali)",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1j6wl0a",
+    "fa": "میلادی",
+    "en": "Gregorian",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1lrtgj9",
+    "fa": "ذخیره تغییرات",
+    "en": "Save changes",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1dz5n0o",
+    "fa": "دسترسی به حساب",
+    "en": "Account access",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "hilxzp",
+    "fa": "دسترسی به اطلاعات این فضای شخصی فقط با ورود به حساب شما امکان‌پذیر است.",
+    "en": "Your personal workspace is only available after signing in to your account.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1wrjrl5",
+    "fa": "خروج از حساب",
+    "en": "Sign out",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1osajwl",
+    "fa": "داده‌های نمونه",
+    "en": "Sample data",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1dpiifd",
+    "fa": "پس از آشنایی با امکانات، نمونه‌ها را حذف کنید و زبان‌آموزان خودتان را اضافه کنید.",
+    "en": "When you’re ready, remove the sample records and add your own students.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1ik7v5f",
+    "fa": "در حال ذخیره…",
+    "en": "Saving…",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "397lgm",
+    "fa": "ذخیره",
+    "en": "Save",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "3oy2g5",
+    "fa": "این ایمیل قبلاً ثبت شده است.",
+    "en": "This email is already in use.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1q30jx4",
+    "fa": "شماره تماس معتبر وارد کنید.",
+    "en": "Enter a valid phone number.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1irexby",
+    "fa": "مثلاً سارا احمدی",
+    "en": "e.g. Sara Ahmadi",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "g8cjx7",
+    "fa": "شماره تماس *",
+    "en": "Phone number *",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "g5bvvz",
+    "fa": "سطح زبان",
+    "en": "Language level",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "10blpab",
+    "fa": "جنسیت",
+    "en": "Gender",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "16nzuas",
+    "fa": "مشخص نشده",
+    "en": "Unspecified",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1wtmb64",
+    "fa": "زن / دختر",
+    "en": "Female",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "115icx4",
+    "fa": "مرد / پسر",
+    "en": "Male",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1j0n86k",
+    "fa": "مدت هر جلسه (دقیقه)",
+    "en": "Class duration (minutes)",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1dhl4xl",
+    "fa": "واحد پول",
+    "en": "Currency",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "v8ob23",
+    "fa": "شهریه هر جلسه",
+    "en": "Fee per class",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "d7hldw",
+    "fa": "تغییر نرخ فقط برای جلسات جدید است.",
+    "en": "Rate changes apply to new sessions only.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1hhvygb",
+    "fa": "ماه کلاس",
+    "en": "Class month",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1by7e1z",
+    "fa": "روز کلاس",
+    "en": "Class day",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "mtyybw",
+    "fa": "ساعت ۰ تا ۲۳ و دقیقه ۰ تا ۵۹ وارد کنید.",
+    "en": "Enter an hour from 0–23 and minutes from 0–59.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "416rob",
+    "fa": "مدت کلاس را مانند ۱:۱۵ وارد کنید.",
+    "en": "Enter the duration as 1:15.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "j9lfyv",
+    "fa": "مدت کلاس بین ۱۵ تا ۳۰۰ دقیقه باشد.",
+    "en": "Duration must be 15–300 minutes.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "pp3d9m",
+    "fa": "کلاس جدید باید برای امروز یا آینده باشد.",
+    "en": "New classes must be today or later.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "laa1pm",
+    "fa": "این جلسه تسویه شده و برای حفظ سابقه مالی، قابل ویرایش نیست.",
+    "en": "This class has been settled and is locked to preserve payment history.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "745n5q",
+    "fa": "زبان‌آموز *",
+    "en": "Student *",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "486ufq",
+    "fa": "تاریخ کلاس",
+    "en": "Class date",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "20ojhl",
+    "fa": "ساعت شروع",
+    "en": "Start time",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "13inyem",
+    "fa": "ساعت",
+    "en": "Hour",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1d7ksml",
+    "fa": "دقیقه",
+    "en": "Minute",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "12xv2ul",
+    "fa": "مدت کلاس (ساعت:دقیقه)",
+    "en": "Duration (hours:minutes)",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "15arks7",
+    "fa": "مثلاً ۱:۱۵ برای ۷۵ دقیقه",
+    "en": "e.g. 1:15 for 75 minutes",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "kjjyap",
+    "fa": "شیوه برگزاری",
+    "en": "Class format",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1p66ij4",
+    "fa": "وضعیت جلسه",
+    "en": "Class status",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "i9m2wt",
+    "fa": "برنامه‌ریزی‌شده",
+    "en": "Scheduled",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "reh7g6",
+    "fa": "برگزارشده",
+    "en": "Completed",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1bur09i",
+    "fa": "لغوشده",
+    "en": "Cancelled",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1h7dcm5",
+    "fa": "علت لغو",
+    "en": "Cancellation reason",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "xp8z23",
+    "fa": "لغو از طرف معلم",
+    "en": "Teacher cancelled",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1m3rmr7",
+    "fa": "لغو از طرف زبان‌آموز",
+    "en": "Student cancelled",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "o1ne2g",
+    "fa": "غیبت زبان‌آموز",
+    "en": "Student did not attend",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1o97n7y",
+    "fa": "شهریه این جلسه محاسبه شود",
+    "en": "Charge for this class",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1rnwceh",
+    "fa": "لغو از طرف معلم بدون شهریه است.",
+    "en": "No fee applies when the teacher cancels.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1ljjy2v",
+    "fa": "نرخ ثبت‌شده این جلسه",
+    "en": "Recorded fee for this class",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1uck677",
+    "fa": "یادداشت جلسه",
+    "en": "Class note",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "125k0kh",
+    "fa": "موضوع درس، تمرین یا نکته‌ای برای جلسه…",
+    "en": "Topic, homework or a note for the class…",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1tr3fcy",
+    "fa": "حذف جلسه",
+    "en": "Delete class",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1qelujf",
+    "fa": "این کلاس حذف شود؟",
+    "en": "Delete this class?",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1229ez9",
+    "fa": "این کار قابل بازگشت نیست. برای حفظ سابقه، می‌توانید به‌جای حذف وضعیت را «لغوشده» قرار دهید.",
+    "en": "This cannot be undone. To preserve the class record, you can change its status to cancelled instead.",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1ywofj0",
+    "fa": "یادداشت و هدف جلسه بعد",
+    "en": "Feedback and next learning goal",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "1jmhq0p",
+    "fa": "پیشرفت‌ها و موارد قابل تمرین…",
+    "en": "Progress made and areas to practice…",
+    "area": "فضای معلم"
+  },
+  {
+    "key": "18fnq5b",
+    "fa": "حذف مورد",
+    "en": "Remove item",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "129xvbj",
+    "fa": "افزودن مورد",
+    "en": "Add item",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "mpextt",
+    "fa": "نرخ هر جلسه بر اساس زبان و نوع کلاس",
+    "en": "Fee per language and class format",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "sbd8sq",
+    "fa": "نوع کلاس را برای هر زبان جدا انتخاب کنید و نرخ و مدت همان جلسه را وارد کنید.",
+    "en": "Choose the formats for each language, then set the fee and duration for each class.",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "ll1v9e",
+    "fa": "حداقل یک نوع کلاس انتخاب کنید.",
+    "en": "Select at least one class format.",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "45bwmb",
+    "fa": "مبلغ هر جلسه",
+    "en": "Fee per class",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "zuid4u",
+    "fa": "مدت (دقیقه)",
+    "en": "Duration (minutes)",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "16pkz99",
+    "fa": "زبان نوشته‌ها",
+    "en": "Content languages",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "1jnn48e",
+    "fa": "ترجمهٔ زبان انتخابی کنار هر متن نمایش داده می‌شود. اگر خالی بماند، سایت از متن اصلی استفاده می‌کند.",
+    "en": "Fields for the selected translation appear beside their originals. Blank translations fall back to the original.",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "8dw7yc",
+    "fa": "زبان متن اصلی",
+    "en": "Original language",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "tn7ocs",
+    "fa": "زبان ترجمه",
+    "en": "Translation language",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "1x1qqxs",
+    "fa": "پرتفولیو منتشر شد.",
+    "en": "Portfolio published.",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "10e5dvj",
+    "fa": "پرتفولیو به‌صورت پیش‌نویس ذخیره شد.",
+    "en": "Portfolio saved as a draft.",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "hoewly",
+    "fa": "مقاله حذف شد.",
+    "en": "Article deleted.",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "12xrsov",
+    "fa": "در حال دریافت پرتفولیو و مقاله‌ها…",
+    "en": "Loading your portfolio and articles…",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "1963nyc",
+    "fa": "ذخیرهٔ پروفایل",
+    "en": "Save profile",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "1jsx8rk",
+    "fa": "ذخیره و انتشار پرتفولیو",
+    "en": "Save & publish portfolio",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "1u0o4vq",
+    "fa": "ذخیرهٔ پیش‌نویس",
+    "en": "Save draft",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "xn43qd",
+    "fa": "فیلدهای خالی از اطلاعات قبلی حساب پر شدند. پیش از انتشار بازبینی کنید.",
+    "en": "Blank fields were filled from your account. Review before publishing.",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "fno629",
+    "fa": "معرفی، رزومه و نوشته‌های شما برای زبان‌آموزان.",
+    "en": "Your introduction, experience and writing, all in one place.",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "yr6r9h",
+    "fa": "فهرست معلم‌ها",
+    "en": "Teacher directory",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "dwn9o6",
+    "fa": "دیدن پرتفولیو",
+    "en": "View portfolio",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "1fhp469",
+    "fa": "پرتفولیوی تخصصی معلم",
+    "en": "Teaching portfolio",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "19r54zt",
+    "fa": "پروفایل",
+    "en": "Profile",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "1mz0m3d",
+    "fa": "بلاگ",
+    "en": "Blog",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "mwtjgf",
+    "fa": "کلاس‌ها، نرخ‌ها و سوابق تخصصی شما برای زبان‌آموزان.",
+    "en": "Classes, rates and qualifications for prospective learners.",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "1etltux",
+    "fa": "منتشرشده",
+    "en": "Published",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "aw6vx9",
+    "fa": "زبان‌ها، نوع کلاس و نرخ",
+    "en": "Languages, formats & fees",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "1lukawj",
+    "fa": "زبان‌های تدریس",
+    "en": "Languages taught",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "4dnp1h",
+    "fa": "شهر کلاس حضوری",
+    "en": "City for in-person classes",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "p06hii",
+    "fa": "رزومه و تخصص‌ها",
+    "en": "Qualifications & specialties",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "ujeobs",
+    "fa": "سابقه تدریس (سال)",
+    "en": "Teaching experience (years)",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "11ybe50",
+    "fa": "مدرک تحصیلی",
+    "en": "Qualification",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "xq52w2",
+    "fa": "انتخاب نشده",
+    "en": "Not specified",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "1ws1t0b",
+    "fa": "تخصص‌ها",
+    "en": "Specialties",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "7jtrxy",
+    "fa": "پرتفولیوی من در فهرست معلم‌ها نمایش داده شود",
+    "en": "Show my portfolio in the teacher directory",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "mm3qnv",
+    "fa": "پس از ذخیره با این گزینه، معرفی، عکس حساب، قیمت کلاس و مقاله‌های منتشرشده شما برای بازدیدکنندگان قابل مشاهده خواهد بود. اطلاعات زبان‌آموزان و امور مالی خصوصی نمایش داده نمی‌شود.",
+    "en": "Saving with this option publishes your bio, account photo, class price and published articles to visitors. Your private students and financial records stay private.",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "9jgpk1",
+    "fa": "پروفایل عمومی",
+    "en": "Public profile",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "1alcqyx",
+    "fa": "نام، عنوان و معرفی که زبان‌آموزان در پروفایل می‌بینند.",
+    "en": "Name, headline and introduction shown to learners.",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "1q02awi",
+    "fa": "نام نمایشی",
+    "en": "Display name",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "116mvxd",
+    "fa": "عنوان معرفی",
+    "en": "Headline",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "c7m6r8",
+    "fa": "دربارهٔ من",
+    "en": "About me",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "1wqi2s0",
+    "fa": "پرکردن فیلدهای خالی با اطلاعات قبلی حساب",
+    "en": "Fill blank fields from account details",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "1xxt0fy",
+    "fa": "نوشته‌های من",
+    "en": "My articles",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "1pe3xhw",
+    "fa": "نوشته‌ها پس از انتشار به بلاگ و پرتفولیوی شما اضافه می‌شوند.",
+    "en": "Published articles appear in the journal and on your portfolio.",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "1wrrfgy",
+    "fa": "نوشته جدید",
+    "en": "New article",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "rv0a5n",
+    "fa": "ویرایش",
+    "en": "Edit",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "1sgxoqd",
+    "fa": "دیدن مقاله",
+    "en": "View article",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "1o17h9n",
+    "fa": "حذف مقاله",
+    "en": "Delete article",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "234ljy",
+    "fa": "اولین نوشته‌ات را بنویس؛ یک تجربه، تمرین یا نکته آموزشی.",
+    "en": "Write your first article: an experience, exercise or learning tip.",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "zosidz",
+    "fa": "نوشتن اولین مقاله",
+    "en": "Write your first article",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "r8m0c3",
+    "fa": "این مقاله حذف شود؟",
+    "en": "Delete this article?",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "4f8qdw",
+    "fa": "متن مقاله حذف می‌شود و قابل بازگشت نیست. برای پنهان کردن موقت، می‌توانید وضعیت آن را پیش‌نویس کنید.",
+    "en": "The article will be permanently deleted. To hide it temporarily, change its status to draft instead.",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "iaghmf",
+    "fa": "مقاله منتشر شد.",
+    "en": "Article published.",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "xyrk5q",
+    "fa": "ویرایش نوشته",
+    "en": "Edit article",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "ckm41q",
+    "fa": "نوشته تازه",
+    "en": "New article",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "qb87qn",
+    "fa": "پیش‌نمایش",
+    "en": "Preview",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "k68rhu",
+    "fa": "عنوان مقاله",
+    "en": "Article title",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "7io928",
+    "fa": "خلاصهٔ کوتاه",
+    "en": "Short excerpt",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "1kpu60b",
+    "fa": "موضوع",
+    "en": "Category",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "118leh2",
+    "fa": "متن مقاله",
+    "en": "Article content",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "1ofydnn",
+    "fa": "پاراگراف‌ها را با یک خط خالی جدا کنید. برای عنوان بخش، ابتدای خط «## » بنویسید.",
+    "en": "Separate paragraphs with an empty line. Start section headings with “## ”.",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "1f2xkub",
+    "fa": "برای انتشار مقاله، ابتدا پرتفولیوی خود را منتشر کنید. پیش‌نویس را می‌توانید همین حالا ذخیره کنید.",
+    "en": "Publish your portfolio before publishing articles. You can save drafts now.",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "187n320",
+    "fa": "بازگشت",
+    "en": "Back",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "14twgt0",
+    "fa": "ذخیره پیش‌نویس",
+    "en": "Save draft",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "a86ngw",
+    "fa": "ذخیره و انتشار",
+    "en": "Save & publish",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "ow3mlg",
+    "fa": "پیش‌نمایش مقاله",
+    "en": "Article preview",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "1gw0dj0",
+    "fa": "این پیش‌نمایش هنوز منتشر نشده است.",
+    "en": "This preview has not been published.",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "163fp8b",
+    "fa": "صندوق مدیریت",
+    "en": "Administrator inbox",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "jznauj",
+    "fa": "پیام‌های تماس و درخواست‌های انتخاب معلم را اینجا پیگیری کنید.",
+    "en": "Follow up on contact messages and teacher requests here.",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "kuqzsk",
+    "fa": "تازه‌سازی",
+    "en": "Refresh",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "1w2fnjr",
+    "fa": "وضعیت درخواست",
+    "en": "Request status",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "wsr25l",
+    "fa": "همه درخواست‌ها",
+    "en": "All requests",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "5fo89z",
+    "fa": "جدید",
+    "en": "New",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "1vl321",
+    "fa": "در حال پیگیری",
+    "en": "In progress",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "1nng1n",
+    "fa": "بسته‌شده",
+    "en": "Closed",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "17d82u1",
+    "fa": "درخواست",
+    "en": "requests",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "15q2bdf",
+    "fa": "در حال دریافت پیام‌ها…",
+    "en": "Loading messages…",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "1kix06v",
+    "fa": "درخواست کلاس با ",
+    "en": "Class with ",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "ypytjy",
+    "fa": "پیام فرم تماس",
+    "en": "Contact form message",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "im2gsz",
+    "fa": "درخواستی در این وضعیت ندارید.",
+    "en": "No requests in this status.",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "jjd9mb",
+    "fa": "وضعیت درخواست ذخیره شد.",
+    "en": "Request updated.",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "1fbergw",
+    "fa": "شماره درخواست",
+    "en": "REQUEST",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "1izgp85",
+    "fa": "معلم انتخابی",
+    "en": "Selected teacher",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "1wv0k2r",
+    "fa": "قیمت هنگام درخواست",
+    "en": "Price when requested",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "11gdnu1",
+    "fa": "وضعیت پیگیری",
+    "en": "Follow-up status",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "aidae",
+    "fa": "یادداشت داخلی مدیر",
+    "en": "Internal admin note",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "err4nd",
+    "fa": "این یادداشت برای متقاضی ارسال یا نمایش داده نمی‌شود.",
+    "en": "This note is not sent to or shown to the applicant.",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "1bkfrwr",
+    "fa": "پیگیری درخواست شما",
+    "en": "Your class request",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "1asjlcn",
+    "fa": "پاسخ با ایمیل",
+    "en": "Reply by email",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "iryg0f",
+    "fa": "ذخیره وضعیت",
+    "en": "Save status",
+    "area": "پرتفولیو و بلاگ"
+  },
+  {
+    "key": "1lms4m4",
+    "fa": "ساخت نسخهٔ کم‌حجم ممکن نشد.",
+    "en": "Could not compress the photo.",
+    "area": "تصویر و ویدئو"
+  },
+  {
+    "key": "367qsq",
+    "fa": "کادر عکس پروفایل",
+    "en": "Frame your profile photo",
+    "area": "تصویر و ویدئو"
+  },
+  {
+    "key": "12hp73g",
+    "fa": "قاب را روی عکس بکشید؛ برای تغییر اندازه، یکی از گوشه‌ها را بگیرید.",
+    "en": "Drag the frame over the photo. Pull any corner to resize it.",
+    "area": "تصویر و ویدئو"
+  },
+  {
+    "key": "1hekwum",
+    "fa": "قاب برش؛ جابه‌جایی با کلیدهای جهت و تغییر اندازه با مثبت و منفی",
+    "en": "Crop frame; use arrow keys to move and plus or minus to resize",
+    "area": "تصویر و ویدئو"
+  },
+  {
+    "key": "1mhvzkk",
+    "fa": "پیش‌نمایش برش",
+    "en": "Crop preview",
+    "area": "تصویر و ویدئو"
+  },
+  {
+    "key": "1vhhus4",
+    "fa": "اندازهٔ قاب",
+    "en": "Frame size",
+    "area": "تصویر و ویدئو"
+  },
+  {
+    "key": "coqknw",
+    "fa": "بازنشانی",
+    "en": "Reset",
+    "area": "تصویر و ویدئو"
+  },
+  {
+    "key": "q5pub9",
+    "fa": "در حال آماده‌سازی عکس…",
+    "en": "Opening your photo…",
+    "area": "تصویر و ویدئو"
+  },
+  {
+    "key": "1rcupjx",
+    "fa": "ذخیرهٔ عکس",
+    "en": "Save photo",
+    "area": "تصویر و ویدئو"
+  },
+  {
+    "key": "kg7edz",
+    "fa": "عملیات انجام نشد. دوباره تلاش کنید.",
+    "en": "Could not complete the operation. Try again.",
+    "area": "تصویر و ویدئو"
+  },
+  {
+    "key": "1wxckll",
+    "fa": "مرورگر نتوانست ویدئو را باز کند. یک MP4 با کدک H.264 امتحان کنید.",
+    "en": "Could not open the video. Try an H.264 MP4.",
+    "area": "تصویر و ویدئو"
+  },
+  {
+    "key": "gwsret",
+    "fa": "فایل ویدئویی معتبر نیست.",
+    "en": "Choose a valid video.",
+    "area": "تصویر و ویدئو"
+  },
+  {
+    "key": "hpil8u",
+    "fa": "مدت ویدئو نباید بیشتر از ۵ دقیقه باشد.",
+    "en": "Maximum video length is 5 minutes.",
+    "area": "تصویر و ویدئو"
+  },
+  {
+    "key": "tkjzvg",
+    "fa": "ویدئو حذف شد.",
+    "en": "Video removed.",
+    "area": "تصویر و ویدئو"
+  },
+  {
+    "key": "ddqus2",
+    "fa": "تغییرات ویدئو ذخیره شد.",
+    "en": "Video changes saved.",
+    "area": "تصویر و ویدئو"
+  },
+  {
+    "key": "ddt2gi",
+    "fa": "با یک ویدئوی کوتاه خودتان و شیوهٔ تدریستان را معرفی کنید.",
+    "en": "Introduce yourself and your teaching style with a short video.",
+    "area": "تصویر و ویدئو"
+  },
+  {
+    "key": "7otqi9",
+    "fa": "در حال نمایش",
+    "en": "Visible",
+    "area": "تصویر و ویدئو"
+  },
+  {
+    "key": "vnza2p",
+    "fa": "پنهان",
+    "en": "Hidden",
+    "area": "تصویر و ویدئو"
+  },
+  {
+    "key": "1d5y4pv",
+    "fa": "پیش‌نمایش ویدئوی معرفی",
+    "en": "Introduction video preview",
+    "area": "تصویر و ویدئو"
+  },
+  {
+    "key": "pk6kwx",
+    "fa": "جایگزینی ویدئو",
+    "en": "Replace video",
+    "area": "تصویر و ویدئو"
+  },
+  {
+    "key": "14yb3wa",
+    "fa": "انتخاب ویدئو",
+    "en": "Choose video",
+    "area": "تصویر و ویدئو"
+  },
+  {
+    "key": "kjd69e",
+    "fa": "فایل MP4 حداکثر ۲۴ مگابایت انتخاب کنید.",
+    "en": "Choose an MP4 up to 24 MB.",
+    "area": "تصویر و ویدئو"
+  },
+  {
+    "key": "15ypeg4",
+    "fa": "MP4، حداکثر ۵ دقیقه و ۲۴ مگابایت. برای پخش بهتر H.264 پیشنهاد می‌شود. ویدئوی تازه ابتدا پنهان است.",
+    "en": "MP4, up to 5 minutes and 24 MB. H.264 is recommended. New uploads start hidden.",
+    "area": "تصویر و ویدئو"
+  },
+  {
+    "key": "1p2ykti",
+    "fa": "ویدئو در پروفایل منتشرشده نمایش داده شود",
+    "en": "Show video on my published profile",
+    "area": "تصویر و ویدئو"
+  },
+  {
+    "key": "snaewd",
+    "fa": "ویدئوی معرفی حذف شود؟",
+    "en": "Remove the introduction video?",
+    "area": "تصویر و ویدئو"
+  },
+  {
+    "key": "15oc1c0",
+    "fa": "بله، حذف شود",
+    "en": "Yes, remove",
+    "area": "تصویر و ویدئو"
+  },
+  {
+    "key": "1vwdrpn",
+    "fa": "حذف ویدئو",
+    "en": "Remove video",
+    "area": "تصویر و ویدئو"
+  },
+  {
+    "key": "rfpqww",
+    "fa": "لطفاً صبر کنید…",
+    "en": "Please wait…",
+    "area": "تصویر و ویدئو"
+  },
+  {
+    "key": "i7pifq",
+    "fa": "انگلیسی",
+    "en": "English",
+    "area": "برچسب‌ها و دسته‌بندی‌ها"
+  },
+  {
+    "key": "177eoc5",
+    "fa": "فرانسوی",
+    "en": "French",
+    "area": "برچسب‌ها و دسته‌بندی‌ها"
+  },
+  {
+    "key": "5h6ppt",
+    "fa": "آلمانی",
+    "en": "German",
+    "area": "برچسب‌ها و دسته‌بندی‌ها"
+  },
+  {
+    "key": "wgunen",
+    "fa": "اسپانیایی",
+    "en": "Spanish",
+    "area": "برچسب‌ها و دسته‌بندی‌ها"
+  },
+  {
+    "key": "1fos3sp",
+    "fa": "ترکی",
+    "en": "Turkish",
+    "area": "برچسب‌ها و دسته‌بندی‌ها"
+  },
+  {
+    "key": "1qx9lxx",
+    "fa": "عربی",
+    "en": "Arabic",
+    "area": "برچسب‌ها و دسته‌بندی‌ها"
+  },
+  {
+    "key": "1oehthn",
+    "fa": "فارسی",
+    "en": "Persian",
+    "area": "برچسب‌ها و دسته‌بندی‌ها"
+  },
+  {
+    "key": "2g0upi",
+    "fa": "ایتالیایی",
+    "en": "Italian",
+    "area": "برچسب‌ها و دسته‌بندی‌ها"
+  },
+  {
+    "key": "1ll5fo8",
+    "fa": "یادگیری زبان",
+    "en": "Learning",
+    "area": "برچسب‌ها و دسته‌بندی‌ها"
+  },
+  {
+    "key": "1ofnxlb",
+    "fa": "مکالمه",
+    "en": "Conversation",
+    "area": "برچسب‌ها و دسته‌بندی‌ها"
+  },
+  {
+    "key": "eg8hh4",
+    "fa": "آزمون‌ها",
+    "en": "Exams",
+    "area": "برچسب‌ها و دسته‌بندی‌ها"
+  },
+  {
+    "key": "1pamjn0",
+    "fa": "فرهنگ و زبان",
+    "en": "Culture",
+    "area": "برچسب‌ها و دسته‌بندی‌ها"
+  },
+  {
+    "key": "1ju0gmo",
+    "fa": "سیکل",
+    "en": "Lower secondary",
+    "area": "برچسب‌ها و دسته‌بندی‌ها"
+  },
+  {
+    "key": "1s3c1h",
+    "fa": "دیپلم",
+    "en": "High school diploma",
+    "area": "برچسب‌ها و دسته‌بندی‌ها"
+  },
+  {
+    "key": "me982i",
+    "fa": "کاردانی",
+    "en": "Associate degree",
+    "area": "برچسب‌ها و دسته‌بندی‌ها"
+  },
+  {
+    "key": "4hvql6",
+    "fa": "کارشناسی",
+    "en": "Bachelor’s degree",
+    "area": "برچسب‌ها و دسته‌بندی‌ها"
+  },
+  {
+    "key": "1olx1zr",
+    "fa": "کارشناسی ارشد",
+    "en": "Master’s degree",
+    "area": "برچسب‌ها و دسته‌بندی‌ها"
+  },
+  {
+    "key": "1f6uxw8",
+    "fa": "دکترا",
+    "en": "Doctorate",
+    "area": "برچسب‌ها و دسته‌بندی‌ها"
+  },
+  {
+    "key": "16kojvm",
+    "fa": "بدون مدرک",
+    "en": "No qualification",
+    "area": "برچسب‌ها و دسته‌بندی‌ها"
+  }
+]

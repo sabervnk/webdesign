@@ -1,3 +1,4 @@
+import {sampleWorkspace} from '../lib/model.ts';
 import {avatar} from './fixtures/avatar.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
@@ -10,6 +11,7 @@ test('portfolios, articles, enquiries and admin access preserve ownership and qu
  try{
   const db=await mf.getD1Database('DB');
   for(const file of (await readdir('drizzle')).filter(f=>f.endsWith('.sql')).sort())for(const sql of (await readFile('drizzle/'+file,'utf8')).split('--> statement-breakpoint'))if(sql.trim())await db.exec(sql.replace(/\n/g,' '));
+  for(const id of ['teacher-a','teacher-b'])await db.prepare('INSERT INTO teacher_workspaces VALUES(?,?,1,?)').bind(id,JSON.stringify(sampleWorkspace('2026-11-10')),new Date().toISOString()).run();
   const req=(path,user,method='GET',body)=>mf.dispatchFetch('https://mahela-classroom.lahzehtv.chatgpt.site'+path,{method,headers:{...(user?{'oai-authenticated-user-id':user,'oai-authenticated-user-email':user==='admin'?'lahzetv@gmail.com':user+'@example.com'}:{}),...(body?{'Content-Type':'application/json',Origin:'https://mahela-classroom.lahzehtv.chatgpt.site'}:{})},...(body?{body:JSON.stringify(body)}:{})});
   const ok=async(response,status=200)=>{assert.equal(response.status,status,await response.clone().text());return response.json()};
   for(const path of ['/','/teachers','/blog','/contact','/teachers/sample-sara','/blog/sample-small-steps'])assert.equal((await req(path)).status,200,path);

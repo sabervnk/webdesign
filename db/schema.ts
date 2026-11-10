@@ -7,3 +7,18 @@ export const teacherVideos=sqliteTable('teacher_videos',{
  ownerId:text('owner_id').primaryKey(),key:text('object_key').notNull(),
  size:integer('size').notNull(),visible:integer('visible').notNull().default(0),
 });
+
+export const accounts=sqliteTable('classer_accounts',{
+ id:text('id').primaryKey(),username:text('username').notNull().unique(),name:text('name').notNull(),email:text('email').notNull(),
+ role:text('role').notNull(),passwordHash:text('password_hash').notNull(),active:integer('active').notNull().default(1),
+ epoch:integer('epoch').notNull().default(0),mustChange:integer('must_change').notNull().default(1),
+ teacherId:text('teacher_id'),studentId:text('student_id'),createdAt:text('created_at').notNull(),
+});
+export const accountSessions=sqliteTable('classer_sessions',{
+ token:text('token').primaryKey(),accountId:text('account_id').notNull().references(()=>accounts.id),epoch:integer('epoch').notNull(),expires:integer('expires').notNull(),
+},t=>[index('classer_sessions_exp_idx').on(t.expires)]);
+export const accountRecovery=sqliteTable('classer_recovery',{
+ token:text('token').primaryKey(),accountId:text('account_id').notNull().references(()=>accounts.id),epoch:integer('epoch').notNull(),expires:integer('expires').notNull(),
+},t=>[index('classer_recovery_exp_idx').on(t.expires)]);
+export const authLimits=sqliteTable('classer_auth_limits',{key:text('key').primaryKey(),window:integer('window').notNull(),count:integer('count').notNull()},t=>[index('classer_auth_limit_window_idx').on(t.window)]);
+export const siteCopy=sqliteTable('classer_site_copy',{id:integer('id').primaryKey(),data:text('data').notNull(),version:integer('version').notNull().default(1)});

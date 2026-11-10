@@ -1,5 +1,5 @@
 import {bucket,database,deleteVideo} from '@/db/storage';
-import {identity,validOrigin,json,payload} from '@/lib/server/access';
+import {teacherIdentity,validOrigin,json,payload} from '@/lib/server/access';
 import {readBytes,requestFailure} from '@/lib/server/http';
 import {VIDEO_MAX,VIDEO_MAX_SECONDS} from '@/lib/profile-media';
 import {mp4Duration} from '@/lib/server/mp4';
@@ -9,12 +9,12 @@ const current=(id:string)=>database().prepare('SELECT object_key,size,visible FR
 const report=(v:VideoRow|null)=>json({video:v?{url:'/api/studio/video?play='+v.object_key.split('/').at(-1),visible:!!v.visible}:null});
 const unavailable=(e:unknown)=>requestFailure(e,'ذخیره یا دریافت ویدئو انجام نشد. / Video operation failed.');
 export async function GET(r:Request){
- const id=identity(r)?.id;
+ const id=(await teacherIdentity(r))?.id;
  if(!id)return json({},401);
  try{const v=await current(id);return new URL(r.url).searchParams.has('play')?(v?await playVideo(r,v):new Response(null,{status:404,headers:videoHeaders})):report(v)}catch(e){return unavailable(e)}
 }
 export async function POST(r:Request){
- const id=identity(r)?.id;
+ const id=(await teacherIdentity(r))?.id;
  if(!id)return json({},401);
  if(!validOrigin(r))return json({},403);
  if(r.headers.get('content-type')!=='video/mp4')return json({error:'فایل MP4 انتخاب کنید. / Choose an MP4 file.'},400);
@@ -36,7 +36,7 @@ export async function POST(r:Request){
  }catch(e){return unavailable(e)}
 }
 export async function PATCH(r:Request){
- const id=identity(r)?.id;
+ const id=(await teacherIdentity(r))?.id;
  if(!id)return json({},401);
  if(!validOrigin(r))return json({},403);
  try{
@@ -47,7 +47,7 @@ export async function PATCH(r:Request){
  }catch(e){return unavailable(e)}
 }
 export async function DELETE(r:Request){
- const id=identity(r)?.id;
+ const id=(await teacherIdentity(r))?.id;
  if(!id)return json({},401);
  if(!validOrigin(r))return json({},403);
  try{

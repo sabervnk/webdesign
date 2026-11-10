@@ -22,6 +22,13 @@
       "when": 1794310153524,
       "tag": "0002_burly_namor",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1794329972264,
+      "tag": "0003_natural_mathemanic",
+      "breakpoints": true
     }
   ]
 }
