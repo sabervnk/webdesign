@@ -93,3 +93,12 @@ html[dir=ltr] .pub-back svg,html[dir=ltr] .pub-quiet-link>.lucide-chevron-left{t
 .teacher-offers{padding:0;margin:9px 0 4px;list-style:none;display:grid;gap:7px;max-height:19rem;overflow:auto}
 .teacher-offers li{display:flex;flex-wrap:wrap;gap:3px 12px;align-items:center;justify-content:space-between;padding:7px 8px;background:var(--muted);border-radius:8px;font-size:.78rem}
 .teacher-offers strong{font-size:.82rem}
+
+.studio-group{min-width:0;border:1px solid var(--border);border-radius:14px;padding:16px;margin-block:16px}
+.studio-group>legend{padding-inline:7px;font-size:1rem;font-weight:750}
+.studio-reuse{margin-top:12px}
+.studio-account-content{margin-top:20px}
+.studio-tabs{flex-wrap:wrap}
+.studio-fee-row{grid-template-columns:minmax(56px,.65fr) minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr)}
+.teacher-offers small{white-space:nowrap;color:var(--muted-foreground);font-size:.72rem}
+@media(max-width:600px){.studio-fee-row{grid-template-columns:repeat(2,minmax(0,1fr))}.studio-fee-row>.badge{align-self:center}.studio-group{padding:12px}}

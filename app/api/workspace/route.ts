@@ -1,3 +1,4 @@
+import {portfolioIdentity} from '@/lib/catalogue';
 import {requestFailure} from '@/lib/server/http';
 import {identity,validOrigin,payload} from '@/lib/server/access';
 import {database} from '@/db/storage';
@@ -9,7 +10,8 @@ export async function GET(r:Request){
  const id=owner(r);if(!id)return json({error:'برای ورود به فضای معلم، وارد حساب خود شوید. / Sign in to continue.'},401);
  try{const db=database();let row=await db.prepare('SELECT data,version FROM teacher_workspaces WHERE owner_id = ?').bind(id).first<{data:string,version:number}>();
  if(!row){const tzDay=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Tehran',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());const state=sampleWorkspace(/^\d{4}-\d{2}-\d{2}$/.test(tzDay)?tzDay:dateKey(new Date()));await db.prepare('INSERT OR IGNORE INTO teacher_workspaces (owner_id,data,version,updated_at) VALUES (?,?,1,?)').bind(id,JSON.stringify(state),new Date().toISOString()).run();row=await db.prepare('SELECT data,version FROM teacher_workspaces WHERE owner_id = ?').bind(id).first<{data:string,version:number}>();}
- return json({data:workspaceSchema.parse(JSON.parse(row!.data)),version:row!.version,isAdmin:identity(r)?.isAdmin||false});
+ const portfolio=await db.prepare("SELECT json_object('name',json_extract(data,'$.name'),'headline',json_extract(data,'$.headline'),'contentLocale',json_extract(data,'$.contentLocale'),'translations',json_object('fa',json_extract(data,'$.translations.fa'),'en',json_extract(data,'$.translations.en'))) AS details FROM teacher_public_profiles WHERE owner_id=?").bind(id).first<{details:string}>();
+ return json({data:workspaceSchema.parse(JSON.parse(row!.data)),version:row!.version,isAdmin:identity(r)?.isAdmin||false,portfolioIdentity:portfolio?portfolioIdentity(JSON.parse(portfolio.details)):null});
  }catch(e){console.error('Workspace load failed',e);return json({error:'دریافت اطلاعات ممکن نشد. دوباره تلاش کنید. / Could not load your workspace.'},503)}
 }
 export async function PUT(r:Request){

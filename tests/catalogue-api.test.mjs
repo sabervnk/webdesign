@@ -14,6 +14,9 @@ test('portfolios, articles, enquiries and admin access preserve ownership and qu
   const ok=async(response,status=200)=>{assert.equal(response.status,status,await response.clone().text());return response.json()};
   for(const path of ['/','/teachers','/blog','/contact','/teachers/sample-sara','/blog/sample-small-steps'])assert.equal((await req(path)).status,200,path);
   assert.equal((await req('/api/studio')).status,401);
+  const settings=await mf.dispatchFetch('https://mahela-classroom.lahzehtv.chatgpt.site/settings',{redirect:'manual'});
+  assert.equal(settings.status,307);
+  assert.equal(new URL(settings.headers.get('location'),'https://mahela-classroom.lahzehtv.chatgpt.site').pathname+new URL(settings.headers.get('location'),'https://mahela-classroom.lahzehtv.chatgpt.site').search,'/studio?tab=account');
   const workspace=await ok(await req('/api/workspace','teacher-a'));
   workspace.data.demo=false;workspace.data.profile.name='Private Account Name';workspace.data.profile.email='private@example.com';
   await ok(await req('/api/workspace','teacher-a','PUT',workspace));
@@ -105,10 +108,10 @@ test('portfolios, articles, enquiries and admin access preserve ownership and qu
   await ok(await req('/api/admin/requests','admin','PUT',{id:inquiry.id,version:1,status:'reviewing',adminNote:'Private follow-up note'}));
   assert.equal((await req('/api/admin/requests','admin','PUT',{id:inquiry.id,version:1,status:'closed',adminNote:''})).status,409);
   const multirate={...profile,city:'تهران',languages:['en','fr'],formats:['online','in-person'],translations:{en:{name:'Test Teacher',bio:'English biography'}},offers:[
-   {language:'en',format:'online',rate:15,currency:'USD'},
-   {language:'en',format:'in-person',rate:400000,currency:'TOMAN'},
-   {language:'fr',format:'online',rate:500000,currency:'TOMAN'},
-   {language:'fr',format:'in-person',rate:33,currency:'USD'},
+   {language:'en',format:'online',rate:15,duration:45,currency:'USD'},
+   {language:'en',format:'in-person',rate:400000,duration:60,currency:'TOMAN'},
+   {language:'fr',format:'online',rate:500000,duration:75,currency:'TOMAN'},
+   {language:'fr',format:'in-person',rate:33,duration:90,currency:'USD'},
   ]};
   assert.equal((await req('/api/studio/profile','teacher-a','PUT',{profile:{...multirate,offers:multirate.offers.slice(1)},version:2})).status,400);
   await ok(await req('/api/studio/profile','teacher-a','PUT',{profile:multirate,version:2}));
@@ -120,8 +123,10 @@ test('portfolios, articles, enquiries and admin access preserve ownership and qu
   const quoted=(await ok(await req('/api/admin/requests','admin'))).requests.find(x=>x.id===second.id);
   assert.equal(quoted.rate,33);
   assert.equal(quoted.currency,'USD');
+  assert.equal(quoted.duration,90);
+  assert.equal((await ok(await req('/api/workspace','teacher-a'))).portfolioIdentity.en.name,'Test Teacher');
   inbox=await ok(await req('/api/admin/requests','admin'));
-  const original=inbox.requests.find(x=>x.id===inquiry.id);assert.equal(original.currency,'USD');assert.equal(original.rate,24.99);assert.equal(original.status,'reviewing');
+  const original=inbox.requests.find(x=>x.id===inquiry.id);assert.equal(original.currency,'USD');assert.equal(original.rate,24.99);assert.equal(original.duration,60);assert.equal(original.status,'reviewing');
   assert.equal((await req('/api/requests',undefined,'POST',{...inquiry,id:crypto.randomUUID()})).status,409);
   const contact={id:crypto.randomUUID(),kind:'contact',name:'Learner One',email:'learner@example.com',message:'Please help me choose a teacher.'};
   for(let i=0;i<4;i++)await ok(await req('/api/requests',undefined,'POST',{...contact,id:crypto.randomUUID()}),201);

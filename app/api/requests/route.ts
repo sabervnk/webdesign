@@ -1,5 +1,5 @@
 import {database} from '@/db/storage';
-import {inquirySchema,offerFor,type ClassOffer,type Teacher} from '@/lib/catalogue';
+import {inquirySchema,offerFor,type DisplayOffer,type Teacher} from '@/lib/catalogue';
 import {json,validOrigin,payload} from '@/lib/server/access';
 import {requestFailure} from '@/lib/server/http';
 
@@ -23,7 +23,7 @@ export async function POST(r:Request){
   // A successful retry must still work after the teacher changes their offer.
   const repeated=await duplicate();if(repeated)return repeated;
   let teacher:Teacher|undefined;
-  let offer:ClassOffer|undefined;
+  let offer:DisplayOffer|undefined;
   if(data.kind==='class'){
    const row=await db.prepare('SELECT data,version FROM teacher_public_profiles WHERE id=? AND published=1').bind(data.teacherId).first<{data:string,version:number}>();
    if(!row)return json({error:'این معلم اکنون درخواست جدید نمی‌پذیرد. / This teacher is not available.'},400);
@@ -33,7 +33,7 @@ export async function POST(r:Request){
    if(!offer)return json({error:'زبان یا نوع کلاس با خدمات معلم مطابقت ندارد. / Select a language and format offered by this teacher.'},400);
   }
   const now=new Date().toISOString();
-  const stored={...data,teacherName:teacher?.name||'',rate:offer?.rate??null,currency:offer?.currency??null,duration:teacher?.duration??null,adminNote:''};
+  const stored={...data,teacherName:teacher?.name||'',rate:offer?.rate??null,currency:offer?.currency??null,duration:offer?.duration??null,adminNote:''};
   // One conditional write makes both duplicate handling and the hourly limit
   // atomic on D1 and across Netlify snapshot compare-and-swap retries.
   const result=await db.prepare(`INSERT OR IGNORE INTO site_inquiries (id,email,data,status,version,created_at,updated_at)

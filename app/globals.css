@@ -51,3 +51,6 @@ html[dir=rtl] .lucide-arrow-left{transform:rotate(180deg)}
 .session-note-label{display:block;font-size:.68rem;font-weight:750;color:var(--muted-foreground)}
 .session-note-text{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.8rem;line-height:1.65;color:var(--foreground)}
 @media(max-width:600px){.session-info{gap:7px}.session-note{flex-basis:100%;padding:6px 8px}}
+
+.account-preferences{border-top:1px solid var(--border);margin-top:22px;padding-top:17px}
+.account-preferences h3{font-size:.95rem;margin-bottom:12px}

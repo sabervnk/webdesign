@@ -9,8 +9,9 @@ export const PROFILE_ITEMS_MAX=30;
 const profileItems=z.array(z.string().trim().max(2000)).max(PROFILE_ITEMS_MAX).transform(items=>items.filter(Boolean)).optional();
 const languageSchema=z.enum(languageCodes);
 const formatSchema=z.enum(['online','in-person']);
-export const classOfferSchema=z.object({language:languageSchema,format:formatSchema,rate:z.number().min(0).max(100000000),currency:z.enum(['TOMAN','USD'])}).refine(p=>validMoney(p.rate,p.currency),{message:'مبلغ هر کلاس را بررسی کنید. / Check the fee for each class.'});
+export const classOfferSchema=z.object({language:languageSchema,format:formatSchema,rate:z.number().min(0).max(100000000),duration:z.number().int().min(15).max(300).optional(),currency:z.enum(['TOMAN','USD'])}).refine(p=>validMoney(p.rate,p.currency),{message:'مبلغ هر کلاس را بررسی کنید. / Check the fee for each class.'});
 export type ClassOffer=z.infer<typeof classOfferSchema>;
+export type DisplayOffer=ClassOffer&{duration:number};
 const profileTranslation=z.object({name:z.string().trim().max(100).optional(),headline:z.string().trim().max(150).optional(),bio:z.string().trim().max(5000).optional(),city:z.string().trim().max(100).optional(),educationField:z.string().trim().max(2000).optional(),certificateItems:profileItems,specialtyItems:profileItems});
 export type ProfileTranslation=z.infer<typeof profileTranslation>;
 const articleTranslation=z.object({title:z.string().trim().max(180).optional(),excerpt:z.string().trim().max(350).optional(),content:z.string().trim().max(50000).optional()});
@@ -37,9 +38,11 @@ export function portfolioEducation(p:PublicProfileInput){
  return {level:p.educationLevel||undefined,field:(p.educationField??p.education).trim()};
 }
 type OfferFilters={language?:string,format?:string,currency?:string,maxPrice?:string};
-export function offerFor(p:PublicProfileInput,language:string,format:string):ClassOffer|undefined{
+export function offerFor(p:PublicProfileInput,language:string,format:string):DisplayOffer|undefined{
  if(!p.languages.some(x=>x===language)||!p.formats.some(x=>x===format))return;
- return p.offers?p.offers.find(o=>o.language===language&&o.format===format):{language:language as ClassOffer['language'],format:format as ClassOffer['format'],rate:p.rate,currency:p.currency};
+ const offer=p.offers?.find(o=>o.language===language&&o.format===format);
+ if(p.offers&&!offer)return;
+ return offer?{...offer,duration:offer.duration??p.duration}:{language:language as ClassOffer['language'],format:format as ClassOffer['format'],rate:p.rate,currency:p.currency,duration:p.duration};
 }
 export function classOffers(p:PublicProfileInput,filters:OfferFilters={}){
  return p.languages.flatMap(language=>p.formats.flatMap(format=>{
@@ -57,6 +60,11 @@ export function localizeTeacher<T extends PublicProfileInput>(p:T,locale:string)
  const key=localeKey(locale),tr=p.translations?.[key];
  if(!tr||key===(p.contentLocale??'fa'))return p;
  return {...p,name:tr.name||p.name,headline:tr.headline||p.headline,bio:tr.bio||p.bio,city:tr.city||p.city,educationField:tr.educationField||p.educationField,certificateItems:tr.certificateItems?.length?tr.certificateItems:p.certificateItems,specialtyItems:tr.specialtyItems?.length?tr.specialtyItems:p.specialtyItems};
+}
+export type PortfolioIdentity=Partial<Record<'fa'|'en',{name?:string,headline?:string}>>;
+export function portfolioIdentity(profile:Pick<PublicProfileInput,'name'|'headline'|'translations'|'contentLocale'>):PortfolioIdentity{
+ const entry=(locale:'fa'|'en')=>locale===(profile.contentLocale??'fa')?{name:profile.name,headline:profile.headline}:{name:profile.translations?.[locale]?.name,headline:profile.translations?.[locale]?.headline};
+ return {fa:entry('fa'),en:entry('en')};
 }
 export function localizeArticle<T extends ArticleInput>(a:T,locale:string):T{
  const key=localeKey(locale),tr=a.translations?.[key];
