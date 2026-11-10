@@ -1,3 +1,4 @@
+import {sampleTeachers,matchesTeacher,localizeTeacher,localizeArticle,sampleArticles} from '../lib/catalogue.ts';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {localizedAccount,sampleWorkspace,workspaceSchema,validateWorkspace,billable,weekStart,addDays,moneyTotals,formatTotals,validMoney} from '../lib/model.ts';
@@ -45,4 +46,26 @@ test('account names and teaching titles follow the interface language without lo
  const profile={...legacy,nameFa:'مهتا احمدی',nameEn:'Mahta Ahmadi',specializationEn:'Conversation tutor'};
  for(const locale of ['fa','ar-SA'])assert.equal(localizedAccount(profile,locale).name,'مهتا احمدی');
  for(const locale of ['en','fr-FR'])assert.deepEqual(localizedAccount(profile,locale),{name:'Mahta Ahmadi',specialty:'Conversation tutor'});
+});
+
+test('a filter must match currency, price, language and format on the same offer',()=>{
+ const teacher={...sampleTeachers[0],languages:['en','fr'],offers:[
+  {language:'en',format:'online',rate:10,currency:'USD'},
+  {language:'en',format:'in-person',rate:350000,currency:'TOMAN'},
+  {language:'fr',format:'online',rate:420000,currency:'TOMAN'},
+  {language:'fr',format:'in-person',rate:25,currency:'USD'},
+ ]};
+ assert.equal(matchesTeacher(teacher,{language:'fr',format:'in-person',currency:'USD',maxPrice:'20'}),false);
+ assert.equal(matchesTeacher(teacher,{language:'fr',format:'in-person',currency:'TOMAN'}),false);
+ assert.equal(matchesTeacher(teacher,{language:'fr',format:'in-person',currency:'USD',maxPrice:'25'}),true);
+ assert.equal(matchesTeacher(sampleTeachers[0],{language:'en',format:'in-person',currency:'TOMAN'}),true);
+});
+test('locale selection translates authored content with a per-field original fallback',()=>{
+ const teacher={...sampleTeachers[0],translations:{fr:{bio:'Un cours de conversation.',specialtyItems:['Conversation']}}};
+ assert.equal(localizeTeacher(teacher,'fr-CA').bio,'Un cours de conversation.');
+ assert.equal(localizeTeacher(teacher,'fr').name,teacher.name);
+ assert.equal(localizeTeacher(teacher,'es').bio,teacher.bio);
+ const article={...sampleArticles[0],translations:{es:{title:'Una nueva rutina',content:'Lectura en español.'}}};
+ assert.equal(localizeArticle(article,'es-MX').content,'Lectura en español.');
+ assert.equal(localizeArticle(article,'en').content,article.content);
 });

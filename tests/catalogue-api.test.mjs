@@ -80,7 +80,7 @@ test('portfolios, articles, enquiries and admin access preserve ownership and qu
   assert.equal((await ok(await req(studioVideo,'teacher-a','DELETE',{url:replacement.video.url}))).video,null);
   assert.equal((await req(publicVideo)).status,404);
   assert.equal(await bucket.head('teacher-videos/'+replacement.video.url.split('=').at(-1)),null);
-  const article={title:'Learning through conversation',excerpt:'A teacher-authored article.',content:'A private draft paragraph with useful learning advice. '.repeat(8),category:'learning',status:'draft'};
+  const article={title:'Learning through conversation',contentLocale:'en',translations:{fr:{title:'Apprendre par la conversation',content:'Une traduction complète de l’article. '.repeat(10)}},excerpt:'A teacher-authored article.',content:'A private draft paragraph with useful learning advice. '.repeat(8),category:'learning',status:'draft'};
   const created=await ok(await req('/api/studio/posts','teacher-a','POST',{article}),201);
   assert.equal((await ok(await req('/api/catalogue'))).articles.length,0);
   assert.equal((await ok(await req('/api/studio/posts?id='+created.id,'teacher-a'))).article.content,article.content.trim());
@@ -91,7 +91,7 @@ test('portfolios, articles, enquiries and admin access preserve ownership and qu
   await ok(await req('/api/studio/posts','teacher-a','PUT',{id:created.id,version:1,article:{...article,status:'published'}}));
   listing=await ok(await req('/api/catalogue'));
   assert.equal((await req('/teachers/'+profile.id)).status,200);assert.equal((await req('/blog/'+created.id)).status,200);
-  assert.equal(listing.articles.length,1);assert.equal(listing.articles[0].content,'');assert(listing.articles[0].readingMinutes>=1);
+  assert.equal(listing.articles.length,1);assert.equal(listing.articles[0].content,'');assert.equal(listing.articles[0].translations.fr.title,article.translations.fr.title);assert.equal(listing.articles[0].translations.fr.content,undefined);assert(listing.articles[0].readingMinutes>=1);
   const inquiry={id:crypto.randomUUID(),kind:'class',teacherId:profile.id,teacherVersion:2,name:'Learner One',email:'learner@example.com',phone:'09121234567',language:'en',format:'online',message:'I would like to arrange a class.',rate:1,currency:'TOMAN'};
   await ok(await req('/api/requests',undefined,'POST',inquiry),201);
   await ok(await req('/api/requests',undefined,'POST',inquiry));
@@ -104,9 +104,24 @@ test('portfolios, articles, enquiries and admin access preserve ownership and qu
   assert.equal(inbox.requests.length,1);assert.equal(inbox.requests[0].rate,24.99);assert.equal(inbox.requests[0].currency,'USD');
   await ok(await req('/api/admin/requests','admin','PUT',{id:inquiry.id,version:1,status:'reviewing',adminNote:'Private follow-up note'}));
   assert.equal((await req('/api/admin/requests','admin','PUT',{id:inquiry.id,version:1,status:'closed',adminNote:''})).status,409);
-  await ok(await req('/api/studio/profile','teacher-a','PUT',{profile:{...profile,currency:'TOMAN',rate:450000},version:2}));
+  const multirate={...profile,city:'تهران',languages:['en','fr'],formats:['online','in-person'],translations:{en:{name:'Test Teacher',bio:'English biography'}},offers:[
+   {language:'en',format:'online',rate:15,currency:'USD'},
+   {language:'en',format:'in-person',rate:400000,currency:'TOMAN'},
+   {language:'fr',format:'online',rate:500000,currency:'TOMAN'},
+   {language:'fr',format:'in-person',rate:33,currency:'USD'},
+  ]};
+  assert.equal((await req('/api/studio/profile','teacher-a','PUT',{profile:{...multirate,offers:multirate.offers.slice(1)},version:2})).status,400);
+  await ok(await req('/api/studio/profile','teacher-a','PUT',{profile:multirate,version:2}));
+  const multiple=await ok(await req('/api/catalogue'));
+  assert.deepEqual(multiple.teachers[0].offers,multirate.offers);
+  assert.equal(multiple.teachers[0].translations.en.bio,'English biography');
+  const second={...inquiry,id:crypto.randomUUID(),email:'french@example.com',teacherVersion:3,language:'fr',format:'in-person'};
+  await ok(await req('/api/requests',undefined,'POST',second),201);
+  const quoted=(await ok(await req('/api/admin/requests','admin'))).requests.find(x=>x.id===second.id);
+  assert.equal(quoted.rate,33);
+  assert.equal(quoted.currency,'USD');
   inbox=await ok(await req('/api/admin/requests','admin'));
-  assert.equal(inbox.requests[0].currency,'USD');assert.equal(inbox.requests[0].rate,24.99);assert.equal(inbox.requests[0].status,'reviewing');
+  const original=inbox.requests.find(x=>x.id===inquiry.id);assert.equal(original.currency,'USD');assert.equal(original.rate,24.99);assert.equal(original.status,'reviewing');
   assert.equal((await req('/api/requests',undefined,'POST',{...inquiry,id:crypto.randomUUID()})).status,409);
   const contact={id:crypto.randomUUID(),kind:'contact',name:'Learner One',email:'learner@example.com',message:'Please help me choose a teacher.'};
   for(let i=0;i<4;i++)await ok(await req('/api/requests',undefined,'POST',{...contact,id:crypto.randomUUID()}),201);

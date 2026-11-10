@@ -82,3 +82,14 @@ html[dir=ltr] .pub-back svg,html[dir=ltr] .pub-quiet-link>.lucide-chevron-left{t
 .portfolio-video-frame{border:1px solid #ffffff25;border-radius:12px;overflow:hidden;background:#08130e}
 .portfolio-video .portfolio-video-frame video{width:100%;border-radius:0;object-fit:contain;max-height:65svh;background:#08130e}
 .video-delete-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+
+.studio-fees,.studio-localized{padding:14px;border:1px solid var(--border);border-radius:13px;min-width:0;display:grid;gap:12px}
+.studio-fees legend,.studio-localized legend{padding-inline:7px;font-weight:700}
+.studio-fee-language{display:grid;gap:8px;padding:11px;background:var(--muted);border-radius:10px}
+.studio-fee-row{display:grid;grid-template-columns:minmax(55px,.5fr) minmax(0,1.3fr) minmax(0,1fr);gap:9px;align-items:end}
+.studio-fee-row>.badge{align-self:center;justify-self:start}
+.studio-localized .form-grid{min-width:0}
+.offer-price{display:inline-flex;flex-wrap:wrap;gap:3px 9px}
+.teacher-offers{padding:0;margin:9px 0 4px;list-style:none;display:grid;gap:7px;max-height:19rem;overflow:auto}
+.teacher-offers li{display:flex;flex-wrap:wrap;gap:3px 12px;align-items:center;justify-content:space-between;padding:7px 8px;background:var(--muted);border-radius:8px;font-size:.78rem}
+.teacher-offers strong{font-size:.82rem}

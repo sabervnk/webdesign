@@ -1,5 +1,5 @@
 import {z} from 'zod';
-import {validMoney,type Currency} from './model';
+import {validMoney,type Currency} from './model.ts';
 export const languageCodes=['en','fr','de','es','tr','ar','fa','it'] as const;
 export const languages={en:['انگلیسی','English'],fr:['فرانسوی','French'],de:['آلمانی','German'],es:['اسپانیایی','Spanish'],tr:['ترکی','Turkish'],ar:['عربی','Arabic'],fa:['فارسی','Persian'],it:['ایتالیایی','Italian']} as const;
 export const articleCategories={learning:['یادگیری زبان','Learning'],conversation:['مکالمه','Conversation'],exams:['آزمون‌ها','Exams'],culture:['فرهنگ و زبان','Culture']} as const;
@@ -7,10 +7,19 @@ export const educationLevels={middle:['سیکل','Lower secondary'],diploma:['د
 const educationCodes=['middle','diploma','associate','bachelor','master','doctorate','none',''] as const;
 export const PROFILE_ITEMS_MAX=30;
 const profileItems=z.array(z.string().trim().max(2000)).max(PROFILE_ITEMS_MAX).transform(items=>items.filter(Boolean)).optional();
-export const publicProfileSchema=z.object({name:z.string().trim().min(2).max(100),headline:z.string().trim().max(150),bio:z.string().trim().max(5000),languages:z.array(z.enum(languageCodes)).min(1).max(8),formats:z.array(z.enum(['online','in-person'])).min(1).max(2),city:z.string().trim().max(100),experience:z.number().int().min(0).max(70),education:z.string().trim().max(2000),certificates:z.string().trim().max(2000),specialties:z.string().trim().max(600),educationLevel:z.enum(educationCodes).optional(),educationField:z.string().trim().max(2000).optional(),certificateItems:profileItems,specialtyItems:profileItems,rate:z.number().min(0).max(100000000),currency:z.enum(['TOMAN','USD']),duration:z.number().int().min(15).max(300),published:z.boolean()}).superRefine((p,c)=>{if(!validMoney(p.rate,p.currency))c.addIssue({code:'custom',path:['rate'],message:'مبلغ معتبر وارد کنید؛ دلار حداکثر دو رقم اعشار دارد. / Invalid amount.'});if(p.published&&(!p.headline||p.bio.length<40))c.addIssue({code:'custom',message:'برای نمایش پرتفولیو، عنوان و معرفی حداقل ۴۰ کاراکتری وارد کنید. / Add a headline and a bio of at least 40 characters.'});if(p.formats.includes('in-person')&&!p.city)c.addIssue({code:'custom',path:['city'],message:'برای کلاس حضوری شهر را مشخص کنید. / Enter a city for in-person classes.'})});
+const languageSchema=z.enum(languageCodes);
+const formatSchema=z.enum(['online','in-person']);
+export const classOfferSchema=z.object({language:languageSchema,format:formatSchema,rate:z.number().min(0).max(100000000),currency:z.enum(['TOMAN','USD'])}).refine(p=>validMoney(p.rate,p.currency),{message:'مبلغ هر کلاس را بررسی کنید. / Check the fee for each class.'});
+export type ClassOffer=z.infer<typeof classOfferSchema>;
+const profileTranslation=z.object({name:z.string().trim().max(100).optional(),headline:z.string().trim().max(150).optional(),bio:z.string().trim().max(5000).optional(),city:z.string().trim().max(100).optional(),educationField:z.string().trim().max(2000).optional(),certificateItems:profileItems,specialtyItems:profileItems});
+export type ProfileTranslation=z.infer<typeof profileTranslation>;
+const articleTranslation=z.object({title:z.string().trim().max(180).optional(),excerpt:z.string().trim().max(350).optional(),content:z.string().trim().max(50000).optional()});
+export type ArticleTranslation=z.infer<typeof articleTranslation>;
+export type ContentLocale=typeof languageCodes[number];
+export const publicProfileSchema=z.object({name:z.string().trim().min(2).max(100),headline:z.string().trim().max(150),bio:z.string().trim().max(5000),languages:z.array(z.enum(languageCodes)).min(1).max(8),formats:z.array(z.enum(['online','in-person'])).min(1).max(2),city:z.string().trim().max(100),experience:z.number().int().min(0).max(70),education:z.string().trim().max(2000),certificates:z.string().trim().max(2000),specialties:z.string().trim().max(600),educationLevel:z.enum(educationCodes).optional(),educationField:z.string().trim().max(2000).optional(),certificateItems:profileItems,specialtyItems:profileItems,offers:z.array(classOfferSchema).max(16).optional(),contentLocale:languageSchema.optional(),translations:z.partialRecord(languageSchema,profileTranslation).optional(),rate:z.number().min(0).max(100000000),currency:z.enum(['TOMAN','USD']),duration:z.number().int().min(15).max(300),published:z.boolean()}).superRefine((p,c)=>{if(p.offers){const expected=new Set(p.languages.flatMap(language=>p.formats.map(format=>language+':'+format)));for(const offer of p.offers)if(!expected.delete(offer.language+':'+offer.format)){c.addIssue({code:'custom',path:['offers'],message:'ترکیب نرخ کلاس نامعتبر یا تکراری است. / Invalid or duplicate class rate.'});break}if(expected.size)c.addIssue({code:'custom',path:['offers'],message:'برای هر زبان و نوع کلاس یک نرخ وارد کنید. / Set a fee for every language and format.'})}if(!validMoney(p.rate,p.currency))c.addIssue({code:'custom',path:['rate'],message:'مبلغ معتبر وارد کنید؛ دلار حداکثر دو رقم اعشار دارد. / Invalid amount.'});if(p.published&&(!p.headline||p.bio.length<40))c.addIssue({code:'custom',message:'برای نمایش پرتفولیو، عنوان و معرفی حداقل ۴۰ کاراکتری وارد کنید. / Add a headline and a bio of at least 40 characters.'});if(p.formats.includes('in-person')&&!p.city)c.addIssue({code:'custom',path:['city'],message:'برای کلاس حضوری شهر را مشخص کنید. / Enter a city for in-person classes.'})});
 export type PublicProfileInput=z.infer<typeof publicProfileSchema>;
 export type Teacher=PublicProfileInput&{id:string,photo:string,updatedAt:string,version:number,sample?:boolean};
-export const articleSchema=z.object({title:z.string().trim().min(3).max(180),excerpt:z.string().trim().max(350),content:z.string().trim().min(30).max(50000),category:z.enum(['learning','conversation','exams','culture']),status:z.enum(['draft','published'])}).superRefine((p,c)=>{if(p.status==='published'&&p.content.length<150)c.addIssue({code:'custom',message:'برای انتشار، متن مقاله باید حداقل ۱۵۰ کاراکتر باشد. / Add at least 150 characters to publish.'})});
+export const articleSchema=z.object({title:z.string().trim().min(3).max(180),excerpt:z.string().trim().max(350),content:z.string().trim().min(30).max(50000),category:z.enum(['learning','conversation','exams','culture']),status:z.enum(['draft','published']),contentLocale:languageSchema.optional(),translations:z.partialRecord(languageSchema,articleTranslation).optional()}).superRefine((p,c)=>{if(p.status==='published'&&p.content.length<150)c.addIssue({code:'custom',message:'برای انتشار، متن مقاله باید حداقل ۱۵۰ کاراکتر باشد. / Add at least 150 characters to publish.'})});
 export type ArticleInput=z.infer<typeof articleSchema>;
 export type Article=ArticleInput&{id:string,teacherId:string,createdAt:string,updatedAt:string,version:number,readingMinutes?:number,sample?:boolean};
 export const inquirySchema=z.object({id:z.string().uuid(),kind:z.enum(['class','contact']),teacherId:z.string().max(100).default(''),teacherVersion:z.number().int().positive().optional(),name:z.string().trim().min(2).max(100),email:z.string().trim().email().max(200),phone:z.string().trim().max(30).default(''),language:z.string().max(10).default(''),format:z.enum(['online','in-person','']).default(''),message:z.string().trim().min(5).max(4000),website:z.string().max(100).default('')});
@@ -27,7 +36,33 @@ export function portfolioItems(p:PublicProfileInput,type:'certificates'|'special
 export function portfolioEducation(p:PublicProfileInput){
  return {level:p.educationLevel||undefined,field:(p.educationField??p.education).trim()};
 }
-export function matchesTeacher(t:Teacher,filters:{query?:string,language?:string,format?:string,currency?:string,maxPrice?:string,city?:string}){const q=(filters.query||'').trim().toLowerCase();return (!q||(t.name+' '+t.headline+' '+portfolioItems(t,'specialties').join(' ')).toLowerCase().includes(q))&&(!filters.language||filters.language==='all'||t.languages.includes(filters.language as typeof languageCodes[number]))&&(!filters.format||filters.format==='all'||t.formats.includes(filters.format as 'online'|'in-person'))&&(!filters.currency||filters.currency==='all'||t.currency===filters.currency)&&(!filters.maxPrice||filters.currency==='all'||!filters.currency||t.rate<=Number(filters.maxPrice))&&(!filters.city||t.city.toLowerCase().includes(filters.city.toLowerCase()))}
+type OfferFilters={language?:string,format?:string,currency?:string,maxPrice?:string};
+export function offerFor(p:PublicProfileInput,language:string,format:string):ClassOffer|undefined{
+ if(!p.languages.some(x=>x===language)||!p.formats.some(x=>x===format))return;
+ return p.offers?p.offers.find(o=>o.language===language&&o.format===format):{language:language as ClassOffer['language'],format:format as ClassOffer['format'],rate:p.rate,currency:p.currency};
+}
+export function classOffers(p:PublicProfileInput,filters:OfferFilters={}){
+ return p.languages.flatMap(language=>p.formats.flatMap(format=>{
+  const o=offerFor(p,language,format);
+  if(!o||(filters.language&&filters.language!=='all'&&o.language!==filters.language)||(filters.format&&filters.format!=='all'&&o.format!==filters.format)||(filters.currency&&filters.currency!=='all'&&o.currency!==filters.currency)||(filters.maxPrice&&filters.currency&&filters.currency!=='all'&&o.rate>Number(filters.maxPrice)))return [];
+  return [o];
+ }));
+}
+export function matchesTeacher(t:Teacher,filters:OfferFilters&{query?:string,city?:string}){
+ const q=(filters.query||'').trim().toLowerCase();
+ return (!q||(t.name+' '+t.headline+' '+portfolioItems(t,'specialties').join(' ')).toLowerCase().includes(q))&&classOffers(t,filters).length>0&&(!filters.city||t.city.toLowerCase().includes(filters.city.toLowerCase()));
+}
+const localeKey=(locale:string)=>locale.toLowerCase().split(/[-_]/)[0] as ContentLocale;
+export function localizeTeacher<T extends PublicProfileInput>(p:T,locale:string):T{
+ const key=localeKey(locale),tr=p.translations?.[key];
+ if(!tr||key===(p.contentLocale??'fa'))return p;
+ return {...p,name:tr.name||p.name,headline:tr.headline||p.headline,bio:tr.bio||p.bio,city:tr.city||p.city,educationField:tr.educationField||p.educationField,certificateItems:tr.certificateItems?.length?tr.certificateItems:p.certificateItems,specialtyItems:tr.specialtyItems?.length?tr.specialtyItems:p.specialtyItems};
+}
+export function localizeArticle<T extends ArticleInput>(a:T,locale:string):T{
+ const key=localeKey(locale),tr=a.translations?.[key];
+ if(!tr||key===(a.contentLocale??'fa'))return a;
+ return {...a,title:tr.title||a.title,excerpt:tr.excerpt||a.excerpt,content:tr.content||a.content};
+}
 export const sampleTeachers:Teacher[]=[
  {...initialPublicProfile('سارا مهر'),id:'sample-sara',headline:'مکالمه‌ای که از زندگی شروع می‌شود',bio:'این یک پرتفولیوی نمونه برای نمایش امکانات سایت است. در معرفی واقعی می‌توانید روش تدریس، هدف‌های آموزشی و تجربه خود را توضیح دهید. کلاس‌ها می‌توانند با توجه به سطح و نیاز هر زبان‌آموز برنامه‌ریزی شوند.',languages:['en'],formats:['online','in-person'],city:'تهران',experience:6,education:'محل درج تحصیلات معلم',certificates:'محل درج گواهی‌های واقعی',specialties:'مکالمه روزمره، انگلیسی سفر',rate:450000,currency:'TOMAN',duration:60,published:true,photo:'',updatedAt:'2026-09-05T08:00:00Z',version:1,sample:true},
  {...initialPublicProfile('آرمان راد'),id:'sample-arman',headline:'قدم‌به‌قدم تا گفت‌وگوی آلمانی',bio:'این پروفایل نمونه است و معلم واقعی معرفی نمی‌کند. معلم می‌تواند در این بخش درباره ساختار کلاس، تمرین‌های پیشنهادی و شیوه بازخورد خود بنویسد. اطلاعات واقعی پس از ثبت و انتشار جایگزین می‌شوند.',languages:['de','en'],formats:['online'],city:'',experience:4,education:'محل درج تحصیلات معلم',certificates:'محل درج گواهی‌های واقعی',specialties:'آلمانی مقدماتی، آمادگی مکالمه',rate:22.5,currency:'USD',duration:60,published:true,photo:'',updatedAt:'2026-09-05T08:00:00Z',version:1,sample:true},

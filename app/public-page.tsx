@@ -1,7 +1,7 @@
 import {headers} from 'next/headers';
 import {notFound} from 'next/navigation';
 import PublicSite from './public-site';
-import {publicCatalogue,articleView,profileView,type ArticleRow,type ProfileRow} from '@/lib/server/catalogue';
+import {publicCatalogue,articleSummary,articleView,profileView,type ArticleRow,type ProfileRow} from '@/lib/server/catalogue';
 import {identity,siteOrigin} from '@/lib/server/access';
 import {database} from '@/db/storage';
 import {sampleTeachers,sampleArticles,type Catalogue} from '@/lib/catalogue';
@@ -21,7 +21,7 @@ export async function PublicPage({view,id}:{view:'home'|'teachers'|'teacher'|'bl
    if(row)data.teachers=[profileView(row),...data.teachers];
   }
   if(view==='teacher'&&id&&data.teachers.some(t=>t.id===id)){
-   const posts=await db.prepare("SELECT id,owner_id,teacher_id,json_remove(data,'$.content') AS data,status,version,created_at,updated_at FROM teacher_articles WHERE teacher_id=? AND status='published' ORDER BY created_at DESC LIMIT 500").bind(id).all<ArticleRow>();
+   const posts=await db.prepare(`SELECT id,owner_id,teacher_id,${articleSummary('data')} AS data,status,version,created_at,updated_at FROM teacher_articles WHERE teacher_id=? AND status='published' ORDER BY created_at DESC LIMIT 500`).bind(id).all<ArticleRow>();
    data.articles=posts.results.map(articleView);
    const video=await db.prepare('SELECT v.object_key FROM teacher_public_profiles p JOIN teacher_videos v ON v.owner_id=p.owner_id WHERE p.id=? AND p.published=1 AND v.visible=1').bind(id).first<{object_key:string}>();
    if(video)videoUrl='/api/public-video/'+encodeURIComponent(id);
