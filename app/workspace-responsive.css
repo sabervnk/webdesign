@@ -1,0 +1,41 @@
+/* Size the workspace against its available lane, excluding the sidebar. */
+.workspace .topbar{flex:none;min-inline-size:0}
+.workspace .crumb{min-inline-size:0}
+.workspace .crumb>strong{min-inline-size:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.workspace .crumb svg,.workspace .top-actions{flex-shrink:0}
+.workspace .main-content :is(.panel,.studio-layout,.settings-layout,.studio-account-content,[data-slot=tabs],[data-slot=tabs-content],[data-slot=table-container]){min-inline-size:0;max-inline-size:100%}
+.workspace .studio-layout :is([data-slot=tabs],[data-slot=tabs-content],.studio-account-content){inline-size:100%}
+.workspace .main-content :is(.form-grid,.studio-text-pair){grid-template-columns:repeat(2,minmax(0,1fr))}
+.workspace .main-content :is(.field,.studio-fee-language,.studio-fee-row,.studio-article-row>div:first-child,.panel-head>div:first-child){min-inline-size:0}
+.workspace .main-content :is(.page-heading,.studio-tabs,.detail-tabs,.filters,.panel-head){flex-wrap:wrap}
+.workspace .main-content :is(.page-heading h1,.panel-head h2,.studio-article-row h3,.studio-fee-language>strong,.form-error,.save-error){overflow-wrap:anywhere}
+.workspace .main-content .studio-tabs{inline-size:100%!important;max-inline-size:100%;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))}
+.workspace .studio-tabs [data-slot=tabs-trigger]{min-inline-size:0;white-space:normal;text-align:center}
+.workspace .studio-tabs [data-slot=tabs-trigger] svg{flex:none}
+.workspace .main-content [data-slot=table-container]{overflow-x:auto}
+.workspace .main-content .settings-form,.workspace .main-content .studio-form{min-inline-size:0}
+
+@container workspace-main (max-width: 780px){
+ .workspace .main-content .overview-grid,.workspace .main-content .skills-layout{grid-template-columns:minmax(0,1fr)}
+}
+@container workspace-main (max-width: 660px){
+ .workspace .main-content .studio-fee-row{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .workspace .main-content .studio-fee-format{grid-column:1/-1}
+ .workspace .main-content .messages-layout{grid-template-columns:minmax(0,1fr)}
+ .workspace .main-content .conversation-list{display:flex;min-inline-size:0;overflow-x:auto;border-inline-end:0;border-block-end:1px solid var(--border)}
+ .workspace .main-content .conversation-item{flex:0 0 auto}
+}
+@container workspace-main (max-width: 500px){
+ .workspace .main-content :is(.form-grid,.studio-text-pair){grid-template-columns:minmax(0,1fr)}
+ .workspace .main-content .studio-tabs [data-slot=tabs-trigger]{font-size:.75rem;padding:8px 4px;gap:4px}
+ .workspace .main-content .studio-tabs [data-slot=tabs-trigger] svg{width:14px;height:14px}
+ .workspace .main-content .studio-fee-row{grid-template-columns:minmax(0,1fr)}
+ .workspace .main-content .studio-article-row{flex-wrap:wrap}
+ .workspace .main-content .studio-article-row .actions{flex:1 1 auto;flex-wrap:wrap}
+ .workspace .main-content .metric-number{font-size:clamp(1.15rem,5vw,1.75rem);overflow-wrap:anywhere}
+}
+@media(max-width:420px){
+ .workspace .main-content{padding-inline:12px}
+ .workspace .topbar{padding-inline:12px;gap:8px}
+ .workspace .studio-tabs [data-slot=tabs-trigger] svg{display:none}
+}
