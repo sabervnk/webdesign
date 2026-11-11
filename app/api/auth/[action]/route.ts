@@ -2,6 +2,9 @@ import {POST as platformPost} from '@platform/auth-api';
 import {database} from '@/db/storage';
 import {json,payload,validOrigin,landing} from '@/lib/server/access';
 import {accountSession,allowAttempt,digest,expiredCookie,hashPassword,issueSession,passwordValid,sessionToken,usernameValid,verifyPassword,type AccountRow} from '@/lib/server/accounts';
+import {getRecoveryMailConfig} from '@platform/recovery-config';
+import {createEmailRecovery,RecoveryRateLimit} from '@/lib/server/email-recovery';
+import {recoveryEmailSender} from '@/lib/server/recovery-mail';
 export const dynamic='force-dynamic';
 const denied=()=>json({error:'نام کاربری، رمز عبور یا کد بازیابی معتبر نیست. / Invalid credentials or recovery code.'},401);
 const badPassword=()=>json({error:'رمز عبور باید ۸ تا ۱۲۸ نویسه باشد. / Password must be 8 to 128 characters.'},400);
@@ -18,6 +21,33 @@ export async function POST(r:Request,{params}:{params:Promise<{action:string}>})
    return withCookie({next:'/signin'},expiredCookie());
   }
   const b=await payload(r,2500),password=typeof b.password==='string'?b.password:'';
+  if(['recovery-request','recovery-verify','recovery-reset'].includes(action)){
+   const config=getRecoveryMailConfig();
+   if(!config)return json({error:'ارسال ایمیل بازیابی هنوز فعال نشده است. با مدیر سایت تماس بگیرید.'},503);
+   const service=createEmailRecovery({db,secret:config.secret,send:recoveryEmailSender(config)});
+   const ip=r.headers.get('cf-connecting-ip')??'unknown';
+   try{
+    if(action==='recovery-request'){
+     const started=Date.now();
+     const result=await service.request(typeof b.email==='string'?b.email:'',ip);
+     if('error' in result)return json({error:result.error},result.status);
+     // The provider call times out at four seconds; pad all valid requests alike.
+     await new Promise(resolve=>setTimeout(resolve,Math.max(0,4500-(Date.now()-started))));
+     return json(result);
+    }
+    if(action==='recovery-verify'){
+     const result=await service.verify(typeof b.challenge==='string'?b.challenge:'',typeof b.code==='string'?b.code:'',ip);
+     return 'error' in result?json({error:result.error},result.status):json(result);
+    }
+    if(!passwordValid(password))return badPassword();
+    const saved=await service.reset(typeof b.grant==='string'?b.grant:'',()=>hashPassword(password),ip);
+    if(!saved)return json({error:'اجازهٔ تغییر رمز منقضی یا قبلاً مصرف شده است. بازیابی را دوباره شروع کنید.'},400);
+    return withCookie({next:'/signin',reset:true},expiredCookie());
+   }catch(error){
+    if(error instanceof RecoveryRateLimit)return json({error:'درخواست‌های زیادی انجام شده است. کمی بعد دوباره تلاش کنید.'},429);
+    throw error;
+   }
+  }
   if(action==='change'){
    const a=await accountSession(r);
    if(!a)return denied();
@@ -56,3 +86,4 @@ export async function POST(r:Request,{params}:{params:Promise<{action:string}>})
   return withCookie({next:landing({role:a.role,mustChange:!!a.must_change})},await issueSession(a));
  }catch(e){console.error('Classer sign-in operation failed',e);return json({error:'عملیات ورود در دسترس نیست. / Sign-in is temporarily unavailable.'},503)}
 }
+

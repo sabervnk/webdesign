@@ -22,3 +22,14 @@ export const accountRecovery=sqliteTable('classer_recovery',{
 },t=>[index('classer_recovery_exp_idx').on(t.expires)]);
 export const authLimits=sqliteTable('classer_auth_limits',{key:text('key').primaryKey(),window:integer('window').notNull(),count:integer('count').notNull()},t=>[index('classer_auth_limit_window_idx').on(t.window)]);
 export const siteCopy=sqliteTable('classer_site_copy',{id:integer('id').primaryKey(),data:text('data').notNull(),version:integer('version').notNull().default(1)});
+
+export const emailRecovery=sqliteTable('classer_email_recovery',{
+ accountId:text('account_id').primaryKey().references(()=>accounts.id),challenge:text('challenge').notNull().unique(),
+ codeHash:text('code_hash').notNull(),email:text('email').notNull(),epoch:integer('epoch').notNull(),
+ createdAt:integer('created_at').notNull(),expires:integer('expires').notNull(),attempts:integer('attempts').notNull().default(0),
+ delivered:integer('delivered').notNull().default(0),grantHash:text('grant_hash').unique(),grantExpires:integer('grant_expires'),
+},t=>[index('classer_email_recovery_expires_idx').on(t.expires)]);
+export const recoveryLimits=sqliteTable('classer_recovery_limits',{
+ key:text('key').primaryKey(),count:integer('count').notNull(),expires:integer('expires').notNull(),
+},t=>[index('classer_recovery_limits_expires_idx').on(t.expires)]);
+
