@@ -21,9 +21,10 @@ test('owner provisions restricted accounts; recovery revokes sessions and site c
   const admin={'oai-authenticated-user-id':'fixture-owner','oai-authenticated-user-email':ownerEmail};
   const request=(path,method='GET',body,head={})=>mf.dispatchFetch(origin+path,{method,redirect:'manual',headers:{...head,...(body?{'Content-Type':'application/json',Origin:origin}:{})},...(body?{body:JSON.stringify(body)}:{})});
   const ok=async(r,status=200)=>{assert.equal(r.status,status,await r.clone().text());return r.json()};
-  const creds={username:'test-student',password:fixturePassword()};
+  const creds={username:'test-student',password:'X!7'+randomBytes(3).toString('hex').slice(0,5)};
   const a={...creds,name:'Test learner',email:'',role:'student',teacherId:'legacy-teacher',studentId:'elena',active:true};
   assert.equal((await request('/api/admin/accounts','POST',a)).status,403);
+  assert.equal((await request('/api/admin/accounts','POST',{...a,password:'short7!'},admin)).status,400);
   const {id}=await ok(await request('/api/admin/accounts','POST',a,admin),201);
   const list=await ok(await request('/api/admin/accounts','GET',undefined,admin));
   assert(!JSON.stringify(list).includes('password_hash'));assert(!JSON.stringify(list).includes(creds.password));

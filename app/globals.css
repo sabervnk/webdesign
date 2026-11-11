@@ -75,3 +75,24 @@ html[dir=rtl] .lucide-arrow-left{transform:rotate(180deg)}
 .learner-sessions{list-style:none;padding:0}
 .learner-sessions li{display:flex;flex-wrap:wrap;gap:8px 15px;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}
 @media(max-width:690px){.admin-split{grid-template-columns:minmax(0,1fr)}.admin-list{max-height:32vh}}
+
+/* Keep native password inputs visible alongside the other account controls. */
+.account-fields .field input:not([type=checkbox]):not([type=radio]){
+ display:block;width:100%;min-width:0;min-height:46px;padding:10px 12px;
+ border:1px solid var(--input);border-radius:8px;
+ background:var(--background);color:var(--foreground);
+}
+.account-fields .field input::placeholder{color:var(--muted-foreground);opacity:1}
+.account-fields .field input:focus-visible{outline:2px solid var(--ring);outline-offset:2px;border-color:var(--ring)}
+.password-field{display:grid;gap:7px;min-width:0}
+.password-input{display:flex;align-items:stretch;gap:8px;min-width:0}
+.account-fields .password-input input{flex:1;min-width:0;width:0}
+.password-input button{flex:none;min-width:64px;min-height:46px;padding:8px 10px;border:1px solid var(--input);border-radius:8px;background:var(--muted);color:var(--foreground);font-size:.8rem}
+.password-field small{font-size:.76rem;color:var(--muted-foreground);line-height:1.8}
+.password-feedback:empty{display:none}
+.password-meter{display:flex;gap:5px;margin:3px 0 5px;max-width:240px}
+.password-meter span{height:5px;flex:1;border-radius:4px;background:var(--input)}
+.password-feedback[data-strength="1"] .password-meter [data-filled=true]{background:var(--destructive)}
+.password-feedback[data-strength="2"] .password-meter [data-filled=true]{background:#b37813}
+.password-feedback[data-strength="3"] .password-meter [data-filled=true]{background:var(--primary)}
+.password-feedback[data-strength="1"] small{color:var(--destructive)}

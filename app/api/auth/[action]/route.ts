@@ -4,7 +4,7 @@ import {json,payload,validOrigin,landing} from '@/lib/server/access';
 import {accountSession,allowAttempt,digest,expiredCookie,hashPassword,issueSession,passwordValid,sessionToken,usernameValid,verifyPassword,type AccountRow} from '@/lib/server/accounts';
 export const dynamic='force-dynamic';
 const denied=()=>json({error:'نام کاربری، رمز عبور یا کد بازیابی معتبر نیست. / Invalid credentials or recovery code.'},401);
-const badPassword=()=>json({error:'رمز عبور باید ۱۲ تا ۱۲۸ نویسه باشد. / Password must be 12 to 128 characters.'},400);
+const badPassword=()=>json({error:'رمز عبور باید ۸ تا ۱۲۸ نویسه باشد. / Password must be 8 to 128 characters.'},400);
 function withCookie(body:unknown,cookie:string){return Response.json(body,{headers:{'Set-Cookie':cookie,'Cache-Control':'private, no-store'}})}
 export async function POST(r:Request,{params}:{params:Promise<{action:string}>}){
  if(process.env.NEXT_PUBLIC_HOSTING_TARGET==='netlify')return platformPost(r,{params});

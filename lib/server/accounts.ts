@@ -1,4 +1,6 @@
 import {database} from '@/db/storage';
+export {hashPassword,verifyPassword} from './password';
+export {passwordValid} from '../password-policy';
 export type AccountRole='admin'|'teacher'|'student';
 export type AccountRow={id:string,username:string,name:string,email:string,role:AccountRole,active:number,password_hash:string,epoch:number,must_change:number,teacher_id:string|null,student_id:string|null,created_at:string};
 export const SESSION_COOKIE='__Host-classer_session';
@@ -8,24 +10,11 @@ const hex=(a:Uint8Array)=>Array.from(a,b=>b.toString(16).padStart(2,'0')).join('
 export const randomCode=()=>hex(crypto.getRandomValues(new Uint8Array(32)));
 export const digest=async(s:string)=>hex(new Uint8Array(await crypto.subtle.digest('SHA-256',encoder.encode(s))));
 export const usernameValid=(s:string)=>/^[a-z0-9][a-z0-9_.-]{2,39}$/.test(s);
-export const passwordValid=(s:string)=>s.length>=12&&s.length<=128;
 export function sessionToken(r:Request){
  const token=r.headers.get('cookie')?.match(/(?:^|;\s*)__Host-classer_session=([0-9a-f]{64})(?=;|$)/)?.[1];
  return token??null;
 }
 export const expiredCookie=()=>SESSION_COOKIE+'=; Path=/; Max-Age=0; Secure; HttpOnly; SameSite=Lax';
-async function derive(password:string,salt:string){
- const key=await crypto.subtle.importKey('raw',encoder.encode(password),'PBKDF2',false,['deriveBits']);
- return hex(new Uint8Array(await crypto.subtle.deriveBits({name:'PBKDF2',salt:encoder.encode(salt),iterations:600000,hash:'SHA-256'},key,256)));
-}
-export async function hashPassword(password:string){const salt=randomCode();return salt+':'+await derive(password,salt)}
-export async function verifyPassword(password:string,hash:string){
- const [salt,expected]=hash.split(':');
- const computed=await derive(password,salt);
- let diff=computed.length^expected.length;
- for(let i=0;i<computed.length;i++)diff|=computed.charCodeAt(i)^expected.charCodeAt(i);
- return diff===0;
-}
 export async function accountSession(r:Request){
  const token=sessionToken(r);if(!token)return null;
  return database().prepare('SELECT a.* FROM classer_sessions s JOIN classer_accounts a ON a.id=s.account_id WHERE s.token=? AND s.expires>? AND a.active=1 AND a.epoch=s.epoch').bind(await digest(token),Date.now()).first<AccountRow>();

@@ -1,5 +1,6 @@
 'use client';
 import {useState} from 'react';
+import {PasswordField} from '@/components/password-field';
 export default function LocalLogin({initial,forced}:{initial:'login'|'reset'|'change',forced:boolean}){
  const [mode,setMode]=useState(initial),[busy,setBusy]=useState(false),[message,setMessage]=useState('');
  const labels={login:'ورود با نام کاربری',reset:'بازیابی رمز عبور',change:'تغییر رمز عبور'};
@@ -19,7 +20,7 @@ export default function LocalLogin({initial,forced}:{initial:'login'|'reset'|'ch
  {mode!=='change'&&<label className="field">نام کاربری<input name="username" dir="ltr" autoComplete="username" required maxLength={40}/></label>}
  {mode==='reset'&&<label className="field">کد یک‌بارمصرف<input name="code" dir="ltr" autoComplete="one-time-code" required maxLength={64}/></label>}
  {mode==='change'&&!forced&&<label className="field">رمز فعلی<input name="current" type="password" dir="ltr" autoComplete="current-password" required maxLength={128}/></label>}
- <label className="field">{mode==='login'?'رمز عبور':'رمز جدید'}<input name="password" dir="ltr" type="password" autoComplete={mode==='login'?'current-password':'new-password'} required minLength={mode==='login'?1:12} maxLength={128}/></label>
+ {mode==='login'?<label className="field">رمز عبور<input name="password" dir="ltr" type="password" autoComplete="current-password" required minLength={1} maxLength={128}/></label>:<PasswordField label="رمز جدید"/>}
  {message&&<p role="status" className="status-help">{message}</p>}
  <button className="btn primary" disabled={busy}>{busy?'لطفاً صبر کنید…':labels[mode]}</button>
  {mode==='login'?<button type="button" className="text-link" onClick={()=>{setMode('reset');setMessage('')}}>رمز عبور را فراموش کرده‌ام</button>:<a className="text-link" href="/signin">بازگشت به ورود</a>}

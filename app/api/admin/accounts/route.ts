@@ -22,7 +22,7 @@ export async function POST(r:Request){
  const u=await identity(r);if(!u?.isAdmin||!validOrigin(r))return forbidden();
  try{
   const b=await payload(r,12000),v=values.safeParse(b);
-  if(!v.success||typeof b.password!=='string'||!passwordValid(b.password))return json({error:'نام کاربری، اطلاعات و رمز موقت (حداقل ۱۲ نویسه) را بررسی کنید. / Check account details and temporary password.'},400);
+  if(!v.success||typeof b.password!=='string'||!passwordValid(b.password))return json({error:'نام کاربری، اطلاعات و رمز موقت (حداقل ۸ نویسه) را بررسی کنید. / Check account details and temporary password.'},400);
   const a=v.data,existing=typeof b.existingTeacher==='string'?b.existingTeacher:'';
   if(existing&&(a.role!=='teacher'||!await teacherExists(existing)))return json({error:'فضای معلم معتبر نیست. / Invalid existing teacher.'},400);
   if(a.role==='student'&&!await validStudent(a.teacherId,a.studentId))return json({error:'زبان‌آموز واقعی را از پروندهٔ یک معلم انتخاب کنید. / Choose a real student from a teacher workspace.'},400);
@@ -42,7 +42,7 @@ export async function PATCH(r:Request){
    return json({code:await issueRecovery(a),minutes:30});
   }
   if(b.action==='password'){
-   if(typeof b.password!=='string'||!passwordValid(b.password))return json({error:'رمز موقت حداقل ۱۲ نویسه باشد. / Temporary password must be at least 12 characters.'},400);
+   if(typeof b.password!=='string'||!passwordValid(b.password))return json({error:'رمز موقت حداقل ۸ نویسه باشد. / Temporary password must be at least 8 characters.'},400);
    const changed=await db.prepare('UPDATE classer_accounts SET password_hash=?,epoch=epoch+1,must_change=1 WHERE id=? AND epoch=?').bind(await hashPassword(b.password),a.id,a.epoch).run();
    return changed.meta.changes?json({saved:true}):json({},409);
   }
