@@ -86,6 +86,11 @@ test('owner provisions restricted accounts; recovery revokes sessions and site c
   const teacherSession=await request('/api/auth/change','POST',{password:fixturePassword()},{Cookie:teacherLogin.headers.get('set-cookie').split(';')[0]});assert.equal((await ok(teacherSession)).next,'/dashboard');
   const teacherCookie={Cookie:teacherSession.headers.get('set-cookie').split(';')[0]};
   const ownWorkspace=await ok(await request('/api/workspace','GET',undefined,teacherCookie));assert.equal(ownWorkspace.localAccount,true);assert.equal(ownWorkspace.ownerId,teacherCreated.id);assert.equal((await request('/api/admin/accounts','GET',undefined,teacherCookie)).status,403);
+  for(const path of ['/studio','/studio?tab=account','/journal']){
+   assert.equal((await request(path,'GET',undefined,teacherCookie)).status,200,'teacher route '+path+' should render');
+   const adminVisit=await request(path,'GET',undefined,admin);assert.equal(adminVisit.status,307);assert.equal(new URL(adminVisit.headers.get('location'),origin).pathname,'/admin');
+   const visitor=await request(path);assert.equal(visitor.status,307);assert.equal(new URL(visitor.headers.get('location'),origin).pathname,'/signin');
+  }
   const newDraft=await ok(await request('/api/admin/teachers?id='+teacherCreated.id,'GET',undefined,admin));
   assert.equal(newDraft.profile.version,0);assert.equal(newDraft.profile.data.published,false);
   const publicData={...newDraft.profile.data,gender:'woman',headline:'Conversation teacher',bio:'A teacher introduction containing enough information for a public portfolio.',certificateItems:['TEFL'],educationLevel:'bachelor',educationField:'English literature',published:true};
