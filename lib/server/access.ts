@@ -18,6 +18,7 @@ export async function identity(r:Request):Promise<Principal|null>{
  const legacy=await database().prepare('SELECT 1 AS allowed WHERE NOT EXISTS(SELECT 1 FROM classer_accounts WHERE id=?) AND (EXISTS(SELECT 1 FROM teacher_workspaces WHERE owner_id=?) OR EXISTS(SELECT 1 FROM teacher_public_profiles WHERE owner_id=?))').bind(provider.id,provider.id,provider.id).first();
  return legacy?{...provider,role:'teacher',local:false,mustChange:false}:null;
 }
+export function superAdministrator(u:Principal|null){return !!u?.isAdmin&&!u.local}
 export function canTeach(u:Principal|null){return !!u&&!u.mustChange&&(u.role==='teacher'||(u.isAdmin&&!u.local))}
 export async function teacherIdentity(r:Request){const u=await identity(r);return canTeach(u)?u:null}
 export const landing=(u:Pick<Principal,'role'|'mustChange'>)=>u.mustChange?'/signin?mode=change':u.role==='admin'?'/admin':u.role==='student'?'/student':'/dashboard';

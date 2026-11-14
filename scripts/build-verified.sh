@@ -24,3 +24,6 @@ timeout \
   --kill-after="${SITES_BUILD_KILL_AFTER:-10s}" \
   "${SITES_BUILD_TIMEOUT:-3m}" \
   "${vinext}" build
+
+echo "Running production regression tests..."
+timeout --signal=TERM --kill-after=10s 5m node --test tests/*.test.mjs

@@ -19,7 +19,7 @@ import {formatMoney,profileNameFields,type Workspace} from '@/lib/model';
 type Lang='fa'|'en';
 function SelectField({value,onChange,label,id,options,lang}:{value:string,onChange:(v:string)=>void,label:string,id?:string,options:(readonly [string,string])[],lang:Lang}){return <Select value={value} onValueChange={onChange} dir={lang==='fa'?'rtl':'ltr'}><SelectTrigger className="select-input" id={id} aria-label={label}><SelectValue/></SelectTrigger><SelectContent>{options.map(([key,label])=><SelectItem key={key} value={key}>{label}</SelectItem>)}</SelectContent></Select>}
 type T=(fa:string,en:string)=>string;
-function PortfolioItems({title,placeholder,items,onChange,t}:{title:string,placeholder:string,items:string[],onChange:(items:string[])=>void,t:T}){
+export function PortfolioItems({title,placeholder,items,onChange,t}:{title:string,placeholder:string,items:string[],onChange:(items:string[])=>void,t:T}){
  return <fieldset className="studio-items field wide">
   <legend>{title}</legend>
   {items.map((item,i)=><div className="studio-item-row" key={i}><input aria-label={title+' '+(i+1)} dir="auto" value={item} maxLength={2000} placeholder={placeholder} onChange={e=>onChange(items.map((x,j)=>j===i?e.target.value:x))}/><button type="button" className="icon-button" aria-label={t('حذف مورد','Remove item')+' '+(i+1)} onClick={()=>onChange(items.filter((_,j)=>j!==i))}><Trash2 size={16}/></button></div>)}
@@ -30,34 +30,22 @@ const formatLabel=(format:ClassOffer['format'],t:T)=>format==='online'?t('آنل
 const localeOptions=(t:T)=>languageCodes.map(k=>[k,t(languages[k][0],languages[k][1])] as const);
 const availableFormats=['online','in-person'] as const;
 function defaultOffer(p:PublicProfileInput,language:ContentLocale,format:ClassOffer['format']):DisplayOffer{
- return {language,format,rate:p.rate,currency:p.currency,duration:p.duration};
+ return {id:crypto.randomUUID(),language,format,rate:p.rate,currency:p.currency,duration:p.duration};
 }
-function FeeMatrix({p,lang,t,onChange}:{p:PublicProfileInput,lang:Lang,t:T,onChange:(o:DisplayOffer[])=>void}){
+export function FeeMatrix({p,lang,t,onChange}:{p:PublicProfileInput,lang:Lang,t:T,onChange:(o:DisplayOffer[])=>void}){
  const rows=classOffers(p);
- const change=(offer:DisplayOffer)=>onChange(rows.map(x=>x.language===offer.language&&x.format===offer.format?offer:x));
- const toggle=(language:ContentLocale,format:ClassOffer['format'],checked:boolean)=>{
-  if(checked)onChange([...rows,defaultOffer(p,language,format)]);
-  else onChange(rows.filter(o=>o.language!==language||o.format!==format));
- };
- return <fieldset className="studio-fees field wide"><legend>{t('نرخ هر جلسه بر اساس زبان و نوع کلاس','Fee per language and class format')}</legend>
-  <p className="small muted">{t('نوع کلاس را برای هر زبان جدا انتخاب کنید و نرخ و مدت همان جلسه را وارد کنید.','Choose the formats for each language, then set the fee and duration for each class.')}</p>
-  {p.languages.map(language=>{
-   const offers=rows.filter(o=>o.language===language);
-   return <div className="studio-fee-language" key={language}>
-    <div className="studio-language-heading"><span className="studio-language-icon"><Languages size={19}/></span><strong>{t(languages[language][0],languages[language][1])}</strong></div>
-    <div className="studio-format-toggles" role="group" aria-label={t('نوع کلاس','Class format')+' · '+t(languages[language][0],languages[language][1])}>
-     {availableFormats.map(format=>{const active=offers.some(o=>o.format===format);const Icon=format==='online'?Video:MapPin;return <button type="button" className="studio-format-toggle" aria-pressed={active} key={format} onClick={()=>toggle(language,format,!active)}><Icon size={16}/>{formatLabel(format,t)}{active&&<Check size={14}/>}</button>})}
-    </div>
-    {!offers.length&&<p className="small muted">{t('حداقل یک نوع کلاس انتخاب کنید.','Select at least one class format.')}</p>}
-    {offers.map(o=>{const Icon=o.format==='online'?Video:MapPin;return <div className="studio-fee-row" key={o.format}>
-     <div className={`studio-fee-format ${o.format}`}><Icon size={18}/><strong>{formatLabel(o.format,t)}</strong></div>
-     <label className="field"><span>{t('مبلغ هر جلسه','Fee per class')}</span><AmountInput key={o.currency} value={o.rate} currency={o.currency} required onAmountChange={v=>change({...o,rate:Number(v)})}/></label>
-     <label className="field"><span>{t('مدت (دقیقه)','Duration (minutes)')}</span><input type="number" dir="ltr" required min={15} max={300} step={1} value={o.duration||''} onChange={e=>change({...o,duration:Number(e.target.value)})}/></label>
-     <div className="field"><label htmlFor={`fee-${language}-${o.format}`}>{t('واحد پول','Currency')}</label><SelectField id={`fee-${language}-${o.format}`} label={t('واحد پول','Currency')} lang={lang} value={o.currency} onChange={v=>change({...o,currency:v as ClassOffer['currency'],rate:0})} options={[[ "TOMAN",t('تومان','Toman')],[ "USD",t('دلار آمریکا','US dollar')]]}/></div>
-    </div>})}
-   </div>
-  })}
- </fieldset>;
+ const change=(offer:DisplayOffer)=>onChange(rows.map(x=>x.id===offer.id?offer:x));
+ const add=(language:ContentLocale)=>onChange([...rows,defaultOffer(p,language,'online')]);
+ return <fieldset className="studio-fees field wide"><legend>{t('مدل‌های کلاس و نرخ هر جلسه','Class options & session fees')}</legend><p className="small muted">{t('برای هر زبان چند کلاس با نام، نوع، مدت و واحد پول مستقل اضافه کنید؛ مثلاً یک کلاس آنلاین با تومان و یک کلاس آنلاین با دلار.','Add multiple named options per language, each with its own format, duration and currency.')}</p>
+ {p.languages.map(language=><div className="studio-fee-language" key={language}><div className="studio-language-heading"><strong>{t(languages[language][0],languages[language][1])}</strong><button className="btn compact" type="button" disabled={rows.length>=64} onClick={()=>add(language)}>{t('افزودن مدل کلاس','Add class option')}</button></div>
+ {rows.filter(o=>o.language===language).map(o=><div className="studio-fee-row class-option-row" key={o.id}>
+ <label className="field"><span>{t('نام کلاس','Class name')}</span><input maxLength={100} value={o.title??''} placeholder={t('مثلاً مکالمهٔ خصوصی','e.g. Private conversation')} onChange={e=>change({...o,title:e.target.value})}/></label>
+ <label className="field"><span>{t('نوع کلاس','Class format')}</span><select value={o.format} onChange={e=>change({...o,format:e.target.value as ClassOffer['format']})}><option value="online">{t('آنلاین','Online')}</option><option value="in-person">{t('حضوری','In person')}</option></select></label>
+ <label className="field"><span>{t('مبلغ هر جلسه','Session fee')}</span><AmountInput key={o.currency} value={o.rate} currency={o.currency} required onAmountChange={v=>change({...o,rate:Number(v)})}/></label>
+ <label className="field"><span>{t('مدت (دقیقه)','Duration (minutes)')}</span><input type="number" dir="ltr" required min={15} max={300} step={1} value={o.duration||''} onChange={e=>change({...o,duration:Number(e.target.value)})}/></label>
+ <label className="field"><span>{t('واحد پول','Currency')}</span><select value={o.currency} onChange={e=>change({...o,currency:e.target.value as ClassOffer['currency'],rate:0})}><option value="TOMAN">{t('تومان','Toman')}</option><option value="USD">{t('دلار آمریکا','US dollar')}</option></select></label>
+ <button className="btn danger" type="button" onClick={()=>onChange(rows.filter(x=>x.id!==o.id))}>{t('حذف مدل کلاس','Remove option')}</button></div>)}
+ {!rows.some(o=>o.language===language)&&<p className="status-help">{t('برای این زبان حداقل یک مدل کلاس اضافه کنید.','Add at least one option for this language.')}</p>}</div>)}</fieldset>;
 }
 const alternate=(source:ContentLocale,picked:ContentLocale):ContentLocale=>source===picked?(source==='en'?'fa':'en'):picked;
 function LanguageSettings({source,target,lang,t,prefix,setSource,setTarget}:{source:ContentLocale,target:ContentLocale,lang:Lang,t:T,prefix:string,setSource:(v:ContentLocale)=>void,setTarget:(v:ContentLocale)=>void}){
@@ -124,7 +112,7 @@ export function TeacherStudio({lang,workspaceProfile,onIdentity,account}:{lang:L
    <FeeMatrix p={profile} lang={lang} t={t} onChange={updateOffers}/>
    {profile.formats.includes('in-person')&&<TextPair {...pair} label={t('شهر کلاس حضوری','City for in-person classes')} base={profile.city} translated={translated.city} max={100} required onBase={v=>update('city',v)} onTranslated={v=>translate('city',v)}/>}
   </fieldset>
-  <fieldset className="studio-group"><legend>{t('رزومه و تخصص‌ها','Qualifications & specialties')}</legend><div className="form-grid">
+  <fieldset className="studio-group"><legend>{t('رزومه و تخصص‌ها','Qualifications & specialties')}</legend><div className="form-grid"><label className="field">{t('جنسیت (نمایش عمومی اختیاری)','Gender (optional public display)')}<select value={profile.gender??'unspecified'} onChange={e=>update('gender',e.target.value)}><option value="unspecified">{t('نمایش داده نشود','Do not show')}</option><option value="man">{t('آقا','Man')}</option><option value="woman">{t('خانم','Woman')}</option><option value="other">{t('دیگر','Other')}</option></select></label>
    <label className="field"><span>{t('سابقه تدریس (سال)','Teaching experience (years)')}</span><input type="number" min={0} max={70} value={profile.experience} onChange={e=>update('experience',Number(e.target.value))} required/></label>
    <div className="field"><label htmlFor="portfolio-education">{t('مدرک تحصیلی','Qualification')}</label><SelectField lang={lang} id="portfolio-education" label={t('مدرک تحصیلی','Qualification')} value={profile.educationLevel||'unset'} onChange={v=>update('educationLevel',v==='unset'?'':v)} options={[[ "unset",t('انتخاب نشده','Not specified')],...Object.entries(educationLevels).map(([key,label])=>[key,t(label[0],label[1])] as const)]}/></div>
    <TextPair {...pair} label={t('رشتهٔ تحصیلی','Field of study')} base={profile.educationField??profile.education} translated={translated.educationField} max={2000} onBase={v=>update('educationField',v)} onTranslated={v=>translate('educationField',v)}/>

@@ -1,8 +1,6 @@
 import {database} from '@/db/storage';
-export {hashPassword,verifyPassword} from './password';
-export {passwordValid} from '../password-policy';
 export type AccountRole='admin'|'teacher'|'student';
-export type AccountRow={id:string,username:string,name:string,email:string,role:AccountRole,active:number,password_hash:string,epoch:number,must_change:number,teacher_id:string|null,student_id:string|null,created_at:string};
+export type AccountRow={id:string,username:string,name:string,email:string,role:AccountRole,active:number,password_hash:string,epoch:number,must_change:number,teacher_id:string|null,student_id:string|null,created_at:string;phone:string};
 export const SESSION_COOKIE='__Host-classer_session';
 const SESSION_SECONDS=8*3600;
 const encoder=new TextEncoder();
@@ -10,11 +8,13 @@ const hex=(a:Uint8Array)=>Array.from(a,b=>b.toString(16).padStart(2,'0')).join('
 export const randomCode=()=>hex(crypto.getRandomValues(new Uint8Array(32)));
 export const digest=async(s:string)=>hex(new Uint8Array(await crypto.subtle.digest('SHA-256',encoder.encode(s))));
 export const usernameValid=(s:string)=>/^[a-z0-9][a-z0-9_.-]{2,39}$/.test(s);
+export {passwordValid} from '@/lib/password-policy';
 export function sessionToken(r:Request){
  const token=r.headers.get('cookie')?.match(/(?:^|;\s*)__Host-classer_session=([0-9a-f]{64})(?=;|$)/)?.[1];
  return token??null;
 }
 export const expiredCookie=()=>SESSION_COOKIE+'=; Path=/; Max-Age=0; Secure; HttpOnly; SameSite=Lax';
+export {hashPassword,verifyPassword} from './password';
 export async function accountSession(r:Request){
  const token=sessionToken(r);if(!token)return null;
  return database().prepare('SELECT a.* FROM classer_sessions s JOIN classer_accounts a ON a.id=s.account_id WHERE s.token=? AND s.expires>? AND a.active=1 AND a.epoch=s.epoch').bind(await digest(token),Date.now()).first<AccountRow>();

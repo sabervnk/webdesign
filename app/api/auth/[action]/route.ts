@@ -1,13 +1,15 @@
+import {getRecoveryMailConfig} from '@platform/recovery-config';
+import {createEmailRecovery,RecoveryRateLimit} from '@/lib/server/email-recovery';
+import {recoveryEmailSender} from '@/lib/server/recovery-mail';
+import {isVeryWeakPassword} from '@/lib/password-policy';
 import {POST as platformPost} from '@platform/auth-api';
 import {database} from '@/db/storage';
 import {json,payload,validOrigin,landing} from '@/lib/server/access';
 import {accountSession,allowAttempt,digest,expiredCookie,hashPassword,issueSession,passwordValid,sessionToken,usernameValid,verifyPassword,type AccountRow} from '@/lib/server/accounts';
-import {getRecoveryMailConfig} from '@platform/recovery-config';
-import {createEmailRecovery,RecoveryRateLimit} from '@/lib/server/email-recovery';
-import {recoveryEmailSender} from '@/lib/server/recovery-mail';
 export const dynamic='force-dynamic';
 const denied=()=>json({error:'نام کاربری، رمز عبور یا کد بازیابی معتبر نیست. / Invalid credentials or recovery code.'},401);
 const badPassword=()=>json({error:'رمز عبور باید ۸ تا ۱۲۸ نویسه باشد. / Password must be 8 to 128 characters.'},400);
+const weakPassword=()=>json({error:'رمز خیلی ضعیف است. رمز قوی‌تری انتخاب کنید. / Choose a stronger password.'},400);
 function withCookie(body:unknown,cookie:string){return Response.json(body,{headers:{'Set-Cookie':cookie,'Cache-Control':'private, no-store'}})}
 export async function POST(r:Request,{params}:{params:Promise<{action:string}>}){
  if(process.env.NEXT_PUBLIC_HOSTING_TARGET==='netlify')return platformPost(r,{params});
@@ -40,6 +42,7 @@ export async function POST(r:Request,{params}:{params:Promise<{action:string}>})
      return 'error' in result?json({error:result.error},result.status):json(result);
     }
     if(!passwordValid(password))return badPassword();
+    if(isVeryWeakPassword(password))return weakPassword();
     const saved=await service.reset(typeof b.grant==='string'?b.grant:'',()=>hashPassword(password),ip);
     if(!saved)return json({error:'اجازهٔ تغییر رمز منقضی یا قبلاً مصرف شده است. بازیابی را دوباره شروع کنید.'},400);
     return withCookie({next:'/signin',reset:true},expiredCookie());
@@ -52,6 +55,7 @@ export async function POST(r:Request,{params}:{params:Promise<{action:string}>})
    const a=await accountSession(r);
    if(!a)return denied();
    if(!passwordValid(password))return badPassword();
+   if(isVeryWeakPassword(password))return weakPassword();
    if(!a.must_change){
     if(!await allowAttempt(r,a.username))return json({error:'کمی بعد دوباره تلاش کنید. / Try again later.'},429);
     const old=typeof b.current==='string'?b.current:'';
@@ -70,6 +74,7 @@ export async function POST(r:Request,{params}:{params:Promise<{action:string}>})
    const code=typeof b.code==='string'?b.code.trim().toLowerCase():'';
    if(!/^[0-9a-f]{64}$/.test(code))return denied();
    if(!passwordValid(password))return badPassword();
+   if(isVeryWeakPassword(password))return weakPassword();
    const key=await digest(code);
    const a=await db.prepare('SELECT a.id,a.epoch FROM classer_recovery t JOIN classer_accounts a ON a.id=t.account_id WHERE t.token=? AND a.username=? AND t.expires>? AND a.active=1 AND a.epoch=t.epoch').bind(key,username,Date.now()).first<{id:string,epoch:number}>();
    if(!a)return denied();
@@ -86,4 +91,3 @@ export async function POST(r:Request,{params}:{params:Promise<{action:string}>})
   return withCookie({next:landing({role:a.role,mustChange:!!a.must_change})},await issueSession(a));
  }catch(e){console.error('Classer sign-in operation failed',e);return json({error:'عملیات ورود در دسترس نیست. / Sign-in is temporarily unavailable.'},503)}
 }
-

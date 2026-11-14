@@ -9,7 +9,7 @@ export const PROFILE_ITEMS_MAX=30;
 const profileItems=z.array(z.string().trim().max(2000)).max(PROFILE_ITEMS_MAX).transform(items=>items.filter(Boolean)).optional();
 const languageSchema=z.enum(languageCodes);
 const formatSchema=z.enum(['online','in-person']);
-export const classOfferSchema=z.object({language:languageSchema,format:formatSchema,rate:z.number().min(0).max(100000000),duration:z.number().int().min(15).max(300).optional(),currency:z.enum(['TOMAN','USD'])}).refine(p=>validMoney(p.rate,p.currency),{message:'مبلغ هر کلاس را بررسی کنید. / Check the fee for each class.'});
+export const classOfferSchema=z.object({id:z.string().regex(/^[a-zA-Z0-9:_-]{1,100}$/).optional(),title:z.string().trim().max(100).optional(),language:languageSchema,format:formatSchema,rate:z.number().min(0).max(100000000),duration:z.number().int().min(15).max(300).optional(),currency:z.enum(['TOMAN','USD'])}).refine(p=>validMoney(p.rate,p.currency),{message:'مبلغ هر کلاس را بررسی کنید. / Check the fee for each class.'});
 export type ClassOffer=z.infer<typeof classOfferSchema>;
 export type DisplayOffer=ClassOffer&{duration:number};
 const profileTranslation=z.object({name:z.string().trim().max(100).optional(),headline:z.string().trim().max(150).optional(),bio:z.string().trim().max(5000).optional(),city:z.string().trim().max(100).optional(),educationField:z.string().trim().max(2000).optional(),certificateItems:profileItems,specialtyItems:profileItems});
@@ -17,12 +17,12 @@ export type ProfileTranslation=z.infer<typeof profileTranslation>;
 const articleTranslation=z.object({title:z.string().trim().max(180).optional(),excerpt:z.string().trim().max(350).optional(),content:z.string().trim().max(50000).optional()});
 export type ArticleTranslation=z.infer<typeof articleTranslation>;
 export type ContentLocale=typeof languageCodes[number];
-export const publicProfileSchema=z.object({name:z.string().trim().min(2).max(100),headline:z.string().trim().max(150),bio:z.string().trim().max(5000),languages:z.array(z.enum(languageCodes)).min(1).max(8),formats:z.array(z.enum(['online','in-person'])).min(1).max(2),city:z.string().trim().max(100),experience:z.number().int().min(0).max(70),education:z.string().trim().max(2000),certificates:z.string().trim().max(2000),specialties:z.string().trim().max(600),educationLevel:z.enum(educationCodes).optional(),educationField:z.string().trim().max(2000).optional(),certificateItems:profileItems,specialtyItems:profileItems,offers:z.array(classOfferSchema).max(16).optional(),contentLocale:languageSchema.optional(),translations:z.partialRecord(languageSchema,profileTranslation).optional(),rate:z.number().min(0).max(100000000),currency:z.enum(['TOMAN','USD']),duration:z.number().int().min(15).max(300),published:z.boolean()}).superRefine((p,c)=>{
+export const publicProfileSchema=z.object({name:z.string().trim().min(2).max(100),gender:z.enum(['man','woman','other','unspecified']).optional(),headline:z.string().trim().max(150),bio:z.string().trim().max(5000),languages:z.array(z.enum(languageCodes)).min(1).max(8),formats:z.array(z.enum(['online','in-person'])).min(1).max(2),city:z.string().trim().max(100),experience:z.number().int().min(0).max(70),education:z.string().trim().max(2000),certificates:z.string().trim().max(2000),specialties:z.string().trim().max(600),educationLevel:z.enum(educationCodes).optional(),educationField:z.string().trim().max(2000).optional(),certificateItems:profileItems,specialtyItems:profileItems,offers:z.array(classOfferSchema).max(64).optional(),contentLocale:languageSchema.optional(),translations:z.partialRecord(languageSchema,profileTranslation).optional(),rate:z.number().min(0).max(100000000),currency:z.enum(['TOMAN','USD']),duration:z.number().int().min(15).max(300),published:z.boolean()}).superRefine((p,c)=>{
  if(new Set(p.languages).size!==p.languages.length||new Set(p.formats).size!==p.formats.length)c.addIssue({code:'custom',path:['offers'],message:'زبان یا نوع کلاس تکراری است. / Duplicate language or class format.'});
  if(p.offers){
   const combinations=new Set<string>(),offeredLanguages=new Set<string>(),offeredFormats=new Set<string>();
-  for(const offer of p.offers){
-   const key=offer.language+':'+offer.format;
+  for(const [index,offer] of p.offers.entries()){
+   const key=offer.id??('legacy-'+index);
    if(!p.languages.includes(offer.language)||!p.formats.includes(offer.format)||combinations.has(key))c.addIssue({code:'custom',path:['offers'],message:'ترکیب نرخ کلاس نامعتبر یا تکراری است. / Invalid or duplicate class rate.'});
    combinations.add(key);offeredLanguages.add(offer.language);offeredFormats.add(offer.format);
   }
@@ -34,9 +34,9 @@ export type Teacher=PublicProfileInput&{id:string,photo:string,updatedAt:string,
 export const articleSchema=z.object({title:z.string().trim().min(3).max(180),excerpt:z.string().trim().max(350),content:z.string().trim().min(30).max(50000),category:z.enum(['learning','conversation','exams','culture']),status:z.enum(['draft','published']),contentLocale:languageSchema.optional(),translations:z.partialRecord(languageSchema,articleTranslation).optional()}).superRefine((p,c)=>{if(p.status==='published'&&p.content.length<150)c.addIssue({code:'custom',message:'برای انتشار، متن مقاله باید حداقل ۱۵۰ کاراکتر باشد. / Add at least 150 characters to publish.'})});
 export type ArticleInput=z.infer<typeof articleSchema>;
 export type Article=ArticleInput&{id:string,teacherId:string,createdAt:string,updatedAt:string,version:number,readingMinutes?:number,sample?:boolean};
-export const inquirySchema=z.object({id:z.string().uuid(),kind:z.enum(['class','contact']),teacherId:z.string().max(100).default(''),teacherVersion:z.number().int().positive().optional(),name:z.string().trim().min(2).max(100),email:z.string().trim().email().max(200),phone:z.string().trim().max(30).default(''),language:z.string().max(10).default(''),format:z.enum(['online','in-person','']).default(''),message:z.string().trim().min(5).max(4000),website:z.string().max(100).default('')});
+export const inquirySchema=z.object({id:z.string().uuid(),kind:z.enum(['class','contact']),teacherId:z.string().max(100).default(''),teacherVersion:z.number().int().positive().optional(),offerId:z.string().max(100).default(''),name:z.string().trim().min(2).max(100),email:z.string().trim().email().max(200),phone:z.string().trim().max(30).default(''),language:z.string().max(10).default(''),format:z.enum(['online','in-person','']).default(''),message:z.string().trim().min(5).max(4000),website:z.string().max(100).default('')});
 export type InquiryInput=z.infer<typeof inquirySchema>;
-export type Inquiry=Omit<InquiryInput,'website'>&{teacherName:string,rate:number|null,currency:Currency|null,duration:number|null,status:'new'|'reviewing'|'closed',adminNote:string,createdAt:string,updatedAt:string,version:number};
+export type Inquiry=Omit<InquiryInput,'website'>&{teacherName:string,offerTitle?:string,rate:number|null,currency:Currency|null,duration:number|null,status:'new'|'reviewing'|'closed',adminNote:string,createdAt:string,updatedAt:string,version:number};
 export type Catalogue={teachers:Teacher[],articles:Article[],isAdmin:boolean,error?:string};
 export function initialPublicProfile(name=''):PublicProfileInput{return {name,headline:'',bio:'',languages:['en'],formats:['online'],city:'',experience:0,education:'',certificates:'',specialties:'',rate:250000,currency:'TOMAN',duration:60,published:false}}
 export function portfolioItems(p:PublicProfileInput,type:'certificates'|'specialties'){
@@ -49,18 +49,13 @@ export function portfolioEducation(p:PublicProfileInput){
  return {level:p.educationLevel||undefined,field:(p.educationField??p.education).trim()};
 }
 type OfferFilters={language?:string,format?:string,currency?:string,maxPrice?:string};
-export function offerFor(p:PublicProfileInput,language:string,format:string):DisplayOffer|undefined{
- if(!p.languages.some(x=>x===language)||!p.formats.some(x=>x===format))return;
- const offer=p.offers?.find(o=>o.language===language&&o.format===format);
- if(p.offers&&!offer)return;
- return offer?{...offer,duration:offer.duration??p.duration}:{language:language as ClassOffer['language'],format:format as ClassOffer['format'],rate:p.rate,currency:p.currency,duration:p.duration};
+export function classOffers(p:PublicProfileInput,filters:OfferFilters={}):DisplayOffer[]{
+ const rows:DisplayOffer[]=p.offers?p.offers.map((o,index)=>({...o,id:o.id??('legacy-'+o.language+'-'+o.format+'-'+index),duration:o.duration??p.duration})):p.languages.flatMap(language=>p.formats.map(format=>({id:'legacy-'+language+'-'+format,language,format,rate:p.rate,currency:p.currency,duration:p.duration})));
+ return rows.filter(o=>p.languages.includes(o.language)&&p.formats.includes(o.format)&&(!filters.language||filters.language==='all'||o.language===filters.language)&&(!filters.format||filters.format==='all'||o.format===filters.format)&&(!filters.currency||filters.currency==='all'||o.currency===filters.currency)&&(!filters.maxPrice||!filters.currency||filters.currency==='all'||o.rate<=Number(filters.maxPrice)));
 }
-export function classOffers(p:PublicProfileInput,filters:OfferFilters={}){
- return p.languages.flatMap(language=>p.formats.flatMap(format=>{
-  const o=offerFor(p,language,format);
-  if(!o||(filters.language&&filters.language!=='all'&&o.language!==filters.language)||(filters.format&&filters.format!=='all'&&o.format!==filters.format)||(filters.currency&&filters.currency!=='all'&&o.currency!==filters.currency)||(filters.maxPrice&&filters.currency&&filters.currency!=='all'&&o.rate>Number(filters.maxPrice)))return [];
-  return [o];
- }));
+export function offerFor(p:PublicProfileInput,language:string,format:string,id?:string):DisplayOffer|undefined{
+ const rows=classOffers(p,{language,format}).filter(o=>o.language===language&&o.format===format);
+ return id?rows.find(o=>o.id===id):rows.length===1?rows[0]:undefined;
 }
 export function matchesTeacher(t:Teacher,filters:OfferFilters&{query?:string,city?:string}){
  const q=(filters.query||'').trim().toLowerCase();

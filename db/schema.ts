@@ -9,7 +9,7 @@ export const teacherVideos=sqliteTable('teacher_videos',{
 });
 
 export const accounts=sqliteTable('classer_accounts',{
- id:text('id').primaryKey(),username:text('username').notNull().unique(),name:text('name').notNull(),email:text('email').notNull(),
+ id:text('id').primaryKey(),username:text('username').notNull().unique(),name:text('name').notNull(),email:text('email').notNull(),phone:text('phone').notNull().default(''),
  role:text('role').notNull(),passwordHash:text('password_hash').notNull(),active:integer('active').notNull().default(1),
  epoch:integer('epoch').notNull().default(0),mustChange:integer('must_change').notNull().default(1),
  teacherId:text('teacher_id'),studentId:text('student_id'),createdAt:text('created_at').notNull(),

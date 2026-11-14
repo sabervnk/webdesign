@@ -25,9 +25,10 @@ test('portfolios, articles, enquiries and admin access preserve ownership and qu
   const studio=await ok(await req('/api/studio','teacher-a'));
   assert.equal(studio.profile.published,false);
   assert.equal((await ok(await req('/api/catalogue'))).teachers.length,0);
-  const profile={...studio.profile,name:'معلم آزمایشی',headline:'تمرین مکالمه انگلیسی',educationLevel:'bachelor',educationField:'English literature',certificateItems:['Teaching diploma',' '],specialtyItems:['Interview, exam and travel practice'],bio:'معرفی واقعی برای بررسی مسیر انتشار پرتفولیو و ارائه کلاس‌های زبان با تمرین و بازخورد آموزشی.',published:true,currency:'USD',rate:24.99,languages:['en'],formats:['online']};
+  const profile={...studio.profile,gender:'woman',name:'معلم آزمایشی',headline:'تمرین مکالمه انگلیسی',educationLevel:'bachelor',educationField:'English literature',certificateItems:['Teaching diploma',' '],specialtyItems:['Interview, exam and travel practice'],bio:'معرفی واقعی برای بررسی مسیر انتشار پرتفولیو و ارائه کلاس‌های زبان با تمرین و بازخورد آموزشی.',published:true,currency:'USD',rate:24.99,languages:['en'],formats:['online']};
   await ok(await req('/api/studio/profile','teacher-a','PUT',{profile,version:1}));
   let listing=await ok(await req('/api/catalogue'));
+  assert.equal(listing.teachers[0].gender,'woman');assert(!JSON.stringify(listing).includes('Private lesson plan'));
   assert.equal(listing.teachers[0].educationLevel,'bachelor');
   assert.equal(listing.teachers[0].educationField,'English literature');
   assert.deepEqual(listing.teachers[0].certificateItems,['Teaching diploma']);
@@ -110,7 +111,8 @@ test('portfolios, articles, enquiries and admin access preserve ownership and qu
   await ok(await req('/api/admin/requests','admin','PUT',{id:inquiry.id,version:1,status:'reviewing',adminNote:'Private follow-up note'}));
   assert.equal((await req('/api/admin/requests','admin','PUT',{id:inquiry.id,version:1,status:'closed',adminNote:''})).status,409);
   const multirate={...profile,city:'تهران',languages:['en','fr'],formats:['online','in-person'],translations:{en:{name:'Test Teacher',bio:'English biography'}},offers:[
-   {language:'en',format:'online',rate:15,duration:45,currency:'USD'},
+   {id:'english-usd',title:'Conversation USD',language:'en',format:'online',rate:15,duration:45,currency:'USD'},
+   {id:'english-toman',title:'Conversation Toman',language:'en',format:'online',rate:500000,duration:60,currency:'TOMAN'},
    {language:'en',format:'in-person',rate:400000,duration:60,currency:'TOMAN'},
    {language:'fr',format:'in-person',rate:33,duration:90,currency:'USD'},
   ]};
@@ -119,6 +121,11 @@ test('portfolios, articles, enquiries and admin access preserve ownership and qu
   const multiple=await ok(await req('/api/catalogue'));
   assert.deepEqual(multiple.teachers[0].offers,multirate.offers);
   assert.equal(multiple.teachers[0].translations.en.bio,'English biography');
+  const ambiguous={...inquiry,id:crypto.randomUUID(),teacherVersion:3,email:'option@example.com'};
+  assert.equal((await req('/api/requests',undefined,'POST',ambiguous)).status,400);
+  await ok(await req('/api/requests',undefined,'POST',{...ambiguous,offerId:'english-toman',rate:1,currency:'USD'}),201);
+  const selected=(await ok(await req('/api/admin/requests','admin'))).requests.find(x=>x.id===ambiguous.id);
+  assert.equal(selected.rate,500000);assert.equal(selected.currency,'TOMAN');assert.equal(selected.offerTitle,'Conversation Toman');
   const second={...inquiry,id:crypto.randomUUID(),email:'french@example.com',teacherVersion:3,language:'fr',format:'in-person'};
   assert.equal((await req('/api/requests',undefined,'POST',{...second,id:crypto.randomUUID(),format:'online'})).status,400);
   await ok(await req('/api/requests',undefined,'POST',second),201);

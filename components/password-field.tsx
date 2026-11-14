@@ -1,20 +1,14 @@
 'use client';
 import {useId,useState} from 'react';
-import {PASSWORD_MIN_LENGTH,PASSWORD_MAX_LENGTH,passwordStrength} from '@/lib/password-policy';
-
-export function PasswordField({label='رمز موقت'}:{label?:string}){
- const id=useId(),[value,setValue]=useState(''),[visible,setVisible]=useState(false);
- const strength=passwordStrength(value);
- const labels=['','ضعیف','متوسط','قوی'];
- return <div className="field password-field">
-  <label htmlFor={id}>{label}</label>
-  <div className="password-input">
-   <input id={id} name="password" type={visible?'text':'password'} dir="ltr" autoComplete="new-password" required minLength={PASSWORD_MIN_LENGTH} maxLength={PASSWORD_MAX_LENGTH} value={value} onChange={e=>setValue(e.target.value)} placeholder="حداقل ۸ کاراکتر" aria-describedby={id+'-help '+id+'-strength'}/>
-   <button type="button" aria-controls={id} aria-pressed={visible} aria-label={visible?'پنهان‌کردن رمز':'نمایش رمز'} onClick={()=>setVisible(v=>!v)}>{visible?'پنهان':'نمایش'}</button>
-  </div>
-  <small id={id+'-help'}>۸ تا ۱۲۸ کاراکتر؛ بهتر است از یک عبارت طولانی و غیرقابل‌حدس استفاده کنید.</small>
-  <div id={id+'-strength'} className="password-feedback" data-strength={strength} role="status" aria-live="polite" aria-atomic="true">
-   {value&&<><div className="password-meter" aria-hidden="true">{[1,2,3].map(n=><span key={n} data-filled={strength>=n}/>)}</div><small>قدرت رمز: {labels[strength]}{strength===1?'؛ لطفاً رمز قوی‌تری انتخاب کنید.':''}</small></>}
-  </div>
+import {MAX_PASSWORD_LENGTH,MIN_PASSWORD_LENGTH,passwordStrength} from '@/lib/password-policy';
+const ratings=['کوتاه','خیلی ضعیف','قابل قبول','خوب','قوی'];
+export function PasswordField({label}:{label:string}){
+ const [value,setValue]=useState(''),[show,setShow]=useState(false);
+ const id=useId(),strength=passwordStrength(value);
+ const message=!value?'حداقل ۸ نویسه. یک عبارت طولانی و منحصربه‌فرد انتخاب کنید.':strength===0?'رمز باید حداقل ۸ نویسه باشد.':strength===1?'این رمز خیلی ضعیف و قابل حدس است. یک رمز قوی‌تر انتخاب کنید.':strength<4?'برای رمز قوی‌تر از چند واژهٔ نامرتبط استفاده کنید.':'رمز از نظر طول و تنوع قوی است.';
+ return <div className="password-field"><label className="field" htmlFor={id}>{label}</label>
+ <div className="password-input"><input id={id} name="password" dir="ltr" type={show?'text':'password'} autoComplete="new-password" required minLength={MIN_PASSWORD_LENGTH} maxLength={MAX_PASSWORD_LENGTH} value={value} aria-describedby={id+'-hint'} onChange={e=>{const input=e.currentTarget;input.setCustomValidity(passwordStrength(input.value)===1?'رمز خیلی ضعیف است؛ رمز قوی‌تری وارد کنید.':'');setValue(input.value)}}/><button type="button" className="btn" aria-controls={id} onClick={()=>setShow(!show)}>{show?'پنهان کردن':'نمایش رمز'}</button></div>
+ <div className="password-meter" data-strength={strength} aria-hidden="true">{[1,2,3,4].map(i=><span key={i} data-filled={strength>=i}/>)}</div>
+ <p id={id+'-hint'} className="password-hint" data-weak={strength===1} aria-live="polite">{value&&<strong>{ratings[strength]} — </strong>}{message}</p>
  </div>;
 }

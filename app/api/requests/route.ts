@@ -17,7 +17,7 @@ export async function POST(r:Request){
    const row=await db.prepare('SELECT data FROM site_inquiries WHERE id=?').bind(data.id).first<{data:string}>();
    if(!row)return null;
    const saved=JSON.parse(row.data);
-   const same=Object.entries(data).every(([key,value])=>saved[key]===value);
+   const same=Object.entries(data).every(([key,value])=>(key==='offerId'?(saved[key]??''):saved[key])===value);
    return same?json(receipt()):json({error:'این شناسه برای درخواست دیگری ثبت شده است. فرم را دوباره باز کنید. / Request identifier already used for different details.'},409);
   }
   // A successful retry must still work after the teacher changes their offer.
@@ -29,11 +29,11 @@ export async function POST(r:Request){
    if(!row)return json({error:'این معلم اکنون درخواست جدید نمی‌پذیرد. / This teacher is not available.'},400);
    if(data.teacherVersion!==row.version)return json({error:'مشخصات یا نرخ معلم تغییر کرده است؛ صفحه را تازه کنید و دوباره بررسی کنید. / Teacher details changed. Refresh and review the current fee.'},409);
    teacher=JSON.parse(row.data) as Teacher;
-   offer=offerFor(teacher,data.language,data.format);
+   offer=offerFor(teacher,data.language,data.format,data.offerId);
    if(!offer)return json({error:'زبان یا نوع کلاس با خدمات معلم مطابقت ندارد. / Select a language and format offered by this teacher.'},400);
   }
   const now=new Date().toISOString();
-  const stored={...data,teacherName:teacher?.name||'',rate:offer?.rate??null,currency:offer?.currency??null,duration:offer?.duration??null,adminNote:''};
+  const stored={...data,teacherName:teacher?.name||'',offerTitle:offer?.title||'',rate:offer?.rate??null,currency:offer?.currency??null,duration:offer?.duration??null,adminNote:''};
   // One conditional write makes both duplicate handling and the hourly limit
   // atomic on D1 and across Netlify snapshot compare-and-swap retries.
   const result=await db.prepare(`INSERT OR IGNORE INTO site_inquiries (id,email,data,status,version,created_at,updated_at)

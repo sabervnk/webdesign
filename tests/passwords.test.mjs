@@ -49,5 +49,6 @@ test('eight-character minimum and weak password feedback',()=>{
  assert.equal(passwordStrength('Password123!'),1);
  assert.equal(passwordStrength('a'.repeat(20)),1);
  assert.equal(passwordStrength('Rainbow!7059'),3);
- assert.equal(passwordStrength('four unrelated words here'),3);
+ assert.equal(passwordStrength('four unrelated words here'),4);
 });
+

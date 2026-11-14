@@ -1,13 +1,15 @@
-export const PASSWORD_MIN_LENGTH=8;
-export const PASSWORD_MAX_LENGTH=128;
-export const passwordValid=(value:string)=>value.length>=PASSWORD_MIN_LENGTH&&value.length<=PASSWORD_MAX_LENGTH;
-
-// Advisory feedback, not an estimate of cracking time.
-export function passwordStrength(value:string){
- if(!value)return 0;
- const normalized=value.toLowerCase().replace(/[^a-z0-9]/g,'');
- if(!passwordValid(value)||/^(.)\1+$/u.test(value)||['password','password1','password123','12345678','123456789','1234567890','qwerty123','qwertyuiop','abcdefgh','admin123'].includes(normalized))return 1;
- const classes=[/[a-z]/,/[A-Z]/,/[0-9]/,/[^a-zA-Z0-9]/].filter(pattern=>pattern.test(value)).length;
- if(value.length>=16||(value.length>=12&&classes>=3))return 3;
- return value.length>=12||classes>=3?2:1;
+export const MIN_PASSWORD_LENGTH=8;
+export const MAX_PASSWORD_LENGTH=128;
+export const passwordValid=(value:string)=>value.length>=MIN_PASSWORD_LENGTH&&value.length<=MAX_PASSWORD_LENGTH;
+const common=new Set(['password','password1','password123','qwerty123','12345678','123456789','1234567890','11111111','letmein','welcome','admin123','iloveyou','abc123','classer123','changeme']);
+const sequences=['01234567890','abcdefghijklmnopqrstuvwxyz','qwertyuiop','asdfghjkl','zxcvbnm'];
+export function passwordStrength(value:string):0|1|2|3|4{
+ if(!passwordValid(value))return 0;
+ const compact=value.trim().normalize('NFKC').toLowerCase().replace(/[\s_.!@#$%&*+\-]/g,'').replace(/[۰-۹٠-٩]/g,c=>String(c.charCodeAt(0)%16));
+ const distinct=new Set([...compact]).size;
+ if(common.has(compact)||distinct<4||/^(.{1,4})\1+$/u.test(compact)||sequences.some(s=>s.includes(compact)||[...s].reverse().join('').includes(compact))||/^\d{8}$/.test(compact))return 1;
+ if(value.length>=15&&distinct>=9)return 4;
+ if(value.length>=12&&distinct>=7)return 3;
+ return 2;
 }
+export const isVeryWeakPassword=(value:string)=>passwordStrength(value)===1;

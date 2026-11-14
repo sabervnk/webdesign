@@ -14,15 +14,17 @@ test('workspace API persists changes, isolates users, rejects stale writes, and 
   assert.equal((await req()).status,401);
   const res=await req('teacher-a');assert.equal(res.status,200);const a=await res.json();assert.equal(a.data.students.length,5);
   Object.assign(a.data.profile,{name:'آزمایش ذخیره',nameFa:'آزمایش ذخیره',nameEn:'Test Teacher',specializationEn:'English tutor'});
+  a.data.memos=[{id:'private-memo',title:'Planning',body:'Private lesson plan',color:'mint',pinned:true,updatedAt:new Date().toISOString()}];
   a.data.sessions[0].note='تمرین مکالمه\nReview the homework';
   const saved=await req('teacher-a','PUT',a);
   assert.equal(saved.status,200,await saved.clone().text());
   const stored=(await (await req('teacher-a')).json()).data;
+  assert.equal(stored.memos[0].body,'Private lesson plan');
   assert.equal(stored.profile.nameFa,'آزمایش ذخیره');
   assert.equal(stored.profile.nameEn,'Test Teacher');
   assert.equal(stored.profile.specializationEn,'English tutor');
   assert.equal(stored.sessions[0].note,'تمرین مکالمه\nReview the homework');
-  const b=await(await req('teacher-b')).json();assert.notEqual(b.data.profile.name,a.data.profile.name);
+  const b=await(await req('teacher-b')).json();assert.notEqual(b.data.profile.name,a.data.profile.name);assert.equal(b.data.memos.length,0);
   assert.equal((await req('teacher-a','PUT',a)).status,409);
   const current=await(await req('teacher-a')).json();current.data.sessions.push({...current.data.sessions[0],id:'overlap',time:'09:30'});assert.equal((await req('teacher-a','PUT',current)).status,400);
   assert.equal((await mf.dispatchFetch('https://mahela-classroom.lahzehtv.chatgpt.site/api/workspace',{method:'PUT',headers:{'oai-authenticated-user-id':'teacher-a',Origin:'http://untrusted.test'},body:JSON.stringify(current)})).status,403);
