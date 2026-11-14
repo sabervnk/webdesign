@@ -30,7 +30,7 @@ function useTeachers(){
  useEffect(()=>{api<{teachers:Teacher[]}>('/api/admin/teachers').then(j=>setItems(j.teachers)).catch(e=>setError(e.message))},[]);
  return {items,error};
 }
-function SiteEditor(){
+export function SiteEditor(){
  const [data,setData]=useState<{catalogue:CopyItem[];values:CopyValues;version:number}|null>(null);
  const [search,setSearch]=useState(''),[area,setArea]=useState(''),[key,setKey]=useState('site.brand'),[locale,setLocale]=useState<'fa'|'en'>('fa'),[draft,setDraft]=useState(''),[note,setNote]=useState(''),[busy,setBusy]=useState(false);
  const url='/api/admin/content';
@@ -110,6 +110,6 @@ function UsersSection({me,superAdmin}:{me:string;superAdmin:boolean}){
 }
 export default function AdminPanel({local,me,superAdmin}:{local:boolean;me:string;superAdmin:boolean}){
  const brand=useCopyValue('site.brand','fa','Classer');const [tab,setTab]=useState('overview');
- const tabs=[['overview','پیشخوان مدیریت'],['users','کاربران و معلم‌ها'],['content','محتوای سایت'],['requests','درخواست‌ها']];
- return <main className="classer-console"><div className="page-heading"><div><h1>{superAdmin?'پنل سوپرادمین ':'پنل مدیریت '}{brand}</h1><p>{superAdmin?'مدیریت کامل سایت، حساب‌ها و دسترسی‌ها':'مدیریت محتوا و پرتفولیوها با دسترسی محدود'}</p></div><div className="actions"><DashboardClock/><a className="btn" href="/">دیدن سایت</a>{!local&&<a className="btn" href="/dashboard">فضای معلم</a>}<AccountLinks local={local}/></div></div><nav className="admin-nav" aria-label="بخش‌های مدیریت">{tabs.map(([v,label])=><button className="btn" key={v} aria-pressed={tab===v} onClick={()=>setTab(v)}>{label}</button>)}</nav>{tab==='overview'?<AdminOverview superAdmin={superAdmin} onNavigate={setTab}/>:tab==='content'?<SiteEditor/>:tab==='users'?<UsersSection me={me} superAdmin={superAdmin}/>:<AdminInbox lang="fa"/>}</main>;
+ const tabs=[['overview','پیشخوان مدیریت'],['users','کاربران و معلم‌ها'],['requests','درخواست‌ها']];
+ return <main className="classer-console"><div className="page-heading"><div><h1>{superAdmin?'پنل سوپرادمین ':'پنل مدیریت '}{brand}</h1><p>{superAdmin?'مدیریت کامل سایت، حساب‌ها و دسترسی‌ها':'مدیریت محتوا و پرتفولیوها با دسترسی محدود'}</p></div><div className="actions"><DashboardClock/><a className="btn" href="/">دیدن سایت</a>{!local&&<a className="btn" href="/dashboard">فضای معلم</a>}<AccountLinks local={local}/></div></div><nav className="admin-nav" aria-label="بخش‌های مدیریت">{tabs.map(([v,label])=><button className="btn" key={v} aria-pressed={tab===v} onClick={()=>setTab(v)}>{label}</button>)}</nav>{tab==='overview'?<AdminOverview superAdmin={superAdmin} onNavigate={setTab}/>:tab==='users'?<UsersSection me={me} superAdmin={superAdmin}/>:<AdminInbox lang="fa"/>}<aside className="admin-content-gateway"><div><span className="badge">میزکار مستقل</span><h2>استودیوی محتوای سایت</h2><p>ویرایش عنوان‌ها، صفحهٔ اصلی و نوشته‌های رابط در فضای جداگانهٔ محتوا.</p></div><a className="btn" href="/admin/content">ورود به استودیوی محتوا ←</a></aside></main>;
 }

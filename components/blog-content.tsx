@@ -1,9 +1,10 @@
 import React from 'react';
 import {safeLink} from '@/lib/blog';
-function inline(text:string):React.ReactNode[]{return text.split(/(\*\*[^*]+\*\*|\*[^*]+\*|\[[^\]]+\]\([^)]+\))/g).map((part,i)=>{
+function inline(text:string):React.ReactNode[]{return text.split(/(\*\*\*[^*]+\*\*\*|\*\*[^*]+\*\*|\*[^*]+\*|\[[^\]]+\]\([^)]+\))/g).map((part,i)=>{
+ if(part.startsWith('***'))return <strong key={i}><em>{part.slice(3,-3)}</em></strong>;
  if(part.startsWith('**'))return <strong key={i}>{part.slice(2,-2)}</strong>;
  if(part.startsWith('*'))return <em key={i}>{part.slice(1,-1)}</em>;
- const link=/^\[([^\]]+)\]\(([^)]+)\)$/.exec(part);if(link){const url=safeLink(link[2]);return url?<a href={url} key={i} rel="noopener noreferrer" target="_blank">{link[1]}</a>:<span key={i}>{link[1]}</span>}
+ const link=/^\[([^\]]+)\]\(([^)]+)\)$/.exec(part);if(link){const url=safeLink(link[2]);return url?<a href={url} key={i} rel="noopener noreferrer" target="_blank">{inline(link[1])}</a>:<span key={i}>{inline(link[1])}</span>}
  return <React.Fragment key={i}>{part}</React.Fragment>;
 })}
 export function BlogContent({content}:{content:string}){

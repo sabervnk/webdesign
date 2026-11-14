@@ -1,3 +1,4 @@
+import {proportionalFee} from './session-policy.ts';
 import { z } from 'zod';
 export const levels=['A1','A2','B1','B2','C1','C2'] as const;
 export const skillKeys=['listening','speaking','reading','writing'] as const;
@@ -7,7 +8,7 @@ const currencySchema=z.enum(currencies).default('TOMAN');
 const score=z.number().min(0).max(9).multipleOf(.5);
 const skills=z.object({listening:score,speaking:score,reading:score,writing:score});
 export const studentSchema=z.object({id:z.string().min(1).max(80),name:z.string().trim().min(2).max(100),email:z.string().email().max(200),phone:z.string().regex(/^\+?[\d\s()-]{8,22}$/),level:z.enum(levels),gender:z.enum(['female','male','unspecified']),rate:z.number().min(0).max(100000000),currency:currencySchema,duration:z.number().int().min(15).max(300),since:z.string().max(30),skills,tone:z.number().int().min(0).max(4)});
-export const sessionSchema=z.object({id:z.string().min(1).max(80),studentId:z.string().max(80),date:z.string().regex(/^\d{4}-\d{2}-\d{2}$/),time:z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),duration:z.number().int().min(15).max(300),type:z.enum(['online','in-person']),status:z.enum(['scheduled','held','cancelled']),cancelReason:z.enum(['teacher','student','no-show']),charge:z.boolean(),note:z.string().max(2000),rate:z.number().min(0).max(100000000),currency:currencySchema,paid:z.boolean(),paidAt:z.string().max(40)});
+export const sessionSchema=z.object({id:z.string().min(1).max(80),studentId:z.string().max(80),date:z.string().regex(/^\d{4}-\d{2}-\d{2}$/),time:z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),duration:z.number().int().min(15).max(300),type:z.enum(['online','in-person']),status:z.enum(['scheduled','held','cancelled']),cancelReason:z.enum(['teacher','student','no-show']),charge:z.boolean(),note:z.string().max(2000),noteHistory:z.array(z.object({note:z.string().max(2000),status:z.enum(['scheduled','held','cancelled']),at:z.string().datetime()})).max(100).optional(),pricing:z.object({baseRate:z.number().min(0).max(100000000),baseDuration:z.number().int().min(15).max(300),currency:currencySchema}).optional(),rate:z.number().min(0).max(100000000),currency:currencySchema,paid:z.boolean(),paidAt:z.string().max(40)});
 export const assessmentSchema=z.object({id:z.string().max(80),studentId:z.string().max(80),date:z.string().max(40),skills,note:z.string().max(2000)});
 export const messageSchema=z.object({id:z.string().max(80),studentId:z.string().max(80),text:z.string().trim().min(1).max(4000),date:z.string().max(40),direction:z.enum(['in','out']),sample:z.boolean()});
 export const memoSchema=z.object({id:z.string().min(1).max(80),title:z.string().trim().min(1).max(120),body:z.string().trim().min(1).max(10000),color:z.enum(['mint','amber','lilac']).default('mint'),pinned:z.boolean().default(false),updatedAt:z.string().datetime()});
@@ -45,6 +46,7 @@ export function validateWorkspace(next:Workspace,previous?:Workspace){
  if([...next.sessions,...next.assessments,...next.messages].some(x=>!ids.has(x.studentId)))throw new Error('زبان‌آموز این رکورد وجود ندارد. / Student not found.');
  if(new Set(next.students.map(s=>s.email.toLowerCase())).size!==next.students.length)throw new Error('این ایمیل برای زبان‌آموز دیگری ثبت شده است. / Email already in use.');
  for(const s of next.sessions){
+  if(s.pricing&&(s.currency!==s.pricing.currency||!validMoney(s.pricing.baseRate,s.pricing.currency)||s.rate!==proportionalFee(s.pricing.baseRate,s.pricing.baseDuration,s.duration,s.currency)))throw new Error('مبلغ جلسه با نرخ پایه و مدت آن مطابقت ندارد. / Fee does not match the base rate and duration.');
   if(Number.isNaN(dateFrom(s.date).getTime())||dateKey(dateFrom(s.date))!==s.date)throw new Error('تاریخ معتبر نیست. / Invalid date.');
   if(timeNumber(s.time)+s.duration>1440)throw new Error('پایان جلسه باید در همین روز باشد. / Session must end on the same day.');
   if(s.status==='cancelled'&&s.cancelReason==='teacher'&&s.charge)throw new Error('لغو از طرف معلم بدون شهریه است. / Teacher cancellations cannot be charged.');
@@ -54,7 +56,7 @@ export function validateWorkspace(next:Workspace,previous?:Workspace){
  }
  const active=next.sessions.filter(s=>s.status!=='cancelled').sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
  for(let i=1;i<active.length;i++){const a=active[i-1],b=active[i];if(a.date===b.date&&timeNumber(a.time)+a.duration>timeNumber(b.time))throw new Error('این زمان با یک کلاس دیگر تداخل دارد. / This session overlaps another class.');}
- if(previous&&!previous.demo){for(const old of previous.sessions.filter(s=>s.paid)){const n=next.sessions.find(s=>s.id===old.id);if(!n||JSON.stringify(n)!==JSON.stringify(old))throw new Error('جلسه تسویه‌شده قابل تغییر نیست. / A paid session cannot be changed.');}}
+ if(previous&&!previous.demo){for(const old of previous.sessions.filter(s=>s.paid)){const n=next.sessions.find(s=>s.id===old.id);const financial=(s:Session)=>JSON.stringify(Object.entries(s).filter(([key,value])=>key!=='note'&&key!=='noteHistory'&&value!==undefined).sort(([a],[b])=>a.localeCompare(b)));if(!n||financial(n)!==financial(old))throw new Error('جلسه تسویه‌شده قابل تغییر نیست. / A paid session cannot be changed.');}}
 }
 export function emptyWorkspace(email=''):Workspace{return {demo:false,memos:[],profile:{name:'معلم',email,phone:'',specialization:'مدرس زبان انگلیسی',bio:'',photo:'',calendar:'auto',currency:'TOMAN'},students:[],sessions:[],assessments:[],messages:[]}}
 export function sampleWorkspace(today:string):Workspace{

@@ -1,6 +1,6 @@
 {
   "name": "classer",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "private": true,
   "engines": {
     "node": ">=22.13.0"
@@ -41,7 +41,8 @@
     "sql.js": "1.14.1",
     "tailwind-merge": "3.6.0",
     "vaul": "^1.1.2",
-    "zod": "4.6.7"
+    "zod": "4.6.7",
+    "quill": "2.0.3"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.67.0",
