@@ -3,7 +3,7 @@ import {useEffect,useRef,useState} from 'react';
 import type {Article,ArticleInput} from '@/lib/catalogue';
 import {articleSchema,localizeArticle} from '@/lib/catalogue';
 import {builtInCategories,categoryLabel,mediaReferences} from '@/lib/blog';
-import {BlogEditor} from './blog-editor';
+import {BlogEditor} from './visual-blog-editor';
 import {BlogContent} from './blog-content';
 type Media={id:string;name:string;type:string;size:number};
 async function api(path:string,method='GET',body?:unknown){const r=await fetch(path,{method,cache:'no-store',...(body?{headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{})});const j=await r.json();if(!r.ok)throw Error(j.error||'عملیات انجام نشد.');return j}

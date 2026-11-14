@@ -1,3 +1,4 @@
+import {mp4} from './fixtures/video.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {readFile,readdir} from 'node:fs/promises';
@@ -18,23 +19,26 @@ test('blog categories, media and featured images respect draft privacy, ownershi
  assert.equal((await req('/api/studio/categories','teacher-a','POST',{name:'آموزش کودکان'})).status,409);
  assert.equal((await ok(await req('/api/studio/categories','teacher-b'))).categories.length,0);
  const upload=await ok(await req('/api/studio/media','teacher-a','POST',avatar,{'Content-Type':'image/webp'}),201);
+ const clip=await ok(await req('/api/studio/media','teacher-a','POST',mp4,{'Content-Type':'video/mp4'}),201);
+ assert.equal((await req(clip.url)).status,404);
+ assert.equal((await req('/api/studio/media','teacher-a','POST',new Uint8Array([1,2,3]),{'Content-Type':'video/mp4'})).status,400);
  assert.equal((await req(upload.url)).status,404);assert.equal((await req(upload.url,'teacher-b')).status,404);assert.equal((await req(upload.url,'teacher-a')).status,200);
  assert.equal((await req('/api/studio/media','teacher-a','POST',new Uint8Array([1,2,3]),{'Content-Type':'image/png'})).status,400);
  const studio=await ok(await req('/api/studio','teacher-a'));const profile={...studio.profile,name:'Media Teacher',headline:'Learning with media',bio:'A complete introduction for a teacher who publishes lessons and educational media.',published:true};
  await ok(await req('/api/studio/profile','teacher-a','PUT',{profile,version:1}));
- const post={title:'A media lesson',excerpt:'Summary',content:'A useful language lesson with enough reading material. '.repeat(5)+'\n\n![Practice photo]('+upload.url+')',category:'آموزش کودکان',status:'draft',coverImage:upload.url,coverAlt:'Lesson photo',tags:['lesson']};
+ const post={title:'A media lesson',excerpt:'Summary',content:'A useful language lesson with enough reading material. '.repeat(5)+'\n\n![Practice photo]('+upload.url+')\n\n@[Lesson video]('+clip.url+')',category:'آموزش کودکان',status:'draft',coverImage:upload.url,coverAlt:'Lesson photo',tags:['lesson']};
  const created=await ok(await req('/api/studio/posts','teacher-a','POST',{article:post}),201);
  assert.equal((await req(upload.url)).status,404);
  assert.equal((await req('/api/studio/media','teacher-a','DELETE',{id:upload.id})).status,409);
  await ok(await req('/api/studio','teacher-b'));
  assert.equal((await req('/api/studio/posts','teacher-b','POST',{article:post})).status,400);
  await ok(await req('/api/studio/posts','teacher-a','PUT',{id:created.id,version:1,article:{...post,status:'published'}}));
- assert.equal((await req(upload.url)).status,200);
+ assert.equal((await req(upload.url)).status,200);const ranged=await req(clip.url,undefined,'GET',undefined,{Range:'bytes=4-7'});assert.equal(ranged.status,206);assert.equal(await ranged.text(),'ftyp');
  const page=await req('/blog/'+created.id);assert.equal(page.status,200);const html=await page.text();assert(html.includes('Lesson photo'));assert(html.includes(upload.url));assert(html.includes('آموزش کودکان'));
- const saved=(await ok(await req('/api/studio/posts?id='+created.id,'teacher-a'))).article;assert.deepEqual(saved.mediaIds,[upload.id]);
+ const saved=(await ok(await req('/api/studio/posts?id='+created.id,'teacher-a'))).article;assert.deepEqual(saved.mediaIds,[upload.id,clip.id]);
  await ok(await req('/api/studio/posts','teacher-a','PUT',{id:created.id,version:2,article:{...post,status:'trash'}}));assert.equal((await req(upload.url)).status,404);
  await ok(await req('/api/studio/posts','teacher-a','PUT',{id:created.id,version:3,article:{...post,status:'draft'}}));
  await ok(await req('/api/studio/posts','teacher-a','DELETE',{id:created.id,version:4}));
- await ok(await req('/api/studio/media','teacher-a','DELETE',{id:upload.id}));assert.equal((await req(upload.url,'teacher-a')).status,404);
+ await ok(await req('/api/studio/media','teacher-a','DELETE',{id:clip.id}));await ok(await req('/api/studio/media','teacher-a','DELETE',{id:upload.id}));assert.equal((await req(upload.url,'teacher-a')).status,404);
  }finally{await mf.dispose()}
 });
