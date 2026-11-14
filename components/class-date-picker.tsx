@@ -1,0 +1,12 @@
+'use client';
+import {useMemo} from 'react';
+import {CalendarDays,ChevronLeft,ChevronRight} from 'lucide-react';
+import {classMonths,chooseMonthDay} from '@/lib/class-form';
+export function ClassDatePicker({value,onChange,today,editing,calendar,lang}:{value:string;onChange:(date:string)=>void;today:string;editing:boolean;calendar:'persian'|'gregory';lang:'fa'|'en'}){
+ const locale=lang==='fa'?'fa-IR':'en-GB',t=(fa:string,en:string)=>lang==='fa'?fa:en;
+ const months=useMemo(()=>classMonths(today,value,calendar,locale,editing),[today,value,calendar,locale,editing]);const active=months.findIndex(m=>m.days.includes(value)),month=months[Math.max(active,0)];
+ const dayFormat=new Intl.DateTimeFormat(locale,{calendar,timeZone:'UTC',day:'numeric'}),fullFormat=new Intl.DateTimeFormat(locale,{calendar,timeZone:'UTC',weekday:'long',day:'numeric',month:'long',year:'numeric'});
+ function select(key:string){const next=months.find(m=>m.key===key);if(next)onChange(chooseMonthDay(next,value,calendar,today,editing))}
+ const offset=month?(new Date(month.days[0]+'T12:00:00Z').getUTCDay()+1)%7:0;
+ return <div className="class-date-picker"><div className="class-date-controls"><CalendarDays size={18}/><button type="button" aria-label={t('ماه قبل','Previous month')} disabled={active<=0} onClick={()=>select(months[active-1].key)}><ChevronRight size={16}/></button><select aria-label={t('ماه و سال کلاس','Class month and year')} value={month?.key??''} onChange={e=>select(e.target.value)}>{months.map(m=><option value={m.key} key={m.key}>{m.label}</option>)}</select><button type="button" aria-label={t('ماه بعد','Next month')} disabled={active>=months.length-1} onClick={()=>select(months[active+1].key)}><ChevronLeft size={16}/></button></div><div className="class-calendar-grid">{(lang==='fa'?['ش','ی','د','س','چ','پ','ج']:['Sa','Su','Mo','Tu','We','Th','Fr']).map((d,i)=><span className="class-calendar-weekday" key={i}>{d}</span>)}{Array.from({length:offset},(_,i)=><span key={'empty'+i}/>)}{month?.days.map(day=><button type="button" key={day} aria-pressed={day===value} disabled={!editing&&day<today} title={fullFormat.format(new Date(day+'T12:00:00Z'))} className={(day===value?'selected ':'')+(day===today?'today':'')} onClick={()=>onChange(day)}>{dayFormat.format(new Date(day+'T12:00:00Z'))}</button>)}</div><div className="class-date-summary"><strong>{fullFormat.format(new Date(value+'T12:00:00Z'))}</strong><button type="button" onClick={()=>onChange(today)}>{t('امروز','Today')}</button></div></div>;
+}

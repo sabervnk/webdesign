@@ -14,8 +14,8 @@ export default function LocalLogin({initial,forced}:{initial:'login'|'reset'|'ch
   const tick=()=>setRemaining(Math.max(0,Math.ceil((deadline-Date.now())/1000)));
   tick();const timer=window.setInterval(tick,1000);return ()=>window.clearInterval(timer);
  },[deadline]);
- const titles:Record<Step,string>={login:'ورود با نام کاربری',request:'بازیابی رمز عبور',verify:'تأیید کد بازیابی','new-password':'تعیین رمز جدید',change:'تغییر رمز عبور',manual:'بازیابی با کد مدیر'};
- const help=step==='request'?'ایمیلی را وارد کنید که هنگام ساخت حساب در سایت ثبت شده است.':step==='verify'?'کد ۶رقمی ایمیل را وارد کنید. کد تا ۱۰ دقیقه معتبر است و حداکثر ۵ بار می‌توانید آن را امتحان کنید.':step==='new-password'?'ایمیل تأیید شد. تا ۵ دقیقه فرصت دارید رمز تازه تعیین کنید.':step==='manual'?'این بخش فقط برای کد بلند بازیابی است که مدیر شخصاً به شما داده است.':forced?'پیش از ورود به پنل، رمز موقت خود را تغییر دهید.':'با حساب Classer وارد پنل خود شوید.';
+ const titles:Record<Step,string>={login:'ورود به حساب Classer',request:'بازیابی رمز عبور',verify:'تأیید کد بازیابی','new-password':'تعیین رمز جدید',change:'تغییر رمز عبور',manual:'بازیابی با کد مدیر'};
+ const help=step==='request'?'ایمیلی را وارد کنید که هنگام ساخت حساب در سایت ثبت شده است.':step==='verify'?'کد ۶رقمی ایمیل را وارد کنید. کد تا ۱۰ دقیقه معتبر است و حداکثر ۵ بار می‌توانید آن را امتحان کنید.':step==='new-password'?'ایمیل تأیید شد. تا ۵ دقیقه فرصت دارید رمز تازه تعیین کنید.':step==='manual'?'این بخش فقط برای کد بلند بازیابی است که مدیر شخصاً به شما داده است.':forced?'پیش از ورود به پنل، رمز موقت خود را تغییر دهید.':'با نام کاربری و رمزی که مدیر سایت ساخته وارد شوید؛ حساب ChatGPT لازم نیست.';
  async function call(action:string,body:Record<string,unknown>){
   const r=await fetch('/api/auth/'+action,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   const j=await r.json() as Reply;
@@ -52,10 +52,10 @@ export default function LocalLogin({initial,forced}:{initial:'login'|'reset'|'ch
    if(j.next?.startsWith('/')&&!j.next.startsWith('//'))window.location.assign(j.next);
   }catch(e){setMessage((e as Error).message)}finally{setBusy(false)}
  }
- return <main className="classer-login"><section className="panel"><div className="panel-head"><div><h1>{titles[step]}</h1><p>{help}</p></div></div>
+ return <main className="classer-login local-account-login"><header className="local-login-brand"><a href="/">Class<span>er</span>.</a><p>ورود امن به حساب شما</p></header><section className="panel"><div className="panel-head"><div><h1>{titles[step]}</h1><p>{help}</p></div></div>
  <form className="panel-body account-fields" key={step} onSubmit={submit}>
  {step==='request'&&<><label className="field">ایمیل ثبت‌شده<input name="email" type="email" dir="ltr" autoComplete="email" required maxLength={254} value={email} onChange={e=>setEmail(e.target.value)}/></label><small>اگر ایمیلی برای حساب ثبت نشده یا به آن دسترسی ندارید، از مدیر سایت کمک بگیرید.</small></>}
- {(step==='login'||step==='manual')&&<label className="field">نام کاربری<input name="username" dir="ltr" autoComplete="username" required maxLength={40}/></label>}
+ {(step==='login'||step==='manual')&&<label className="field">نام کاربری<input name="username" dir="ltr" autoCapitalize="none" spellCheck={false} autoComplete="username" required maxLength={40}/></label>}
  {step==='verify'&&<><p className="small">ایمیل واردشده: <bdi>{email}</bdi></p><label className="field">کد ۶رقمی<input name="code" dir="ltr" inputMode="numeric" autoComplete="one-time-code" required pattern="[0-9]{6}" minLength={6} maxLength={6} value={code} onChange={e=>setCode(normalizeRecoveryCode(e.target.value))} placeholder="000000"/></label></>}
  {step==='manual'&&<label className="field">کد بازیابی مدیر<input name="code" dir="ltr" autoComplete="one-time-code" required minLength={64} maxLength={64}/></label>}
  {step==='change'&&!forced&&<label className="field">رمز فعلی<input name="current" type="password" dir="ltr" autoComplete="current-password" required maxLength={128}/></label>}
@@ -66,7 +66,7 @@ export default function LocalLogin({initial,forced}:{initial:'login'|'reset'|'ch
  {step==='new-password'&&<button type="button" className="text-link" disabled={busy} onClick={begin}>شروع دوبارهٔ بازیابی</button>}
  {step==='login'?<button type="button" className="text-link" disabled={busy} onClick={begin}>رمز عبور را فراموش کرده‌ام</button>:<a className="text-link" href="/signin">بازگشت به ورود</a>}
  {step==='request'&&<button type="button" className="text-link" disabled={busy} onClick={()=>{setStep('manual');setMessage('')}}>کد بازیابی مدیر را دارم</button>}
- {step==='login'&&<a className="text-link" href="/signin-with-chatgpt?return_to=%2Fadmin" target="_top">ورود مالک سایت با ChatGPT</a>}
+ {step==='login'&&<details className="owner-login-option"><summary>ورود اختیاری مالک سایت</summary><a className="text-link" href="/signin-with-chatgpt?return_to=%2Fadmin" target="_top">ورود مالک با ChatGPT</a></details>}
  <a className="text-link" href="/">صفحهٔ اصلی</a>
  </form></section></main>;
 }

@@ -22,6 +22,8 @@ test('owner provisions restricted accounts; recovery revokes sessions and site c
   const admin={'oai-authenticated-user-id':'fixture-owner','oai-authenticated-user-email':ownerEmail};
   const request=(path,method='GET',body,head={})=>mf.dispatchFetch(origin+path,{method,redirect:'manual',headers:{...head,...(body?{'Content-Type':'application/json',Origin:origin}:{})},...(body?{body:JSON.stringify(body)}:{})});
   const ok=async(r,status=200)=>{assert.equal(r.status,status,await r.clone().text());return r.json()};
+  const signin=await request('/signin');assert.equal(signin.status,200);assert((await signin.text()).includes('name="username"'));
+  const privatePage=await request('/dashboard');assert.equal(privatePage.status,307);assert(new URL(privatePage.headers.get('location'),origin).pathname==='/signin');
   const creds={username:'test-student',password:shortFixture()};
   const a={...creds,name:'Test learner',email:'learner@example.com',phone:'09121234567',role:'student',teacherId:'legacy-teacher',studentId:'elena',active:true};
   assert.equal((await request('/api/admin/accounts','POST',a)).status,403);
@@ -68,7 +70,12 @@ test('owner provisions restricted accounts; recovery revokes sessions and site c
   const limited={Cookie:newAdmin.headers.get('set-cookie').split(';')[0]};
   for(const method of ['GET','POST','PATCH'])assert.equal((await request('/api/admin/accounts',method,method==='GET'?undefined:{id,action:'password',password:fixturePassword()},limited)).status,403);
   const summary=await ok(await request('/api/admin/overview','GET',undefined,limited));assert.equal(summary.superAdmin,false);assert.equal(summary.counts.users,undefined);
-  const teacherCreated=await ok(await request('/api/admin/accounts','POST',{username:'new-teacher',name:'New teacher',email:'newteacher@example.com',phone:'+989121234569',role:'teacher',password:fixturePassword()},admin),201);
+  const teacherTemporary=fixturePassword();
+  const teacherCreated=await ok(await request('/api/admin/accounts','POST',{username:'new-teacher',name:'New teacher',email:'newteacher@example.com',phone:'+989121234569',role:'teacher',password:teacherTemporary},admin),201);
+  const teacherLogin=await request('/api/auth/login','POST',{username:'new-teacher',password:teacherTemporary});assert.equal((await ok(teacherLogin)).next,'/signin?mode=change');
+  const teacherSession=await request('/api/auth/change','POST',{password:fixturePassword()},{Cookie:teacherLogin.headers.get('set-cookie').split(';')[0]});assert.equal((await ok(teacherSession)).next,'/dashboard');
+  const teacherCookie={Cookie:teacherSession.headers.get('set-cookie').split(';')[0]};
+  const ownWorkspace=await ok(await request('/api/workspace','GET',undefined,teacherCookie));assert.equal(ownWorkspace.localAccount,true);assert.equal(ownWorkspace.ownerId,teacherCreated.id);assert.equal((await request('/api/admin/accounts','GET',undefined,teacherCookie)).status,403);
   const newDraft=await ok(await request('/api/admin/teachers?id='+teacherCreated.id,'GET',undefined,admin));
   assert.equal(newDraft.profile.version,0);assert.equal(newDraft.profile.data.published,false);
   const publicData={...newDraft.profile.data,gender:'woman',headline:'Conversation teacher',bio:'A teacher introduction containing enough information for a public portfolio.',certificateItems:['TEFL'],educationLevel:'bachelor',educationField:'English literature',published:true};
