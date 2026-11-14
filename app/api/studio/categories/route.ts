@@ -1,0 +1,5 @@
+import {database} from '@/db/storage';
+import {teacherIdentity,json,payload,validOrigin} from '@/lib/server/access';
+export const dynamic='force-dynamic';
+export async function GET(r:Request){const u=await teacherIdentity(r);if(!u)return json({},401);return json({categories:(await database().prepare('SELECT id,name FROM classer_blog_categories WHERE owner_id=? ORDER BY name').bind(u.id).all()).results})}
+export async function POST(r:Request){const u=await teacherIdentity(r);if(!u)return json({},401);if(!validOrigin(r))return json({},403);try{const b=await payload(r,2000),name=typeof b.name==='string'?b.name.trim().normalize('NFC'):'';if(!name||name.length>60)return json({error:'نام دسته‌بندی باید بین ۱ تا ۶۰ نویسه باشد.'},400);const id=crypto.randomUUID();const result=await database().prepare('INSERT OR IGNORE INTO classer_blog_categories(id,owner_id,name) SELECT ?,?,? WHERE (SELECT count(*) FROM classer_blog_categories WHERE owner_id=?)<100').bind(id,u.id,name,u.id).run();return result.meta.changes?json({id,name},201):json({error:'دسته‌بندی تکراری است یا به سقف ۱۰۰ دسته‌بندی رسیده‌اید.'},409)}catch{return json({error:'ذخیرهٔ دسته‌بندی انجام نشد.'},400)}}

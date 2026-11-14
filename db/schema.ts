@@ -1,4 +1,4 @@
-import { sqliteTable,text,integer,index } from 'drizzle-orm/sqlite-core';
+import { sqliteTable,text,integer,index,uniqueIndex } from 'drizzle-orm/sqlite-core';
 export const workspaces=sqliteTable('teacher_workspaces',{ownerId:text('owner_id').primaryKey(),data:text('data').notNull(),version:integer('version').notNull().default(1),updatedAt:text('updated_at').notNull()});
 export const teacherProfiles=sqliteTable('teacher_public_profiles',{id:text('id').primaryKey(),ownerId:text('owner_id').notNull().unique(),data:text('data').notNull(),published:integer('published').notNull().default(0),version:integer('version').notNull().default(1),updatedAt:text('updated_at').notNull()},t=>[index('public_profiles_listing_idx').on(t.published,t.updatedAt)]);
 export const teacherArticles=sqliteTable('teacher_articles',{id:text('id').primaryKey(),ownerId:text('owner_id').notNull(),teacherId:text('teacher_id').notNull().references(()=>teacherProfiles.id),data:text('data').notNull(),status:text('status').notNull().default('draft'),version:integer('version').notNull().default(1),createdAt:text('created_at').notNull(),updatedAt:text('updated_at').notNull()},t=>[index('articles_owner_idx').on(t.ownerId,t.updatedAt),index('articles_published_idx').on(t.status,t.createdAt,t.teacherId),index('articles_teacher_idx').on(t.teacherId)]);
@@ -33,3 +33,6 @@ export const recoveryLimits=sqliteTable('classer_recovery_limits',{
  key:text('key').primaryKey(),count:integer('count').notNull(),expires:integer('expires').notNull(),
 },t=>[index('classer_recovery_limits_expires_idx').on(t.expires)]);
 
+
+export const blogCategories=sqliteTable('classer_blog_categories',{id:text('id').primaryKey(),ownerId:text('owner_id').notNull(),name:text('name').notNull()},t=>[uniqueIndex('classer_blog_categories_owner_name').on(t.ownerId,t.name)]);
+export const blogMedia=sqliteTable('classer_blog_media',{id:text('id').primaryKey(),ownerId:text('owner_id').notNull(),objectKey:text('object_key').notNull(),type:text('type').notNull(),size:integer('size').notNull(),name:text('name').notNull(),createdAt:text('created_at').notNull()},t=>[index('classer_blog_media_owner_idx').on(t.ownerId)]);

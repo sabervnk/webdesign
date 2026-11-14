@@ -47,6 +47,6 @@ export function ArticleForm({data,onSave}:{data:ArticleInput;onSave:(v:ArticleIn
    <Field key={key} label={label} value={a[key]} area={key!=='title'} max={max} required={key!=='excerpt'} onChange={v=>set({[key]:v})}/>,
    <Field key={key+'-tr'} label={label+' · '+languages[target][0]} value={tr[key]} area={key!=='title'} max={max} onChange={v=>set({translations:{...a.translations,[target]:{...tr,[key]:v}}})}/>,
   ])}</div>
-  <div className="form-grid"><Select label="دسته‌بندی" value={a.category} onChange={category=>set({category})} items={Object.entries(articleCategories).map(([k,v])=>[k,v[0]] as const) as (readonly [ArticleInput['category'],string])[]}/><Select label="وضعیت" value={a.status} onChange={status=>set({status})} items={[[ 'draft','پیش‌نویس'],['published','منتشرشده']]}/></div>
+  <div className="form-grid"><Select label="دسته‌بندی" value={a.category} onChange={category=>set({category})} items={Object.entries(articleCategories).map(([k,v])=>[k,v[0]] as const) as (readonly [ArticleInput['category'],string])[]}/><Select label="وضعیت" value={a.status} onChange={status=>set({status})} items={[[ 'draft','پیش‌نویس'],['published','منتشرشده'],['trash','زباله‌دان']]}/></div>
  </div>}}/>;
 }

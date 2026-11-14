@@ -1,3 +1,4 @@
+import {ownedArticleMedia} from '@/lib/server/blog-media';
 import {database} from '@/db/storage';
 import {identity,json,payload,validOrigin,superAdministrator} from '@/lib/server/access';
 import {workspaceSchema,validateWorkspace} from '@/lib/model';
@@ -66,7 +67,7 @@ export async function PUT(r:Request){
   if(b.kind==='article'&&typeof b.articleId==='string'){
    const p=articleSchema.safeParse(b.data);if(!p.success)return json({error:p.error.issues[0].message},400);
    if(p.data.status==='published'){const teacher=await db.prepare('SELECT published FROM teacher_public_profiles WHERE owner_id=?').bind(b.id).first<{published:number}>();if(!teacher?.published)return json({error:'برای انتشار نوشته، ابتدا پرتفولیو را منتشر کنید.'},400)}
-   const stored={...p.data,readingMinutes:Math.max(1,Math.ceil(p.data.content.split(/\s+/).length/180))};
+   const stored={...p.data,mediaIds:await ownedArticleMedia(b.id,p.data),readingMinutes:Math.max(1,Math.ceil(p.data.content.split(/\s+/).length/180))};
    const changed=await db.prepare('UPDATE teacher_articles SET data=?,status=?,version=version+1,updated_at=? WHERE owner_id=? AND id=? AND version=?').bind(JSON.stringify(stored),p.data.status,now,b.id,b.articleId,Number(b.version)).run();
    return changed.meta.changes?json({version:Number(b.version)+1}):json({error:'نوشته تغییر کرده؛ دوباره باز کنید.'},409);
   }

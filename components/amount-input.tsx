@@ -12,10 +12,10 @@ type AmountInputProps=Omit<ComponentProps<'input'>,'type'|'value'|'defaultValue'
 const ungroup=(value:string)=>value.replace(/[۰-۹٠-٩]/g,d=>String(d.charCodeAt(0)&15)).replace(/٫/g,'.').replace(/[,٬\s]/g,'');
 const group=(raw:string)=>raw.replace(/^\d+/,whole=>whole.replace(/\B(?=(\d{3})+(?!\d))/g,','));
 
-export function AmountInput({value,currency,onAmountChange,max=100000000,...props}:AmountInputProps){
+export function AmountInput({value,currency,onAmountChange,max=100000000,placeholder='0',...props}:AmountInputProps){
  const [draft,setDraft]=useState(String(value));
- const raw=typeof value==='string'?value:Number(draft)===value?draft:String(value);
- return <input {...props} type="text" dir="ltr" inputMode={currency==='USD'?'decimal':'numeric'} value={group(raw)} onChange={e=>{
+ const raw=draft===''&&(value===''||Number(value)===0)?'':typeof value==='string'?value:Number(draft)===value?draft:String(value);
+ return <input {...props} placeholder={placeholder} type="text" dir="ltr" inputMode={currency==='USD'?'decimal':'numeric'} value={group(raw)} onChange={e=>{
   const input=e.currentTarget;
   const next=ungroup(input.value);
   const caret=ungroup(input.value.slice(0,input.selectionStart??input.value.length)).length;

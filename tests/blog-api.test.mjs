@@ -1,0 +1,40 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import {readFile,readdir} from 'node:fs/promises';
+import {Miniflare,convertV4MiniflareOptions} from 'miniflare';
+import {sampleWorkspace} from '../lib/model.ts';
+import {avatar} from './fixtures/avatar.mjs';
+test('blog categories, media and featured images respect draft privacy, ownership and trash',async()=>{
+ const files=(await readdir('dist/server',{recursive:true})).filter(p=>p.endsWith('.js')&&p!=='index.js');
+ const mf=new Miniflare(convertV4MiniflareOptions({workers:[{name:'app',modules:[{type:'ESModule',path:'dist/server/index.js'},...files.map(p=>({type:'ESModule',path:'dist/server/'+p}))],compatibilityDate:'2026-05-15',compatibilityFlags:['nodejs_compat'],d1Databases:['DB'],r2Buckets:['BUCKET'],serviceBindings:{ASSETS:()=>new Response('Not found',{status:404})}}]}));
+ const origin='https://mahela-classroom.lahzehtv.chatgpt.site';
+ try{
+ const db=await mf.getD1Database('DB');for(const f of (await readdir('drizzle')).filter(x=>x.endsWith('.sql')).sort())for(const sql of (await readFile('drizzle/'+f,'utf8')).split('--> statement-breakpoint'))if(sql.trim())await db.exec(sql.replaceAll('\n',' '));
+ for(const id of ['teacher-a','teacher-b'])await db.prepare('INSERT INTO teacher_workspaces VALUES(?,?,1,?)').bind(id,JSON.stringify(sampleWorkspace('2026-11-10')),new Date().toISOString()).run();
+ const req=(path,user,method='GET',body,extra={})=>mf.dispatchFetch(origin+path,{method,headers:{...(user?{'oai-authenticated-user-id':user}:{}),...(body?{Origin:origin,'Content-Type':'application/json'}:{}),...extra},...(body?{body:body instanceof Uint8Array?body:JSON.stringify(body)}:{})});
+ const ok=async(r,status=200)=>{assert.equal(r.status,status,await r.clone().text());return r.json()};
+ assert.equal((await req('/api/studio/categories')).status,401);
+ await ok(await req('/api/studio/categories','teacher-a','POST',{name:'آموزش کودکان'}),201);
+ assert.equal((await req('/api/studio/categories','teacher-a','POST',{name:'آموزش کودکان'})).status,409);
+ assert.equal((await ok(await req('/api/studio/categories','teacher-b'))).categories.length,0);
+ const upload=await ok(await req('/api/studio/media','teacher-a','POST',avatar,{'Content-Type':'image/webp'}),201);
+ assert.equal((await req(upload.url)).status,404);assert.equal((await req(upload.url,'teacher-b')).status,404);assert.equal((await req(upload.url,'teacher-a')).status,200);
+ assert.equal((await req('/api/studio/media','teacher-a','POST',new Uint8Array([1,2,3]),{'Content-Type':'image/png'})).status,400);
+ const studio=await ok(await req('/api/studio','teacher-a'));const profile={...studio.profile,name:'Media Teacher',headline:'Learning with media',bio:'A complete introduction for a teacher who publishes lessons and educational media.',published:true};
+ await ok(await req('/api/studio/profile','teacher-a','PUT',{profile,version:1}));
+ const post={title:'A media lesson',excerpt:'Summary',content:'A useful language lesson with enough reading material. '.repeat(5)+'\n\n![Practice photo]('+upload.url+')',category:'آموزش کودکان',status:'draft',coverImage:upload.url,coverAlt:'Lesson photo',tags:['lesson']};
+ const created=await ok(await req('/api/studio/posts','teacher-a','POST',{article:post}),201);
+ assert.equal((await req(upload.url)).status,404);
+ assert.equal((await req('/api/studio/media','teacher-a','DELETE',{id:upload.id})).status,409);
+ await ok(await req('/api/studio','teacher-b'));
+ assert.equal((await req('/api/studio/posts','teacher-b','POST',{article:post})).status,400);
+ await ok(await req('/api/studio/posts','teacher-a','PUT',{id:created.id,version:1,article:{...post,status:'published'}}));
+ assert.equal((await req(upload.url)).status,200);
+ const page=await req('/blog/'+created.id);assert.equal(page.status,200);const html=await page.text();assert(html.includes('Lesson photo'));assert(html.includes(upload.url));assert(html.includes('آموزش کودکان'));
+ const saved=(await ok(await req('/api/studio/posts?id='+created.id,'teacher-a'))).article;assert.deepEqual(saved.mediaIds,[upload.id]);
+ await ok(await req('/api/studio/posts','teacher-a','PUT',{id:created.id,version:2,article:{...post,status:'trash'}}));assert.equal((await req(upload.url)).status,404);
+ await ok(await req('/api/studio/posts','teacher-a','PUT',{id:created.id,version:3,article:{...post,status:'draft'}}));
+ await ok(await req('/api/studio/posts','teacher-a','DELETE',{id:created.id,version:4}));
+ await ok(await req('/api/studio/media','teacher-a','DELETE',{id:upload.id}));assert.equal((await req(upload.url,'teacher-a')).status,404);
+ }finally{await mf.dispose()}
+});
