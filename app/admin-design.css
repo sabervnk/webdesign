@@ -11,3 +11,5 @@ html{font-size:14px}body{font-size:14px}.btn{min-height:36px;padding:8px 13px;ga
 .admin-shell{color-scheme:light;--card:#fff;--foreground:#243149;--muted-foreground:#758292;--border:#e3e8ee;--primary:#206e64;--primary-foreground:#fff;--background:#f3f5f9;--popover:#fff;--popover-foreground:#243149}.admin-shell .field :is(input,select,textarea){background:#fff;color:#28364b;border-color:#dce3eb}.admin-shell .session-note-card{background:#fffdf6;border-color:#e7e4dc}.admin-shell .session-note-compose{background:#f3f8f4;border-color:#bfd4c6}.admin-shell .commission-preview{margin-block:16px}
 
 .admin-media-record>img{width:80px;height:80px;object-fit:cover;border-radius:14px;margin-block:12px}.admin-media-record>video{width:100%;max-height:330px;border-radius:12px;background:#182738;margin-block:12px}.admin-media-record>p{font-size:11px;color:#8393a3}
+
+.admin-account-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px;border:1px solid #e3e8ef;padding:18px;border-radius:12px}.admin-account-facts dt{font-size:10px;color:#8a99a8;margin-bottom:5px}.admin-account-facts dd{font-size:12px;overflow-wrap:anywhere}
