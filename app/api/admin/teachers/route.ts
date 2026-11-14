@@ -4,7 +4,7 @@ import {commissionPolicy,financialWorkspace} from '@/lib/server/finance';
 import {ownedArticleMedia} from '@/lib/server/blog-media';
 import {database} from '@/db/storage';
 import {identity,json,payload,validOrigin,superAdministrator} from '@/lib/server/access';
-import {workspaceSchema,validateWorkspace} from '@/lib/model';
+import {workspaceSchema,validateWorkspace,emptyWorkspace} from '@/lib/model';
 import {publicProfileSchema,articleSchema,initialPublicProfile} from '@/lib/catalogue';
 import {requestFailure} from '@/lib/server/http';
 export const dynamic='force-dynamic';
@@ -15,16 +15,17 @@ export async function GET(r:Request){
  const db=database(),id=new URL(r.url).searchParams.get('id');
  if(!id){
   const rows=await db.prepare(`WITH owners AS (SELECT owner_id AS id FROM teacher_workspaces UNION SELECT owner_id FROM teacher_public_profiles UNION SELECT id FROM classer_accounts WHERE role='teacher')
-   SELECT owners.id,COALESCE(NULLIF(json_extract(p.data,'$.name'),''),a.name,json_extract(w.data,'$.profile.name'),owners.id) AS name,COALESCE(p.published,0) AS published,CASE WHEN a.role='admin' OR EXISTS(SELECT 1 FROM classer_administrator_ids r WHERE r.owner_id=owners.id) THEN 'admin-legacy' ELSE 'teacher' END AS kind
+   SELECT owners.id,COALESCE(NULLIF(json_extract(p.data,'$.name'),''),a.name,json_extract(w.data,'$.profile.name'),owners.id) AS name,COALESCE(p.published,0) AS published,a.username,a.email,a.phone,a.active,CASE WHEN a.id IS NULL THEN 0 ELSE 1 END AS hasAccount,CASE WHEN a.role='admin' OR EXISTS(SELECT 1 FROM classer_administrator_ids r WHERE r.owner_id=owners.id) THEN 'admin-legacy' ELSE 'teacher' END AS kind
    FROM owners LEFT JOIN teacher_workspaces w ON w.owner_id=owners.id LEFT JOIN teacher_public_profiles p ON p.owner_id=owners.id LEFT JOIN classer_accounts a ON a.id=owners.id ORDER BY name LIMIT 1000`).all();
   return json({teachers:rows.results});
  }
  if(id.length>160)return json({},400);
- const [w,p,a]=await Promise.all([
+ let [w,p,a]=await Promise.all([
   db.prepare('SELECT data,version FROM teacher_workspaces WHERE owner_id=?').bind(id).first<RecordRow>(),
   db.prepare('SELECT id,data,version FROM teacher_public_profiles WHERE owner_id=?').bind(id).first<RecordRow&{id:string}>(),
   db.prepare("SELECT id,version,status,json_extract(data,'$.title') AS title FROM teacher_articles WHERE owner_id=? ORDER BY updated_at DESC LIMIT 500").bind(id).all(),
  ]);
+ if(!w){const account=await db.prepare("SELECT name,email,phone FROM classer_accounts WHERE id=? AND role='teacher'").bind(id).first<{name:string;email:string;phone:string}>();if(account){const state=emptyWorkspace(account.email);state.profile.name=account.name;state.profile.phone=account.phone;await db.prepare('INSERT OR IGNORE INTO teacher_workspaces (owner_id,data,version,updated_at) VALUES (?,?,1,?)').bind(id,JSON.stringify(state),new Date().toISOString()).run();w=await db.prepare('SELECT data,version FROM teacher_workspaces WHERE owner_id=?').bind(id).first<RecordRow>()}}
  const articleId=new URL(r.url).searchParams.get('article');
  if(articleId){
   const article=await db.prepare('SELECT id,data,version FROM teacher_articles WHERE owner_id=? AND id=?').bind(id,articleId).first<RecordRow&{id:string}>();

@@ -30,7 +30,7 @@ export const publicProfileSchema=z.object({name:z.string().trim().min(2).max(100
  }
  if(!validMoney(p.rate,p.currency))c.addIssue({code:'custom',path:['rate'],message:'مبلغ معتبر وارد کنید؛ دلار حداکثر دو رقم اعشار دارد. / Invalid amount.'});if(p.published&&(!p.headline||p.bio.length<40))c.addIssue({code:'custom',message:'برای نمایش پرتفولیو، عنوان و معرفی حداقل ۴۰ کاراکتری وارد کنید. / Add a headline and a bio of at least 40 characters.'});if(p.formats.includes('in-person')&&!p.city)c.addIssue({code:'custom',path:['city'],message:'برای کلاس حضوری شهر را مشخص کنید. / Enter a city for in-person classes.'})});
 export type PublicProfileInput=z.infer<typeof publicProfileSchema>;
-export type Teacher=PublicProfileInput&{id:string,photo:string,updatedAt:string,version:number,sample?:boolean};
+export type Teacher=PublicProfileInput&{id:string,photo:string,updatedAt:string,version:number,sample?:boolean;directoryOnly?:boolean};
 export const articleSchema=z.object({title:z.string().trim().min(3).max(180),excerpt:z.string().trim().max(350),content:z.string().trim().max(50000),category:z.string().trim().min(1).max(60),status:z.enum(['draft','published','archived','trash']),archivedFrom:z.enum(['draft','published']).optional(),coverImage:z.string().regex(/^$|^\/api\/blog-media\/[0-9a-f-]{36}$/).default(''),coverAlt:z.string().max(200).default(''),tags:z.array(z.string().trim().max(40)).max(12).default([]),mediaIds:z.array(z.string().uuid()).max(100).default([]),contentLocale:languageSchema.optional(),translations:z.partialRecord(languageSchema,articleTranslation).optional()}).superRefine((p,c)=>{if(p.status==='published'&&p.content.length<150)c.addIssue({code:'custom',message:'برای انتشار، متن مقاله باید حداقل ۱۵۰ کاراکتر باشد. / Add at least 150 characters to publish.'})});
 type ParsedArticle=z.infer<typeof articleSchema>;
 export type ArticleInput=Omit<ParsedArticle,'coverImage'|'coverAlt'|'tags'|'mediaIds'>&Partial<Pick<ParsedArticle,'coverImage'|'coverAlt'|'tags'|'mediaIds'>>;
@@ -60,7 +60,7 @@ export function offerFor(p:PublicProfileInput,language:string,format:string,id?:
 }
 export function matchesTeacher(t:Teacher,filters:OfferFilters&{query?:string,city?:string}){
  const q=(filters.query||'').trim().toLowerCase();
- return (!q||(t.name+' '+t.headline+' '+portfolioItems(t,'specialties').join(' ')).toLowerCase().includes(q))&&classOffers(t,filters).length>0&&(!filters.city||t.city.toLowerCase().includes(filters.city.toLowerCase()));
+ return (t.directoryOnly?(!q||t.name.toLowerCase().includes(q))&&(!filters.language||filters.language==='all')&&(!filters.format||filters.format==='all')&&(!filters.currency||filters.currency==='all')&&!filters.city:(!q||(t.name+' '+t.headline+' '+portfolioItems(t,'specialties').join(' ')).toLowerCase().includes(q))&&classOffers(t,filters).length>0&&(!filters.city||t.city.toLowerCase().includes(filters.city.toLowerCase())));
 }
 const localeKey=(locale:string)=>locale.toLowerCase().split(/[-_]/)[0] as ContentLocale;
 export function localizeTeacher<T extends PublicProfileInput>(p:T,locale:string):T{

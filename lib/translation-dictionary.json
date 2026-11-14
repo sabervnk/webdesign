@@ -854,5 +854,10 @@
   "آخرین ارجاع: ": "Last referral: ",
   "ویرایش: ": "Edited: ",
   "ذخیرهٔ خودکار روی این دستگاه: ": "Saved on this device: ",
-  "اتصال به پروندهٔ موجود: ": "Link existing record: "
+  "اتصال به پروندهٔ موجود: ": "Link existing record: ",
+  "معلم ثبت‌شده": "Registered teacher",
+  "پروفایل تخصصی و نرخ کلاس‌ها در حال تکمیل است.": "Teaching profile and class prices are being prepared.",
+  "مشاهده معلم": "View teacher",
+  "پروفایل تخصصی این معلم در حال تکمیل است؛ پس از انتشار، نوع کلاس و نرخ‌ها اینجا نمایش داده می‌شوند.": "This teacher’s profile is being prepared. Class options and prices will appear once published.",
+  "سهم مالک سایت": "Site owner commission"
 }

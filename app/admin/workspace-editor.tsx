@@ -1,4 +1,6 @@
 'use client';
+import {NumberInput} from '@/components/number-input';
+import {CommissionSettings} from '@/components/commission-settings';
 import {TeacherMessenger} from '@/components/direct-messenger';
 import {SessionNotebook} from '@/components/session-notebook';
 import {FeeBreakdown} from '@/components/fee-breakdown';
@@ -25,7 +27,7 @@ export function Select<V extends string>({label,value,onChange,items}:{label:str
  return <label className="field">{label}<select value={value} onChange={e=>onChange(e.target.value as V)}>{items.map(([id,name])=><option value={id} key={id}>{name}</option>)}</select></label>
 }
 export function Numeric({label,value,onChange,min=0,max=100000000,step=1}:{label:string;value:number;onChange:(v:number)=>void;min?:number;max?:number;step?:number}){
- return <label className="field">{label}<input type="number" placeholder={max===9?'مثلاً ۶٫۵ از ۹':max===300?'مثلاً ۶۰ دقیقه':max===70?'مثلاً ۵ سال':String(min)+' تا '+String(max)} dir="ltr" min={min} max={max} step={step} value={Number.isNaN(value)?'':value} onChange={e=>onChange(e.target.valueAsNumber)} required/></label>
+ return <label className="field">{label}<NumberInput type="number" placeholder={max===9?'مثلاً ۶٫۵ از ۹':max===300?'مثلاً ۶۰ دقیقه':max===70?'مثلاً ۵ سال':String(min)+' تا '+String(max)} dir="ltr" min={min} max={max} step={step} value={Number.isNaN(value)?'':value} onChange={e=>onChange(e.target.valueAsNumber)} required/></label>
 }
 function Scores({skills,set}:{skills:Skills;set:(v:Skills)=>void}){
  return <fieldset className="admin-fieldset"><legend>نمرهٔ مهارت‌ها (از ۹)</legend><div className="form-grid">{skillKeys.map(k=><Numeric key={k} label={skillLabels[k]} min={0} max={9} step={.5} value={skills[k]} onChange={v=>set({...skills,[k]:v})}/>)}</div></fieldset>;
@@ -54,7 +56,7 @@ function Records<T extends {id:string}>({rows,title,subtitle,empty,children}:{ro
  </div>;
 }
 export function WorkspaceEditor({data,version,onSave,ownerId}:{ownerId?:string;data:Workspace;version:number;onSave:(data:Workspace,version:number)=>Promise<void>}){
- const [tab,setTab]=useState<Tab>('profile');
+ const [tab,setTab]=useState<Tab>('students');
  const roster=data.students.map(s=>[s.id,s.name] as const);
  const names=new Map(roster);
  const studentName=(id:string)=>names.get(id)??'زبان‌آموز';
@@ -74,7 +76,7 @@ export function WorkspaceEditor({data,version,onSave,ownerId}:{ownerId?:string;d
  <Select label="سطح" value={p.level} onChange={level=>set({level})} items={options(levels)}/><Select label="جنسیت" value={p.gender} onChange={gender=>set({gender})} items={[[ 'unspecified','ثبت نشده'],['male','آقا'],['female','خانم']]}/>
  <label className="field">شهریهٔ هر جلسه<AmountInput key={p.currency} required value={p.rate} currency={p.currency} onAmountChange={v=>set({rate:Number(v)})}/></label><Select label="واحد پول" value={p.currency} onChange={currency=>set({currency})} items={currencies}/><Numeric label="مدت جلسه (دقیقه)" min={15} max={300} value={p.duration} onChange={duration=>set({duration,...(Number.isFinite(duration)&&duration>0?{rate:proportionalFee(p.duration>=15?p.rate:s.rate,p.duration>=15?p.duration:s.duration,duration,p.currency)}:{})})}/>
  </div><Scores skills={p.skills} set={skills=>set({skills})}/></>}/>}</Records>}
- {tab==='sessions'&&<Records key="sessions" rows={data.sessions} title={s=>studentName(s.studentId)} subtitle={s=>[s.date,s.time,statuses.find(([k])=>k===s.status)?.[1],s.paid?'تسویه‌شده':formatMoney(s.rate,s.currency)].join(' · ')} empty="جلسه‌ای ثبت نشده است.">{s=><><AdminSessionNotes session={s} onSave={v=>save({sessions:data.sessions.map(x=>x.id===v.id?v:x)})}/><FeeBreakdown session={s}/><RecordForm value={s} locked={s.paid&&!data.demo} save={v=>save({sessions:data.sessions.map(x=>x.id===v.id?v:x)})} fields={(p,set)=><div className="form-grid">
+ {tab==='sessions'&&<Records key="sessions" rows={data.sessions} title={s=>studentName(s.studentId)} subtitle={s=>[s.date,s.time,statuses.find(([k])=>k===s.status)?.[1],s.paid?'تسویه‌شده':formatMoney(s.rate,s.currency)].join(' · ')} empty="جلسه‌ای ثبت نشده است.">{s=><><AdminSessionNotes session={s} onSave={v=>save({sessions:data.sessions.map(x=>x.id===v.id?v:x)})}/><FeeBreakdown session={s}/>{ownerId&&<CommissionSettings ownerId={ownerId} sessionId={s.id} onSaved={async()=>{const r=await fetch('/api/admin/teachers?id='+encodeURIComponent(ownerId),{cache:'no-store'});if(!r.ok)throw Error('دریافت پرونده ناموفق بود.');const j=await r.json();await onSave(j.workspace.data,j.workspace.version)}}/>}<RecordForm value={s} locked={s.paid&&!data.demo} save={v=>save({sessions:data.sessions.map(x=>x.id===v.id?v:x)})} fields={(p,set)=><div className="form-grid">
  <Select label="زبان‌آموز" value={p.studentId} onChange={studentId=>set({studentId})} items={roster}/><Field label="تاریخ جلسه" type="date" value={p.date} onChange={date=>set({date})} required/><Field label="ساعت شروع" type="time" value={p.time} onChange={time=>set({time})} required/><Numeric label="مدت (دقیقه)" min={15} max={300} value={p.duration} onChange={duration=>{const student=data.students.find(x=>x.id===p.studentId)!;const base=pricingFor(p.duration>=15?p:{...p,duration:s.duration,rate:s.rate},student);set({duration,...(Number.isFinite(duration)&&duration>0?{pricing:base,rate:proportionalFee(base.baseRate,base.baseDuration,duration,base.currency),currency:base.currency}:{})})}}/>
  <Select label="نوع کلاس" value={p.type} onChange={type=>set({type})} items={formats}/><Select label="وضعیت" value={p.status} onChange={status=>set({...changeSessionStatus(p,status),...(status!=='cancelled'||p.cancelReason==='teacher'?{charge:false,paid:false,paidAt:''}:{}),...(status==='scheduled'||(status==='cancelled'&&(p.cancelReason==='teacher'||!p.charge))?{paid:false,paidAt:''}:{})})} items={statuses}/>
  {p.status==='cancelled'&&<><Select label="دلیل لغو" value={p.cancelReason} onChange={cancelReason=>set({cancelReason,...(cancelReason==='teacher'?{charge:false,paid:false,paidAt:''}:{})})} items={reasons}/>{p.cancelReason!=='teacher'&&<Check label="شهریهٔ لغو ثبت شود" value={p.charge} onChange={charge=>set({charge,...(!charge?{paid:false,paidAt:''}:{})})}/>}</>}

@@ -13,14 +13,14 @@ const ungroup=(value:string)=>value.replace(/[۰-۹٠-٩]/g,d=>String(d.charCode
 const group=(raw:string)=>raw.replace(/^\d+/,whole=>whole.replace(/\B(?=(\d{3})+(?!\d))/g,','));
 
 export function AmountInput({value,currency,onAmountChange,max=100000000,placeholder='0',...props}:AmountInputProps){
- const [draft,setDraft]=useState(String(value));
+ const [edited,setEdited]=useState(false);const [draft,setDraft]=useState(String(value));
  const raw=draft===''&&(value===''||Number(value)===0)?'':typeof value==='string'?value:Number(draft)===value?draft:String(value);
- return <input {...props} placeholder={placeholder} type="text" dir="ltr" inputMode={currency==='USD'?'decimal':'numeric'} value={group(raw)} onChange={e=>{
+ return <input {...props} placeholder={(Number(value)>0?'فعلی: '+group(String(value))+' · ':'')+placeholder} required={props.required&&(edited||!Number.isFinite(Number(value)))} type="text" dir="ltr" inputMode={currency==='USD'?'decimal':'numeric'} value={edited?group(raw):''} onChange={e=>{
   const input=e.currentTarget;
   const next=ungroup(input.value);
   const caret=ungroup(input.value.slice(0,input.selectionStart??input.value.length)).length;
   if(!(currency==='USD'?/^(?:\d{1,9}(?:\.\d{0,2})?)?$/:/^\d{0,9}$/).test(next)||Number(next)>max)return;
-  setDraft(next);onAmountChange(next);
+  setEdited(true);setDraft(next);onAmountChange(next);
   requestAnimationFrame(()=>{
    if(document.activeElement!==input)return;
    let pos=0,seen=0;

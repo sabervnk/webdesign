@@ -30,8 +30,8 @@ export async function PublicPage({view,id}:{view:'home'|'teachers'|'teacher'|'bl
    if(video)videoUrl='/api/public-video/'+encodeURIComponent(id);
   }
  }catch(e){console.error('Public content unavailable',e);data={teachers:[],articles:[],isAdmin:false,error:'دریافت اطلاعات سایت ممکن نشد. لطفاً دوباره تلاش کنید. / Could not load site content.'}}
- if(!data.error&&view==='teacher'&&id&&!data.teachers.some(t=>t.id===id)&&!(data.teachers.length===0&&sampleTeachers.some(t=>t.id===id)))notFound();
- if(!data.error&&view==='article'&&id&&!data.articles.some(t=>t.id===id)&&!(data.teachers.length===0&&sampleArticles.some(t=>t.id===id)))notFound();
+ if(!data.error&&view==='teacher'&&id&&!data.teachers.some(t=>t.id===id))notFound();
+ if(!data.error&&view==='article'&&id&&!data.articles.some(t=>t.id===id))notFound();
  return <PublicSite view={view} initialCatalogue={data} recordId={id} videoUrl={videoUrl}/>;
 }
 export async function sectionMetadata(title:string,description:string){

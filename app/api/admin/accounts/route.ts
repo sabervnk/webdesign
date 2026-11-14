@@ -40,7 +40,7 @@ export async function POST(r:Request){
  }catch(e){if(stage!=='validation')console.error('Account creation failed at '+stage,e instanceof Error?e.name:'unknown');return requestFailure(e,'ایجاد حساب ممکن نشد. / Could not create the account.')}
 }
 export async function PATCH(r:Request){
- const u=await identity(r);if(!superAdministrator(u)||!validOrigin(r))return forbidden();
+ const u=await identity(r);if(!u?.isAdmin||!validOrigin(r))return forbidden();
  try{
   const b=await payload(r,12000);if(typeof b.id!=='string'||b.id===u.id)return forbidden();
   const db=database(),a=await db.prepare('SELECT * FROM classer_accounts WHERE id=?').bind(b.id).first<AccountRow>();
@@ -64,6 +64,7 @@ export async function PATCH(r:Request){
   const p=v.data;if(p.role==='admin'&&!superAdministrator(u))return forbidden();
   if(p.role==='student'&&!await validStudent(p.teacherId,p.studentId))return json({error:'معلم و زبان‌آموز معتبر نیستند. / Choose a valid teacher and student.'},400);
   const updated=await db.prepare('UPDATE OR IGNORE classer_accounts SET username=?,name=?,email=?,phone=?,role=?,active=?,teacher_id=?,student_id=?,epoch=epoch+1 WHERE id=? AND epoch=? AND NOT EXISTS(SELECT 1 FROM classer_accounts other WHERE lower(trim(other.email))=? AND other.id<>?)').bind(p.username,p.name,p.email,p.phone,p.role,Number(p.active),p.role==='student'?p.teacherId!:null,p.role==='student'?p.studentId!:null,a.id,a.epoch,p.email,a.id).run();
+  if(updated.meta.changes){const row=await db.prepare('SELECT data,version FROM teacher_workspaces WHERE owner_id=?').bind(a.id).first<{data:string;version:number}>();if(row){const w=JSON.parse(row.data);w.profile={...w.profile,name:p.name,email:p.email,phone:p.phone};await db.prepare('UPDATE teacher_workspaces SET data=?,version=version+1,updated_at=? WHERE owner_id=? AND version=?').bind(JSON.stringify(w),new Date().toISOString(),a.id,row.version).run()}}
   return updated.meta.changes?json({saved:true}):json({error:'نام کاربری تکراری است یا حساب تغییر کرده. / Username already taken or account changed.'},409);
  }catch(e){return requestFailure(e,'به‌روزرسانی حساب انجام نشد. / Could not update the account.')}
 }
