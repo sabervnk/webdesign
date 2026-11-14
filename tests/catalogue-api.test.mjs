@@ -46,6 +46,9 @@ test('portfolios, articles, enquiries and admin access preserve ownership and qu
   assert.equal((await binary(ownPhoto,'teacher-a',Buffer.from('original'),'image/jpeg')).status,400);
   const uploaded=await ok(await binary(ownPhoto,'teacher-a',avatar,'image/webp'));
   assert.match(uploaded.url,/^\/api\/photo\?v=\d+$/);
+  assert.equal((await req('/api/admin/media?owner=teacher-a&kind=photo')).status,403);
+  assert.equal((await req('/api/admin/media?owner=teacher-a&kind=photo','teacher-b')).status,403);
+  assert.equal((await req('/api/admin/media?owner=teacher-a&kind=photo','admin')).status,404,'avatar is not linked until saved in the workspace');
   const photo=await req(ownPhoto,'teacher-a');
   assert.equal(photo.headers.get('content-type'),'image/webp');
   assert.deepEqual(Buffer.from(await photo.arrayBuffer()),avatar);
@@ -54,6 +57,7 @@ test('portfolios, articles, enquiries and admin access preserve ownership and qu
   withPhoto.data.profile.photo=uploaded.url;
   await ok(await req('/api/workspace','teacher-a','PUT',withPhoto));
   assert.deepEqual(Buffer.from(await (await req(publicPhoto)).arrayBuffer()),avatar);
+  assert.deepEqual(Buffer.from(await (await req('/api/admin/media?owner=teacher-a&kind=photo','admin')).arrayBuffer()),avatar);
 
   const studioVideo='/api/studio/video', publicVideo='/api/public-video/'+profile.id;
   // One-frame H.264 MP4, generated with ffmpeg.
@@ -67,6 +71,7 @@ test('portfolios, articles, enquiries and admin access preserve ownership and qu
   assert.equal((await req(studioVideo)).status,401);
   const {video}=await ok(await binary(studioVideo,'teacher-a',mp4,'video/mp4'));
   assert.equal(video.visible,false);
+  assert.equal((await req('/api/admin/media?owner=teacher-a&kind=video','admin')).status,200,'administrator may review an unpublished teacher video');
   assert.equal((await req(publicVideo)).status,404);
   assert.equal((await req(video.url,'teacher-b')).status,404);
   assert.equal((await req(studioVideo,'teacher-b','PATCH',{visible:true,url:video.url})).status,409);
@@ -98,6 +103,14 @@ test('portfolios, articles, enquiries and admin access preserve ownership and qu
   listing=await ok(await req('/api/catalogue'));
   assert.equal((await req('/teachers/'+profile.id)).status,200);assert.equal((await req('/blog/'+created.id)).status,200);
   assert.equal(listing.articles.length,1);assert.equal(listing.articles[0].content,'');assert.equal(listing.articles[0].translations.fr.title,article.translations.fr.title);assert.equal(listing.articles[0].translations.fr.content,undefined);assert(listing.articles[0].readingMinutes>=1);
+  const archivedPost=(await ok(await req('/api/studio/posts?id='+created.id,'teacher-a'))).article;
+  await ok(await req('/api/studio/posts','teacher-a','PUT',{id:created.id,version:archivedPost.version,article:{...archivedPost,status:'archived',archivedFrom:'published'}}));
+  assert.equal((await ok(await req('/api/catalogue'))).articles.length,0,'archived posts must disappear from public discovery');
+  assert.equal((await req('/blog/'+created.id)).status,404,'archived post direct URL is private');
+  const storedArchive=(await ok(await req('/api/studio/posts?id='+created.id,'teacher-a'))).article;assert.equal(storedArchive.status,'archived');assert.equal(storedArchive.content,archivedPost.content);
+  assert.equal((await req('/api/studio/posts','teacher-b','PUT',{id:created.id,version:storedArchive.version,article:{...storedArchive,status:'published'}})).status,409);
+  await ok(await req('/api/studio/posts','teacher-a','PUT',{id:created.id,version:storedArchive.version,article:{...storedArchive,status:'published'}}));
+  assert.equal((await req('/blog/'+created.id)).status,200,'restoring makes the same URL available again');
   const inquiry={id:crypto.randomUUID(),kind:'class',teacherId:profile.id,teacherVersion:2,name:'Learner One',email:'learner@example.com',phone:'09121234567',language:'en',format:'online',message:'I would like to arrange a class.',rate:1,currency:'TOMAN'};
   await ok(await req('/api/requests',undefined,'POST',inquiry),201);
   await ok(await req('/api/requests',undefined,'POST',inquiry));
@@ -147,7 +160,7 @@ test('portfolios, articles, enquiries and admin access preserve ownership and qu
   assert.equal((await req(publicVideo)).status,404);
   assert.equal((await req('/api/requests',undefined,'POST',{...inquiry,id:crypto.randomUUID(),teacherVersion:4})).status,400);
   const own=await ok(await req('/api/studio','teacher-a'));assert.equal(own.articles.length,1);
-  await ok(await req('/api/studio/posts','teacher-a','DELETE',{id:created.id,version:2}));
+  await ok(await req('/api/studio/posts','teacher-a','DELETE',{id:created.id,version:4}));
   assert.equal((await ok(await req('/api/studio','teacher-a'))).articles.length,0);
   // An old portfolio and its articles remain reachable outside the discovery cap.
   const inserts=Array.from({length:501},(_,i)=>db.prepare('INSERT INTO teacher_public_profiles (id,owner_id,data,published,version,updated_at) VALUES (?,?,?,1,1,?)').bind('cap-'+i,'cap-owner-'+i,JSON.stringify({...profile,name:'Teacher '+i}),i===0?'2020-01-01T00:00:00Z':'2030-01-01T00:00:00Z'));

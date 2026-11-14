@@ -57,6 +57,13 @@
       "when": 1794646800002,
       "tag": "0007_commissions_translations",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1794646800003,
+      "tag": "0008_administrator_roles",
+      "breakpoints": true
     }
   ]
 }

@@ -15,7 +15,7 @@ const formats=[['online','آنلاین'],['in-person','حضوری']] as const;
 const statuses=[['scheduled','برنامه‌ریزی‌شده'],['held','برگزارشده'],['cancelled','لغوشده']] as const;
 const reasons=[['teacher','از طرف معلم'],['student','از طرف شاگرد'],['no-show','عدم حضور']] as const;
 const skillLabels={listening:'شنیدن',speaking:'گفتار',reading:'خواندن',writing:'نوشتن'};
-const tabs=[['profile','حساب معلم'],['students','زبان‌آموزان'],['sessions','جلسه‌ها'],['assessments','ارزیابی‌ها'],['messages','پیام‌ها']] as const;
+const tabs=[['profile','حساب معلم'],['students','زبان‌آموزان'],['sessions','جلسه‌ها'],['assessments','ارزیابی‌ها'],['messages','پیام‌ها'],['memos','یادداشت‌های معلم']] as const;
 type Tab=typeof tabs[number][0];
 export function Field({label,value,onChange,type='text',max,required=false,area=false}:{label:string;value?:string;onChange:(v:string)=>void;type?:string;max?:number;required?:boolean;area?:boolean}){
  return <label className="field">{label}{area?<RichTextEditor value={value??''} onChange={onChange} maxLength={max} required={required} label={label} compact/>:<input dir={type==='text'?'auto':'ltr'} type={type} value={value??''} onChange={e=>onChange(e.target.value)} maxLength={max} required={required}/>}</label>
@@ -24,7 +24,7 @@ export function Select<V extends string>({label,value,onChange,items}:{label:str
  return <label className="field">{label}<select value={value} onChange={e=>onChange(e.target.value as V)}>{items.map(([id,name])=><option value={id} key={id}>{name}</option>)}</select></label>
 }
 export function Numeric({label,value,onChange,min=0,max=100000000,step=1}:{label:string;value:number;onChange:(v:number)=>void;min?:number;max?:number;step?:number}){
- return <label className="field">{label}<input type="number" dir="ltr" min={min} max={max} step={step} value={Number.isNaN(value)?'':value} onChange={e=>onChange(e.target.valueAsNumber)} required/></label>
+ return <label className="field">{label}<input type="number" placeholder={max===9?'مثلاً ۶٫۵ از ۹':max===300?'مثلاً ۶۰ دقیقه':max===70?'مثلاً ۵ سال':String(min)+' تا '+String(max)} dir="ltr" min={min} max={max} step={step} value={Number.isNaN(value)?'':value} onChange={e=>onChange(e.target.valueAsNumber)} required/></label>
 }
 function Scores({skills,set}:{skills:Skills;set:(v:Skills)=>void}){
  return <fieldset className="admin-fieldset"><legend>نمرهٔ مهارت‌ها (از ۹)</legend><div className="form-grid">{skillKeys.map(k=><Numeric key={k} label={skillLabels[k]} min={0} max={9} step={.5} value={skills[k]} onChange={v=>set({...skills,[k]:v})}/>)}</div></fieldset>;
@@ -81,6 +81,7 @@ export function WorkspaceEditor({data,version,onSave}:{data:Workspace;version:nu
  {billable(p)&&<Check label="جلسه تسویه شده است" value={p.paid} onChange={paid=>set({paid,paidAt:paid?new Date().toISOString():''})}/>}
  
  </div>}/></>}</Records>}
+ {tab==='memos'&&<Records key="memos" rows={data.memos??[]} title={m=>m.title} subtitle={m=>m.updatedAt} empty="یادداشتی ثبت نشده است.">{m=><RecordForm value={m} save={v=>save({memos:data.memos.map(x=>x.id===v.id?{...v,updatedAt:new Date().toISOString()}:x)})} fields={(p,set)=><><Field label="عنوان یادداشت" value={p.title} max={120} required onChange={title=>set({title})}/><Field label="متن یادداشت" value={p.body} area max={10000} required onChange={body=>set({body})}/><Check label="سنجاق‌شده" value={p.pinned} onChange={pinned=>set({pinned})}/></>}/>}</Records>}
  {tab==='assessments'&&<Records key="assessments" rows={data.assessments} title={a=>studentName(a.studentId)} subtitle={a=>[displayDate(a.date),a.note.slice(0,95)].filter(Boolean).join(' · ')} empty="ارزیابی‌ای ثبت نشده است.">{a=><RecordForm value={a} save={v=>save({assessments:data.assessments.map(x=>x.id===v.id?v:x)})} fields={(p,set)=><><div className="form-grid"><Select label="زبان‌آموز" value={p.studentId} onChange={studentId=>set({studentId})} items={roster}/><Field label="تاریخ ارزیابی" type="date" value={displayDate(p.date)} onChange={v=>set({date:inputTimestamp(p.date,v)})} required/></div><Scores skills={p.skills} set={skills=>set({skills})}/><Field label="بازخورد" value={p.note} onChange={note=>set({note})} area max={2000}/></>}/>}</Records>}
  {tab==='messages'&&<Records key="messages" rows={data.messages} title={m=>studentName(m.studentId)} subtitle={m=>[displayDate(m.date),m.direction==='in'?'دریافتی':'ارسالی',m.text.slice(0,95)].join(' · ')} empty="پیامی ثبت نشده است.">{m=><RecordForm value={m} save={v=>save({messages:data.messages.map(x=>x.id===v.id?v:x)})} fields={(p,set)=><><div className="form-grid"><Select label="زبان‌آموز" value={p.studentId} onChange={studentId=>set({studentId})} items={roster}/><Select label="نوع پیام" value={p.direction} onChange={direction=>set({direction})} items={[[ 'in','دریافتی'],['out','ارسالی']]}/><Field label="تاریخ پیام" type="date" value={displayDate(p.date)} onChange={v=>set({date:inputTimestamp(p.date,v)})} required/></div><Field label="متن پیام" value={p.text} onChange={text=>set({text})} area required max={4000}/></>}/>}</Records>}
  </div>;

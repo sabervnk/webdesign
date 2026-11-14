@@ -10,25 +10,25 @@ const weakPassword=()=>json({error:'رمز خیلی ضعیف است. رمز قو
 const forbidden=()=>json({},403);
 const role=z.enum(['admin','teacher','student']);
 const values=z.object({username:z.string().trim().toLowerCase().refine(usernameValid),name:z.string().trim().min(2).max(100),email:z.string().trim().toLowerCase().max(200).email(),phone:z.string().transform(normalizeMobile).refine(mobileValid),role,teacherId:z.string().max(160).optional(),studentId:z.string().max(100).optional(),active:z.boolean().default(true)});
-const teacherExists=async(id:string)=>!!await database().prepare('SELECT 1 AS present WHERE EXISTS(SELECT 1 FROM teacher_workspaces WHERE owner_id=?) OR EXISTS(SELECT 1 FROM teacher_public_profiles WHERE owner_id=?) OR EXISTS(SELECT 1 FROM classer_accounts WHERE id=? AND role=?)').bind(id,id,id,'teacher').first();
+const teacherExists=async(id:string)=>!!await database().prepare('SELECT 1 AS present WHERE NOT EXISTS(SELECT 1 FROM classer_accounts WHERE id=? AND role=?) AND NOT EXISTS(SELECT 1 FROM classer_administrator_ids WHERE owner_id=?) AND ( EXISTS(SELECT 1 FROM teacher_workspaces WHERE owner_id=?) OR EXISTS(SELECT 1 FROM teacher_public_profiles WHERE owner_id=?) OR EXISTS(SELECT 1 FROM classer_accounts WHERE id=? AND role=?))').bind(id,'admin',id,id,id,id,'teacher').first();
 async function validStudent(teacherId?:string,studentId?:string){
- if(!teacherId||!studentId)return false;
+ if(!teacherId||!studentId||!await teacherExists(teacherId))return false;
  const row=await database().prepare('SELECT data FROM teacher_workspaces WHERE owner_id=?').bind(teacherId).first<{data:string}>();
  return !!row&&!JSON.parse(row.data).demo&&JSON.parse(row.data).students.some((s:{id:string})=>s.id===studentId);
 }
 export async function GET(r:Request){
- if(!superAdministrator(await identity(r)))return forbidden();
+ if(!(await identity(r))?.isAdmin)return forbidden();
  const a=await database().prepare('SELECT id,username,name,email,phone,role,active,must_change,teacher_id,student_id,created_at FROM classer_accounts ORDER BY created_at DESC LIMIT 1000').all();
  return json({accounts:a.results});
 }
 export async function POST(r:Request){
- const u=await identity(r);if(!superAdministrator(u)||!validOrigin(r))return forbidden();
+ const u=await identity(r);if(!u?.isAdmin||!validOrigin(r))return forbidden();
  let stage='validation';
  try{
   const b=await payload(r,12000),v=values.safeParse(b);
   if(!v.success||typeof b.password!=='string'||!passwordValid(b.password))return json({error:'نام کاربری، اطلاعات و رمز موقت (حداقل ۸ نویسه) را بررسی کنید. / Check account details and temporary password.'},400);
   if(isVeryWeakPassword(b.password))return weakPassword();
-  const a=v.data,existing=typeof b.existingTeacher==='string'?b.existingTeacher:'';
+  const a=v.data;if(a.role==='admin'&&!superAdministrator(u))return forbidden();const existing=typeof b.existingTeacher==='string'?b.existingTeacher:'';
   if(existing&&(a.role!=='teacher'||!await teacherExists(existing)))return json({error:'فضای معلم معتبر نیست. / Invalid existing teacher.'},400);
   if(a.role==='student'&&!await validStudent(a.teacherId,a.studentId))return json({error:'زبان‌آموز واقعی را از پروندهٔ یک معلم انتخاب کنید. / Choose a real student from a teacher workspace.'},400);
   const id=existing||'account-'+crypto.randomUUID();
@@ -44,7 +44,7 @@ export async function PATCH(r:Request){
  try{
   const b=await payload(r,12000);if(typeof b.id!=='string'||b.id===u.id)return forbidden();
   const db=database(),a=await db.prepare('SELECT * FROM classer_accounts WHERE id=?').bind(b.id).first<AccountRow>();
-  if(!a)return json({},404);
+  if(!a)return json({},404);if(a.role==='admin'&&!superAdministrator(u))return forbidden();
   if(b.action==='recovery'){
    if(!a.active)return json({error:'ابتدا حساب را فعال کنید. / Activate this account first.'},409);
    return json({code:await issueRecovery(a),minutes:30});
@@ -61,7 +61,7 @@ export async function PATCH(r:Request){
   }
   const v=values.safeParse(b);
   if(!v.success)return json({error:'اطلاعات حساب معتبر نیست. / Check the account fields.'},400);
-  const p=v.data;
+  const p=v.data;if(p.role==='admin'&&!superAdministrator(u))return forbidden();
   if(p.role==='student'&&!await validStudent(p.teacherId,p.studentId))return json({error:'معلم و زبان‌آموز معتبر نیستند. / Choose a valid teacher and student.'},400);
   const updated=await db.prepare('UPDATE OR IGNORE classer_accounts SET username=?,name=?,email=?,phone=?,role=?,active=?,teacher_id=?,student_id=?,epoch=epoch+1 WHERE id=? AND epoch=? AND NOT EXISTS(SELECT 1 FROM classer_accounts other WHERE lower(trim(other.email))=? AND other.id<>?)').bind(p.username,p.name,p.email,p.phone,p.role,Number(p.active),p.role==='student'?p.teacherId!:null,p.role==='student'?p.studentId!:null,a.id,a.epoch,p.email,a.id).run();
   return updated.meta.changes?json({saved:true}):json({error:'نام کاربری تکراری است یا حساب تغییر کرده. / Username already taken or account changed.'},409);

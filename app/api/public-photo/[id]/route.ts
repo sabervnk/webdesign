@@ -1,3 +1,4 @@
+import {teachingOwner} from '@/lib/server/teacher-roles';
 import {avatarResponse} from '@/lib/server/avatar';
 import {database} from '@/db/storage';
 import {identity} from '@/lib/server/access';

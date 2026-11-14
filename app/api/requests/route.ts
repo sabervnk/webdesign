@@ -1,3 +1,4 @@
+import {teachingOwner} from '@/lib/server/teacher-roles';
 import {database} from '@/db/storage';
 import {inquirySchema,offerFor,type DisplayOffer,type Teacher} from '@/lib/catalogue';
 import {json,validOrigin,payload} from '@/lib/server/access';
@@ -25,7 +26,7 @@ export async function POST(r:Request){
   let teacher:Teacher|undefined;
   let offer:DisplayOffer|undefined;
   if(data.kind==='class'){
-   const row=await db.prepare('SELECT data,version FROM teacher_public_profiles WHERE id=? AND published=1').bind(data.teacherId).first<{data:string,version:number}>();
+   const row=await db.prepare(`SELECT data,version FROM teacher_public_profiles WHERE id=? AND published=1 AND ${teachingOwner('teacher_public_profiles.owner_id')}`).bind(data.teacherId).first<{data:string,version:number}>();
    if(!row)return json({error:'این معلم اکنون درخواست جدید نمی‌پذیرد. / This teacher is not available.'},400);
    if(data.teacherVersion!==row.version)return json({error:'مشخصات یا نرخ معلم تغییر کرده است؛ صفحه را تازه کنید و دوباره بررسی کنید. / Teacher details changed. Refresh and review the current fee.'},409);
    teacher=JSON.parse(row.data) as Teacher;
@@ -39,7 +40,7 @@ export async function POST(r:Request){
   const result=await db.prepare(`INSERT OR IGNORE INTO site_inquiries (id,email,data,status,version,created_at,updated_at)
    SELECT ?,?,?,'new',1,?,?
    WHERE (SELECT COUNT(*) FROM site_inquiries WHERE email=? AND created_at>?)<5
-   AND (?='contact' OR EXISTS(SELECT 1 FROM teacher_public_profiles WHERE id=? AND published=1 AND version=?))`)
+   AND (?='contact' OR EXISTS(SELECT 1 FROM teacher_public_profiles WHERE id=? AND published=1 AND ${teachingOwner('teacher_public_profiles.owner_id')} AND version=?))`)
    .bind(data.id,data.email,JSON.stringify(stored),now,now,data.email,new Date(Date.now()-3600000).toISOString(),data.kind,data.teacherId,data.teacherVersion??0).run();
   if(result.meta.changes)return json(receipt(),201);
   const raced=await duplicate();if(raced)return raced;

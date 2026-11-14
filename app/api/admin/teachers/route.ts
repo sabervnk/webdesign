@@ -14,7 +14,7 @@ export async function GET(r:Request){
  const db=database(),id=new URL(r.url).searchParams.get('id');
  if(!id){
   const rows=await db.prepare(`WITH owners AS (SELECT owner_id AS id FROM teacher_workspaces UNION SELECT owner_id FROM teacher_public_profiles UNION SELECT id FROM classer_accounts WHERE role='teacher')
-   SELECT owners.id,COALESCE(NULLIF(json_extract(p.data,'$.name'),''),a.name,json_extract(w.data,'$.profile.name'),owners.id) AS name,COALESCE(p.published,0) AS published
+   SELECT owners.id,COALESCE(NULLIF(json_extract(p.data,'$.name'),''),a.name,json_extract(w.data,'$.profile.name'),owners.id) AS name,COALESCE(p.published,0) AS published,CASE WHEN a.role='admin' OR EXISTS(SELECT 1 FROM classer_administrator_ids r WHERE r.owner_id=owners.id) THEN 'admin-legacy' ELSE 'teacher' END AS kind
    FROM owners LEFT JOIN teacher_workspaces w ON w.owner_id=owners.id LEFT JOIN teacher_public_profiles p ON p.owner_id=owners.id LEFT JOIN classer_accounts a ON a.id=owners.id ORDER BY name LIMIT 1000`).all();
   return json({teachers:rows.results});
  }
@@ -36,10 +36,10 @@ export async function GET(r:Request){
    const wp=w?JSON.parse(w.data).profile:null;
    const draft=initialPublicProfile(account?.name||wp?.name||'معلم');
    if(wp){draft.gender=wp.gender;draft.headline=wp.specialization||'';draft.bio=wp.bio||'';draft.translations={en:{name:wp.nameEn||'',headline:wp.specializationEn||''},fa:{name:wp.nameFa||wp.name||''}}}
-   return json({workspace:superAdministrator(viewer)?decode(w):null,profile:{data:draft,version:0},articles:a.results});
+   return json({workspace:decode(w),profile:{data:draft,version:0},articles:a.results});
   }
  }
- return json({workspace:superAdministrator(viewer)&&w?await financialWorkspace(id):null,profile,articles:a.results});
+ return json({workspace:w?await financialWorkspace(id):null,profile,articles:a.results});
 }
 export async function PUT(r:Request){
  const viewer=await identity(r);if(!viewer?.isAdmin||!validOrigin(r))return json({},403);
@@ -58,7 +58,7 @@ export async function PUT(r:Request){
    return changed.meta.changes?json({version:Number(b.version)+1}):json({error:'پرتفولیو تغییر کرده؛ دوباره باز کنید.'},409);
   }
   if(b.kind==='workspace'){
-   if(!superAdministrator(viewer))return json({},403);
+   
    const p=workspaceSchema.safeParse(b.data);if(!p.success)return json({error:p.error.issues[0].message},400);
    const prev=await db.prepare('SELECT data,version FROM teacher_workspaces WHERE owner_id=?').bind(b.id).first<RecordRow>();
    if(!prev||prev.version!==b.version)return json({error:'پرونده تغییر کرده؛ دوباره باز کنید.'},409);

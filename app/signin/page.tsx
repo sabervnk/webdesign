@@ -9,6 +9,6 @@ export default async function Signin({searchParams}:{searchParams:Promise<{mode?
  const mode=(await searchParams).mode,u=await pageIdentity();
  if(u?.mustChange)return <LocalLogin initial="change" forced/>;
  if(mode==='change'&&u?.local)return <LocalLogin initial="change" forced={false}/>;
- if(u?.local)redirect(landing(u));
+ if(u)redirect(landing(u));
  return <LocalLogin initial={mode==='reset'?'reset':'login'} forced={false}/>;
 }

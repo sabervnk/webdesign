@@ -22,6 +22,13 @@ test('owner provisions restricted accounts; recovery revokes sessions and site c
   const admin={'oai-authenticated-user-id':'fixture-owner','oai-authenticated-user-email':ownerEmail};
   const request=(path,method='GET',body,head={})=>mf.dispatchFetch(origin+path,{method,redirect:'manual',headers:{...head,...(body?{'Content-Type':'application/json',Origin:origin}:{})},...(body?{body:JSON.stringify(body)}:{})});
   const ok=async(r,status=200)=>{assert.equal(r.status,status,await r.clone().text());return r.json()};
+  assert.equal((await request('/api/workspace','GET',undefined,admin)).status,401);
+  assert.equal((await request('/api/studio','GET',undefined,admin)).status,401);
+  const ownerDashboard=await request('/dashboard','GET',undefined,admin);assert.equal(ownerDashboard.status,307);assert.equal(new URL(ownerDashboard.headers.get('location'),origin).pathname,'/admin');
+  assert.equal((await db.prepare('SELECT count(*) AS count FROM teacher_workspaces WHERE owner_id=?').bind('fixture-owner').first()).count,0,'admin sign-in never creates a teacher workspace');
+  await db.prepare('INSERT INTO teacher_workspaces VALUES(?,?,1,?)').bind('fixture-owner',JSON.stringify(w),new Date().toISOString()).run();
+  const adminRecords=await ok(await request('/api/admin/teachers','GET',undefined,admin));assert.equal(adminRecords.teachers.find(t=>t.id==='fixture-owner').kind,'admin-legacy');
+  assert.equal((await request('/api/workspace','GET',undefined,admin)).status,401,'old workspace does not confer a teacher role');
   const signin=await request('/signin');assert.equal(signin.status,200);assert((await signin.text()).includes('name="username"'));
   const privatePage=await request('/dashboard');assert.equal(privatePage.status,307);assert(new URL(privatePage.headers.get('location'),origin).pathname==='/signin');
   const creds={username:'test-student',password:shortFixture()};
@@ -68,8 +75,11 @@ test('owner provisions restricted accounts; recovery revokes sessions and site c
   assert.equal((await request('/api/admin/overview','GET',undefined,temporaryAdmin)).status,403);
   const newAdmin=await request('/api/auth/change','POST',{password:fixturePassword()},temporaryAdmin);await ok(newAdmin);
   const limited={Cookie:newAdmin.headers.get('set-cookie').split(';')[0]};
-  for(const method of ['GET','POST','PATCH'])assert.equal((await request('/api/admin/accounts',method,method==='GET'?undefined:{id,action:'password',password:fixturePassword()},limited)).status,403);
-  const summary=await ok(await request('/api/admin/overview','GET',undefined,limited));assert.equal(summary.superAdmin,false);assert.equal(summary.counts.users,undefined);
+  assert.equal((await request('/api/admin/accounts','GET',undefined,limited)).status,200);
+  assert.equal((await request('/api/admin/accounts','POST',{username:'unauthorized-admin',name:'Extra admin',email:'extra@example.com',phone:'+989121234560',role:'admin',password:fixturePassword()},limited)).status,403);
+  assert.equal((await request('/api/workspace','GET',undefined,limited)).status,401);
+  const adminDashboard=await request('/dashboard','GET',undefined,limited);assert.equal(adminDashboard.status,307);assert.equal(new URL(adminDashboard.headers.get('location'),origin).pathname,'/admin');
+  const summary=await ok(await request('/api/admin/overview','GET',undefined,limited));assert.equal(summary.superAdmin,false);assert.equal(typeof summary.counts.users,'number');
   const teacherTemporary=fixturePassword();
   const teacherCreated=await ok(await request('/api/admin/accounts','POST',{username:'new-teacher',name:'New teacher',email:'newteacher@example.com',phone:'+989121234569',role:'teacher',password:teacherTemporary},admin),201);
   const teacherLogin=await request('/api/auth/login','POST',{username:'new-teacher',password:teacherTemporary});assert.equal((await ok(teacherLogin)).next,'/signin?mode=change');
@@ -80,13 +90,16 @@ test('owner provisions restricted accounts; recovery revokes sessions and site c
   assert.equal(newDraft.profile.version,0);assert.equal(newDraft.profile.data.published,false);
   const publicData={...newDraft.profile.data,gender:'woman',headline:'Conversation teacher',bio:'A teacher introduction containing enough information for a public portfolio.',certificateItems:['TEFL'],educationLevel:'bachelor',educationField:'English literature',published:true};
   const published=await ok(await request('/api/admin/teachers','PUT',{id:teacherCreated.id,kind:'profile',version:0,data:publicData},admin));
-  const catalogue=await ok(await request('/api/catalogue'));
+  const ownerDraft=await ok(await request('/api/admin/teachers?id=fixture-owner','GET',undefined,admin));
+  const ownerProfile=await ok(await request('/api/admin/teachers','PUT',{id:'fixture-owner',kind:'profile',version:ownerDraft.profile.version,data:{...publicData,name:'Legacy administrator portfolio'}},admin));
+  assert.equal((await request('/teachers/'+ownerProfile.id)).status,404,'admin-owned historical portfolios cannot appear as current teachers');
+  const catalogue=await ok(await request('/api/catalogue'));assert(!catalogue.teachers.some(t=>t.id===ownerProfile.id));
   const visible=catalogue.teachers.find(x=>x.id===published.id);
   assert.equal(visible.gender,'woman');assert.deepEqual(visible.certificateItems,['TEFL']);assert.equal(visible.educationField,'English literature');
   assert(!JSON.stringify(catalogue).includes('newteacher@example.com'));assert(!JSON.stringify(catalogue).includes('+989121234569'));
   assert.equal((await request('/api/admin/teachers','PUT',{id:teacherCreated.id,kind:'profile',version:0,data:publicData},admin)).status,409);
-  const publicOnly=await ok(await request('/api/admin/teachers?id=legacy-teacher','GET',undefined,limited));assert.equal(publicOnly.workspace,null);
-  assert.equal((await request('/api/admin/teachers','PUT',{id:'legacy-teacher',kind:'workspace',version:1,data:w},limited)).status,403);
+  const publicOnly=await ok(await request('/api/admin/teachers?id=legacy-teacher','GET',undefined,limited));assert.equal(publicOnly.workspace.data.students.length,w.students.length);
+  await ok(await request('/api/admin/teachers','PUT',{id:'legacy-teacher',kind:'workspace',version:publicOnly.workspace.version,data:publicOnly.workspace.data},limited));
 
   // Approval is admin-only, targeted, private and idempotent when imported.
   const inquiry={id:crypto.randomUUID(),kind:'class',teacherId:published.id,teacherVersion:published.version,name:'Referred learner',email:'referred@example.com',phone:'09121234567',language:'en',format:'online',message:'Please arrange a class with this teacher.'};

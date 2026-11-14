@@ -9,7 +9,7 @@ import {RequestError,requestFailure} from '@/lib/server/http';
 export const dynamic='force-dynamic';
 export async function GET(r:Request){if(!(await identity(r))?.isAdmin)return json({},403);try{
  const db=database();const [owners,policies,referrals]=await Promise.all([
- db.prepare("SELECT w.owner_id AS id,w.data,COALESCE(json_extract(p.data,'$.name'),json_extract(w.data,'$.profile.name')) AS name FROM teacher_workspaces w LEFT JOIN teacher_public_profiles p ON p.owner_id=w.owner_id ORDER BY name LIMIT 500").all<{id:string;name:string;data:string}>(),
+ db.prepare("SELECT w.owner_id AS id,w.data,COALESCE(json_extract(p.data,'$.name'),json_extract(w.data,'$.profile.name')) || CASE WHEN EXISTS(SELECT 1 FROM classer_administrator_ids r WHERE r.owner_id=w.owner_id) OR EXISTS(SELECT 1 FROM classer_accounts a WHERE a.id=w.owner_id AND a.role='admin') THEN ' · پروندهٔ قدیمی مدیریت' ELSE '' END AS name FROM teacher_workspaces w LEFT JOIN teacher_public_profiles p ON p.owner_id=w.owner_id ORDER BY name LIMIT 500").all<{id:string;name:string;data:string}>(),
  db.prepare('SELECT owner_id,data,version FROM classer_commissions LIMIT 500').all<{owner_id:string;data:string;version:number}>(),
  db.prepare("SELECT id,json_extract(data,'$.teacherOwnerId') AS owner,json_extract(data,'$.commissionPercent') AS percent FROM site_inquiries WHERE json_extract(data,'$.forwardedAt') IS NOT NULL LIMIT 10000").all<{id:string;owner:string;percent:number}>()]);
  const teachers=[];

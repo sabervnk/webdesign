@@ -40,3 +40,5 @@ export const blogMedia=sqliteTable('classer_blog_media',{id:text('id').primaryKe
 export const commissions=sqliteTable('classer_commissions',{ownerId:text('owner_id').primaryKey(),data:text('data').notNull(),version:integer('version').notNull().default(1),updatedAt:text('updated_at').notNull()});
 export const translations=sqliteTable('classer_translations',{id:text('id').primaryKey(),translated:text('translated').notNull(),createdAt:text('created_at').notNull()});
 export const translationLimits=sqliteTable('classer_translation_limits',{id:text('id').primaryKey(),count:integer('count').notNull().default(0)});
+
+export const administratorIds=sqliteTable('classer_administrator_ids',{ownerId:text('owner_id').primaryKey()});
