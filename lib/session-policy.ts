@@ -1,10 +1,10 @@
 import type {Currency,Session,Student} from './model';
-export type SessionPricing={baseRate:number;baseDuration:number;currency:Currency};
+export type SessionPricing={version?:2;baseRate:number;baseDuration:number;currency:Currency};
 export function proportionalFee(baseRate:number,baseDuration:number,duration:number,currency:Currency){
  if(!Number.isFinite(baseRate)||baseRate<0||!Number.isFinite(baseDuration)||baseDuration<=0||!Number.isFinite(duration)||duration<=0)throw Error('مبلغ یا مدت پایه معتبر نیست.');
  const factor=currency==='USD'?100:1;return Math.round(Math.round(baseRate*factor)*duration/baseDuration)/factor;
 }
-export function pricingFor(session:Session|undefined,student:Student):SessionPricing{return session?.pricing??{baseRate:session?.rate??student.rate,baseDuration:session?.duration??student.duration,currency:session?.currency??student.currency}}
+export function pricingFor(session:Session|undefined,student:Student):SessionPricing{return session?.pricing??(session?.paid?{baseRate:session.rate,baseDuration:session.duration,currency:session.currency}:session&&session.rate!==student.rate?{baseRate:session.rate,baseDuration:session.duration,currency:session.currency}:{version:2,baseRate:student.rate,baseDuration:student.duration,currency:student.currency})}
 export function changeSessionStatus(session:Session,status:Session['status'],at=new Date().toISOString()):Session{
  if(status===session.status)return session;
  const history=[...(session.noteHistory??[]),...(session.note.trim()?[{note:session.note,status:session.status,at}]:[])];

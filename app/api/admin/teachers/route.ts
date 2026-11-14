@@ -1,3 +1,5 @@
+import {normalizeFinance} from '@/lib/finance';
+import {commissionPolicy,financialWorkspace} from '@/lib/server/finance';
 import {ownedArticleMedia} from '@/lib/server/blog-media';
 import {database} from '@/db/storage';
 import {identity,json,payload,validOrigin,superAdministrator} from '@/lib/server/access';
@@ -37,7 +39,7 @@ export async function GET(r:Request){
    return json({workspace:superAdministrator(viewer)?decode(w):null,profile:{data:draft,version:0},articles:a.results});
   }
  }
- return json({workspace:superAdministrator(viewer)?decode(w):null,profile,articles:a.results});
+ return json({workspace:superAdministrator(viewer)&&w?await financialWorkspace(id):null,profile,articles:a.results});
 }
 export async function PUT(r:Request){
  const viewer=await identity(r);if(!viewer?.isAdmin||!validOrigin(r))return json({},403);
@@ -60,8 +62,11 @@ export async function PUT(r:Request){
    const p=workspaceSchema.safeParse(b.data);if(!p.success)return json({error:p.error.issues[0].message},400);
    const prev=await db.prepare('SELECT data,version FROM teacher_workspaces WHERE owner_id=?').bind(b.id).first<RecordRow>();
    if(!prev||prev.version!==b.version)return json({error:'پرونده تغییر کرده؛ دوباره باز کنید.'},409);
-   try{validateWorkspace(p.data,JSON.parse(prev.data))}catch(e){return json({error:(e as Error).message},400)}
-   const changed=await db.prepare('UPDATE teacher_workspaces SET data=?,version=version+1,updated_at=? WHERE owner_id=? AND version=?').bind(JSON.stringify(p.data),now,b.id,Number(b.version)).run();
+   const previous=workspaceSchema.parse(JSON.parse(prev.data)),policy=await commissionPolicy(b.id);
+   const canonical=normalizeFinance({...p.data,sessions:p.data.sessions.map(s=>previous.sessions.find(o=>o.id===s.id)?.paid?s:{...s,paid:false,paidAt:''})},policy);canonical.sessions=canonical.sessions.map(s=>{const submitted=p.data.sessions.find(x=>x.id===s.id)!;return {...s,paid:submitted.paid,paidAt:submitted.paidAt}});
+   if(canonical.students.some(s=>s.sourceInquiryId!==previous.students.find(o=>o.id===s.id)?.sourceInquiryId))return json({error:'Referral links are server managed.'},400);
+   try{validateWorkspace(canonical,previous)}catch(e){return json({error:(e as Error).message},400)}
+   const changed=await db.prepare('UPDATE teacher_workspaces SET data=?,version=version+1,updated_at=? WHERE owner_id=? AND version=?').bind(JSON.stringify(canonical),now,b.id,Number(b.version)).run();
    return changed.meta.changes?json({version:Number(b.version)+1}):json({},409);
   }
   if(b.kind==='article'&&typeof b.articleId==='string'){

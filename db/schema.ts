@@ -36,3 +36,7 @@ export const recoveryLimits=sqliteTable('classer_recovery_limits',{
 
 export const blogCategories=sqliteTable('classer_blog_categories',{id:text('id').primaryKey(),ownerId:text('owner_id').notNull(),name:text('name').notNull()},t=>[uniqueIndex('classer_blog_categories_owner_name').on(t.ownerId,t.name)]);
 export const blogMedia=sqliteTable('classer_blog_media',{id:text('id').primaryKey(),ownerId:text('owner_id').notNull(),objectKey:text('object_key').notNull(),type:text('type').notNull(),size:integer('size').notNull(),name:text('name').notNull(),createdAt:text('created_at').notNull()},t=>[index('classer_blog_media_owner_idx').on(t.ownerId)]);
+
+export const commissions=sqliteTable('classer_commissions',{ownerId:text('owner_id').primaryKey(),data:text('data').notNull(),version:integer('version').notNull().default(1),updatedAt:text('updated_at').notNull()});
+export const translations=sqliteTable('classer_translations',{id:text('id').primaryKey(),translated:text('translated').notNull(),createdAt:text('created_at').notNull()});
+export const translationLimits=sqliteTable('classer_translation_limits',{id:text('id').primaryKey(),count:integer('count').notNull().default(0)});

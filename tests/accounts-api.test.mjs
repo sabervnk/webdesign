@@ -87,6 +87,36 @@ test('owner provisions restricted accounts; recovery revokes sessions and site c
   assert.equal((await request('/api/admin/teachers','PUT',{id:teacherCreated.id,kind:'profile',version:0,data:publicData},admin)).status,409);
   const publicOnly=await ok(await request('/api/admin/teachers?id=legacy-teacher','GET',undefined,limited));assert.equal(publicOnly.workspace,null);
   assert.equal((await request('/api/admin/teachers','PUT',{id:'legacy-teacher',kind:'workspace',version:1,data:w},limited)).status,403);
+
+  // Approval is admin-only, targeted, private and idempotent when imported.
+  const inquiry={id:crypto.randomUUID(),kind:'class',teacherId:published.id,teacherVersion:published.version,name:'Referred learner',email:'referred@example.com',phone:'09121234567',language:'en',format:'online',message:'Please arrange a class with this teacher.'};
+  assert.equal((await request('/api/requests','POST',{...inquiry,phone:''})).status,400);
+  await ok(await request('/api/requests','POST',inquiry),201);
+  assert.equal((await request('/api/referrals','POST',{id:inquiry.id,version:1},teacherCookie)).status,404);
+  assert.equal((await request('/api/admin/requests','PUT',{id:inquiry.id,version:1,status:'reviewing',action:'forward'},teacherCookie)).status,403);
+  await ok(await request('/api/admin/requests','PUT',{id:inquiry.id,version:1,status:'reviewing',adminNote:'First private note'},admin));
+  const referred=await ok(await request('/api/admin/requests','PUT',{id:inquiry.id,version:2,status:'reviewing',adminNote:'Second private note',action:'forward',commissionPercent:25},admin));
+  assert.equal(referred.request.notes.length,2);assert.equal(referred.request.events.at(-1).type,'forwarded');
+  const visibleReferrals=await ok(await request('/api/referrals','GET',undefined,teacherCookie));assert.equal(visibleReferrals.requests.length,1);assert(!JSON.stringify(visibleReferrals).includes('private note'));assert(!JSON.stringify(visibleReferrals).includes('notes'));
+  const wrongTeacher={'oai-authenticated-user-id':'legacy-teacher','oai-authenticated-user-email':'legacy@example.com'};
+  assert.equal((await ok(await request('/api/referrals','GET',undefined,wrongTeacher))).requests.length,0);assert.equal((await request('/api/referrals','POST',{id:inquiry.id,version:3},wrongTeacher)).status,404);
+  const imported=await ok(await request('/api/referrals','POST',{id:inquiry.id,version:3},teacherCookie),201);
+  assert.equal((await ok(await request('/api/referrals','POST',{id:inquiry.id,version:3},teacherCookie))).studentId,imported.studentId);
+  let book=await ok(await request('/api/workspace','GET',undefined,teacherCookie));assert.equal(book.data.students.length,1);assert.equal(book.data.students[0].commissionPercent,25);
+  const classId=crypto.randomUUID(),ninety={id:classId,studentId:imported.studentId,date:'2026-11-19',time:'18:00',duration:90,type:'online',status:'held',cancelReason:'student',charge:false,note:'',rate:publicData.rate,currency:publicData.currency,paid:false,paidAt:'',commissionPercent:0};
+  book=await ok(await request('/api/workspace','PUT',{data:{...book.data,sessions:[ninety]},version:book.version},teacherCookie));assert.equal(book.data.sessions[0].rate,publicData.rate*1.5);assert.equal(book.data.sessions[0].commissionPercent,25);
+  assert.equal((await request('/api/admin/finance','PUT',{ownerId:teacherCreated.id,percent:0,version:0,students:{}},teacherCookie)).status,403);
+  assert.equal((await request('/api/admin/finance','PUT',{ownerId:teacherCreated.id,percent:101,version:0,students:{}},admin)).status,400);
+  await ok(await request('/api/admin/finance','PUT',{ownerId:teacherCreated.id,percent:15,version:0,students:{[imported.studentId]:20}},admin));
+  book=await ok(await request('/api/workspace','GET',undefined,teacherCookie));assert.equal(book.data.sessions[0].commissionPercent,20);
+  const settled={...book.data.sessions[0],commissionPercent:0,paid:true,paidAt:new Date().toISOString()};
+  book=await ok(await request('/api/workspace','PUT',{version:book.version,data:{...book.data,sessions:[settled]}},teacherCookie));assert.equal(book.data.sessions[0].commissionPercent,20,'teacher cannot reduce the admin share at settlement');
+  await ok(await request('/api/admin/finance','PUT',{ownerId:teacherCreated.id,percent:50,version:1,students:{}},admin));
+  book=await ok(await request('/api/workspace','GET',undefined,teacherCookie));assert.equal(book.data.sessions[0].commissionPercent,20,'paid share remains immutable');
+  book.data.sessions[0].notes=[{id:crypto.randomUUID(),text:'Separate dated note',createdAt:new Date().toISOString()}];
+  book=await ok(await request('/api/workspace','PUT',{version:book.version,data:book.data},teacherCookie));assert.equal(book.data.sessions[0].notes.length,1);
+  const report=await ok(await request('/api/admin/finance','GET',undefined,admin));const row=report.teachers.find(t=>t.id===teacherCreated.id).sessions[0];assert.equal(row.split.admin,row.rate*.2);assert(!JSON.stringify(report).includes('Separate dated note'));
+
   const t=await ok(await request('/api/admin/teachers?id=legacy-teacher','GET',undefined,admin));
   assert.equal(t.workspace.data.students.length,w.students.length);
   const revised=t.workspace.data;

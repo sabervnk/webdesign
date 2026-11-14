@@ -7,7 +7,7 @@ export async function POST(r:Request){
  if(!validOrigin(r))return json({error:'Invalid origin'},403);
  try{
   const parsed=inquirySchema.safeParse(await payload(r,15000));
-  if(!parsed.success)return json({error:'نام، ایمیل و متن پیام را کامل و معتبر وارد کنید. / Enter a valid name, email and message.'},400);
+  if(!parsed.success)return json({error:'نام، ایمیل، شماره تماس و متن پیام را کامل و معتبر وارد کنید. / Enter a valid name, email, phone and message.'},400);
   const {website,...input}=parsed.data;
   if(website)return json({error:'درخواست معتبر نیست. / Invalid request.'},400);
   const data={...input,email:input.email.toLowerCase()};
