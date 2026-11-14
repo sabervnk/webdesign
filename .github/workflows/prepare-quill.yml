@@ -1,0 +1,32 @@
+name: Prepare pinned Quill
+on:
+  push:
+    branches: [codex/quill-setup-20261114]
+    paths: [.github/workflows/prepare-quill.yml]
+permissions:
+  contents: read
+jobs:
+  lock:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm install --package-lock-only --ignore-scripts --save-exact quill@2.0.3
+      - name: Report dependency lock changes
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import {execFileSync} from 'node:child_process';
+          const old=JSON.parse(execFileSync('git',['show','HEAD:package-lock.json'],{encoding:'utf8'}));
+          const next=JSON.parse(fs.readFileSync('package-lock.json','utf8'));
+          const changes=Object.fromEntries(Object.entries(next.packages).filter(([key,value])=>JSON.stringify(value)!==JSON.stringify(old.packages[key])));
+          const removed=Object.keys(old.packages).filter(key=>!next.packages[key]);
+          console.log('LOCK_PATCH_START');
+          console.log(JSON.stringify({changes,removed}));
+          console.log('LOCK_PATCH_END');
+          NODE
