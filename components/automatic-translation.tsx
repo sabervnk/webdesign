@@ -3,6 +3,7 @@ import {useEffect,useState} from 'react';
 import dictionary from '@/lib/translation-dictionary.json';
 import {hasPersianText,translationChunks} from '@/lib/translation';
 const known=dictionary as Record<string,string>,cache=new Map<string,string>();
+const sourceAttributes=new WeakMap<Element,Record<string,{original:string;rendered:string}>>();
 const sourceNodes=new WeakMap<Text,{original:string;rendered:string}>();
 export function AutomaticTranslation(){
  const [unavailable,setUnavailable]=useState(false);
@@ -10,6 +11,7 @@ export function AutomaticTranslation(){
   let cancelled=false,running=false,queued=false,timer:ReturnType<typeof setTimeout>;const failed=new Set<string>();
   const ignored='script,style,noscript,textarea,input,select option[value="fa"],code,pre,[contenteditable="true"],[translate="no"],[data-no-translate],.ql-editor';
   async function run(){if(running){queued=true;return}running=true;queued=false;const lang=document.documentElement.lang.split('-')[0]||'fa';if(lang==='fa')setUnavailable(false);
+   for(const element of document.querySelectorAll('[placeholder],[title],[aria-label]')){if(element.closest('[translate="no"],[data-no-translate]'))continue;const saved=sourceAttributes.get(element)??{};for(const name of ['placeholder','title','aria-label']){const current=element.getAttribute(name);if(current===null)continue;const old=saved[name],original=old&&current===old.rendered?old.original:current;if(lang==='fa'){if(old&&current===old.rendered)element.setAttribute(name,old.original);delete saved[name]}else if(lang==='en'&&known[original.trim()]){const rendered=original.replace(original.trim(),known[original.trim()]);saved[name]={original,rendered};if(current!==rendered)element.setAttribute(name,rendered)}}sourceAttributes.set(element,saved)}
    const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT),pending:{node:Text;original:string;chunks:string[]}[]=[];
    while(walker.nextNode()){
     const node=walker.currentNode as Text;if(node.parentElement?.closest(ignored))continue;

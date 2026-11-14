@@ -13,7 +13,7 @@ export async function GET(r:Request){if(!(await identity(r))?.isAdmin)return jso
  }catch(e){if(e instanceof z.ZodError)e=new RequestError('Invalid form fields.',400);return requestFailure(e,'دریافت گزارش مالی انجام نشد. / Could not load finance report.')}}
 const input=z.object({ownerId:z.string().min(1).max(160),version:z.number().int().min(0),percent:z.number().min(0).max(100).multipleOf(.01),students:z.record(z.string().max(80),z.number().min(0).max(100).multipleOf(.01)).refine(v=>Object.keys(v).length<=2000)});
 export async function PUT(r:Request){if(!(await identity(r))?.isAdmin||!validOrigin(r))return json({},403);try{
- const x=input.parse(await payload(r,120000)),db=database();const w=await financialWorkspace(x.ownerId);if(!w)return json({},404);
+ const parsed=input.safeParse(await payload(r,120000));if(!parsed.success)return json({error:'Invalid commission fields.'},400);const x=parsed.data,db=database();const w=await financialWorkspace(x.ownerId);if(!w)return json({},404);
  if(w.policy.version!==x.version)return json({error:'درصدها تغییر کرده‌اند؛ دوباره بارگیری کنید. / Commission policy changed. Reload.'},409);
  if(Object.keys(x.students).some(id=>!w.data.students.some(s=>s.id===id)))return json({error:'Student not found.'},400);
  const data=JSON.stringify({percent:x.percent,students:x.students}),now=new Date().toISOString();

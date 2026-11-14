@@ -24,6 +24,7 @@ export async function PUT(r:Request){
  const parsed=workspaceSchema.safeParse(body.data);if(!parsed.success||!Number.isSafeInteger(body.version))return json({error:'لطفاً فیلدها را بررسی کنید. / Please check the form fields.'},400);
  const db=database(),row=await db.prepare('SELECT data,version FROM teacher_workspaces WHERE owner_id = ?').bind(id).first<{data:string,version:number}>();if(!row||row.version!==body.version)return json({error:'اطلاعات در پنجره دیگری تغییر کرده است. ابتدا تازه‌سازی کنید. / Workspace changed in another tab. Reload before saving.'},409);
  const previous=workspaceSchema.parse(JSON.parse(row.data)),policy=await commissionPolicy(id);
+ try{validateWorkspace(parsed.data,previous)}catch(e){return json({error:(e as Error).message},400)}
  const canonical=normalizeFinance({...parsed.data,sessions:parsed.data.sessions.map(s=>previous.sessions.find(old=>old.id===s.id)?.paid?s:{...s,paid:false,paidAt:''})},policy);
  canonical.sessions=canonical.sessions.map(s=>{const sent=parsed.data.sessions.find(x=>x.id===s.id)!;return {...s,paid:sent.paid,paidAt:sent.paidAt}});
  if(canonical.students.some(s=>s.sourceInquiryId!==previous.students.find(old=>old.id===s.id)?.sourceInquiryId))return json({error:'Referral links are server managed.'},400);

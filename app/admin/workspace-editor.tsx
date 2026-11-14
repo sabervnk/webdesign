@@ -5,7 +5,7 @@ import {sessionNotes,withSessionNotes} from '@/lib/session-notes';
 import type {Session} from '@/lib/model';
 import {pricingFor,proportionalFee,changeSessionStatus} from '@/lib/session-policy';
 import {RichTextEditor} from '@/components/rich-text-editor';
-import {useState,type ReactNode} from 'react';
+import {useEffect,useState,type ReactNode} from 'react';
 import {AmountInput} from '@/components/amount-input';
 import {billable,formatMoney,levels,skillKeys,type Workspace,type Skills} from '@/lib/model';
 
@@ -86,4 +86,4 @@ export function WorkspaceEditor({data,version,onSave}:{data:Workspace;version:nu
  </div>;
 }
 
-function AdminSessionNotes({session,onSave}:{session:Session;onSave:(s:Session)=>Promise<void>}){const [s,setS]=useState(session),[draft,setDraft]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState('');return <div className="admin-session-notes"><SessionNotebook session={s} onChange={setS} draft={draft} onDraft={setDraft} disabled={busy}/>{error&&<p role="alert">{error}</p>}<button className="btn" type="button" disabled={busy} onClick={async()=>{setBusy(true);try{const next=draft.trim()?withSessionNotes(s,[...sessionNotes(s),{id:crypto.randomUUID(),text:draft.trim(),createdAt:new Date().toISOString(),status:s.status}]):s;await onSave(next);setDraft('');setS(next)}catch(e){setError((e as Error).message)}finally{setBusy(false)}}}>ذخیره یادداشت‌های کلاس</button></div>}
+function AdminSessionNotes({session,onSave}:{session:Session;onSave:(s:Session)=>Promise<void>}){const [s,setS]=useState(session),[draft,setDraft]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState('');useEffect(()=>setS(session),[session]);return <div className="admin-session-notes"><SessionNotebook session={s} onChange={setS} draft={draft} onDraft={setDraft} disabled={busy}/>{error&&<p role="alert">{error}</p>}<button className="btn" type="button" disabled={busy} onClick={async()=>{setBusy(true);try{const next=draft.trim()?withSessionNotes(s,[...sessionNotes(s),{id:crypto.randomUUID(),text:draft.trim(),createdAt:new Date().toISOString(),status:s.status}]):s;await onSave(next);setDraft('');setS(next)}catch(e){setError((e as Error).message)}finally{setBusy(false)}}}>ذخیره یادداشت‌های کلاس</button></div>}

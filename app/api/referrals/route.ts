@@ -22,7 +22,7 @@ export async function POST(r:Request){const u=await teacherIdentity(r);if(!u||!v
  const duplicate=w.data.students.find(s=>s.email.toLowerCase()===inquiry.email.toLowerCase());
  if(duplicate&&!x.existingStudentId)return json({error:'این ایمیل در فهرست وجود دارد؛ پرونده موجود را انتخاب کنید. / Select the existing student record.',existingStudent:{id:duplicate.id,name:duplicate.name}},409);
  if(x.existingStudentId&&(!duplicate||duplicate.id!==x.existingStudentId||duplicate.sourceInquiryId))return json({error:'Invalid existing student selection.'},400);
- const now=new Date().toISOString(),student:Student=duplicate?{...duplicate,sourceInquiryId:x.id}:studentSchema.parse({id:crypto.randomUUID(),name:inquiry.name,email:inquiry.email,phone:inquiry.phone,level:x.level,gender:'unspecified',rate:inquiry.rate??0,currency:inquiry.currency??'TOMAN',duration:inquiry.duration??60,since:now.slice(0,10),skills:{listening:0,speaking:0,reading:0,writing:0},tone:w.data.students.length%5,sourceInquiryId:x.id});
+ const now=new Date().toISOString(),student:Student=duplicate?{...duplicate,sourceInquiryId:x.id}:studentSchema.parse({id:crypto.randomUUID(),name:inquiry.name,email:inquiry.email,phone:inquiry.phone.replace(/[\s()-]/g,''),level:x.level,gender:'unspecified',rate:inquiry.rate??0,currency:inquiry.currency??'TOMAN',duration:inquiry.duration??60,since:now.slice(0,10),skills:{listening:0,speaking:0,reading:0,writing:0},tone:w.data.students.length%5,sourceInquiryId:x.id});
  const next=normalizeFinance({...w.data,students:duplicate?w.data.students.map(s=>s.id===student.id?student:s):[...w.data.students,student]},w.policy);workspaceSchema.parse(next);validateWorkspace(next,w.data);
  // The roster write is authoritative and carries a unique source ID. Retrying
  // after a lost response cannot create a second student, even if the inbox update failed.
@@ -30,4 +30,4 @@ export async function POST(r:Request){const u=await teacherIdentity(r);if(!u||!v
  if(!changed.meta.changes)return json({error:'Workspace or request changed; reload.'},409);
  await db.prepare("UPDATE site_inquiries SET data=json_set(data,'$.convertedStudentId',?,'$.convertedAt',?),version=version+1,updated_at=? WHERE id=? AND json_extract(data,'$.teacherOwnerId')=?").bind(student.id,now,now,x.id,u.id).run();
  return json({studentId:student.id},201);
- }catch(e){return requestFailure(e,'افزودن زبان‌آموز انجام نشد. / Could not add the student.')}}
+ }catch(e){if(e instanceof z.ZodError)return json({error:'Invalid referral form fields.'},400);return requestFailure(e,'افزودن زبان‌آموز انجام نشد. / Could not add the student.')}}
