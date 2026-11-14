@@ -156,7 +156,7 @@ test('portfolios, articles, enquiries and admin access preserve ownership and qu
   assert.equal((await req('/api/requests',undefined,'POST',{...contact,id:crypto.randomUUID()})).status,429);
   assert.equal((await mf.dispatchFetch('https://mahela-classroom.lahzehtv.chatgpt.site/api/requests',{method:'POST',headers:{Origin:'http://untrusted.test','Content-Type':'application/json'},body:JSON.stringify(contact)})).status,403);
   await ok(await req('/api/studio/profile','teacher-a','PUT',{profile:{...profile,published:false},version:3}));
-  listing=await ok(await req('/api/catalogue'));assert.equal(listing.teachers.length,0);assert.equal(listing.articles.length,0);
+  listing=await ok(await req('/api/catalogue'));assert(listing.teachers.some(t=>t.id===profile.id&&t.directoryOnly));assert(listing.teachers.every(t=>t.directoryOnly&&t.bio===''&&t.headline===''&&t.photo===''&&t.offers.length===0));assert.equal(listing.articles.length,0);
   assert.equal((await req('/api/public-photo/'+profile.id)).status,404);
   assert.equal((await req(publicVideo)).status,404);
   assert.equal((await req('/api/requests',undefined,'POST',{...inquiry,id:crypto.randomUUID(),teacherVersion:4})).status,400);
