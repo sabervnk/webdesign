@@ -64,6 +64,13 @@
       "when": 1794646800003,
       "tag": "0008_administrator_roles",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1794646800004,
+      "tag": "0009_messages_captcha",
+      "breakpoints": true
     }
   ]
 }

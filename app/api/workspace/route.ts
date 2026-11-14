@@ -1,3 +1,4 @@
+import {profileContact} from '@/lib/profile-contact';
 import {financialWorkspace,commissionPolicy} from '@/lib/server/finance';
 import {normalizeFinance} from '@/lib/finance';
 import {portfolioIdentity} from '@/lib/catalogue';
@@ -24,6 +25,7 @@ export async function PUT(r:Request){
  const parsed=workspaceSchema.safeParse(body.data);if(!parsed.success||!Number.isSafeInteger(body.version))return json({error:'لطفاً فیلدها را بررسی کنید. / Please check the form fields.'},400);
  const db=database(),row=await db.prepare('SELECT data,version FROM teacher_workspaces WHERE owner_id = ?').bind(id).first<{data:string,version:number}>();if(!row||row.version!==body.version)return json({error:'اطلاعات در پنجره دیگری تغییر کرده است. ابتدا تازه‌سازی کنید. / Workspace changed in another tab. Reload before saving.'},409);
  const previous=workspaceSchema.parse(JSON.parse(row.data)),policy=await commissionPolicy(id);
+ const contactChanged=parsed.data.profile.email!==previous.profile.email||parsed.data.profile.phone!==previous.profile.phone;if(body.requireContact===true||contactChanged){const contact=profileContact(parsed.data.profile.email,parsed.data.profile.phone);if(!contact.valid)return json({error:'ایمیل و شماره موبایل معتبر الزامی است. / A valid email and mobile number are required.'},400);Object.assign(parsed.data.profile,contact.value);}
  try{validateWorkspace(parsed.data,previous)}catch(e){return json({error:(e as Error).message},400)}
  const canonical=normalizeFinance({...parsed.data,sessions:parsed.data.sessions.map(s=>previous.sessions.find(old=>old.id===s.id)?.paid?s:{...s,paid:false,paidAt:''})},policy);
  canonical.sessions=canonical.sessions.map(s=>{const sent=parsed.data.sessions.find(x=>x.id===s.id)!;return {...s,paid:sent.paid,paidAt:sent.paidAt}});

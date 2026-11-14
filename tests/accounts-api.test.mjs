@@ -1,3 +1,4 @@
+import {authCaptcha} from './fixtures/captcha.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {randomBytes} from 'node:crypto';
@@ -20,7 +21,8 @@ test('owner provisions restricted accounts; recovery revokes sessions and site c
   const ownerEmail=siteAccess.match(/const administratorEmail='([^']+)'/)?.[1];
   assert(ownerEmail,'the Sites adapter needs a configured owner for this fixture');
   const admin={'oai-authenticated-user-id':'fixture-owner','oai-authenticated-user-email':ownerEmail};
-  const request=(path,method='GET',body,head={})=>mf.dispatchFetch(origin+path,{method,redirect:'manual',headers:{...head,...(body?{'Content-Type':'application/json',Origin:origin}:{})},...(body?{body:JSON.stringify(body)}:{})});
+  const request=async(path,method='GET',body,head={})=>{const prepared=method==='POST'?await authCaptcha(db,path,body,head):{body,headers:head};return mf.dispatchFetch(origin+path,{method,redirect:'manual',headers:{...prepared.headers,...(body?{'Content-Type':'application/json',Origin:origin}:{})},...(body?{body:JSON.stringify(prepared.body)}:{})})};
+
   const ok=async(r,status=200)=>{assert.equal(r.status,status,await r.clone().text());return r.json()};
   assert.equal((await request('/api/workspace','GET',undefined,admin)).status,401);
   assert.equal((await request('/api/studio','GET',undefined,admin)).status,401);
@@ -41,6 +43,7 @@ test('owner provisions restricted accounts; recovery revokes sessions and site c
   const {id}=await ok(await request('/api/admin/accounts','POST',a,admin),201);
   const list=await ok(await request('/api/admin/accounts','GET',undefined,admin));
   assert.equal(list.accounts[0].phone,'+989121234567');assert(!JSON.stringify(list).includes('password_hash'));assert(!JSON.stringify(list).includes(creds.password));
+  const missingCaptcha=await mf.dispatchFetch(origin+'/api/auth/login',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify(creds)});assert.equal(missingCaptcha.status,403);
   const login=await request('/api/auth/login','POST',creds);
   assert.equal((await ok(login)).next,'/signin?mode=change');
   const temp=login.headers.get('set-cookie');
@@ -55,6 +58,22 @@ test('owner provisions restricted accounts; recovery revokes sessions and site c
   for(const path of ['/api/admin/accounts','/api/admin/teachers','/api/admin/content'])assert.equal((await request(path,'GET',undefined,cookie)).status,403);
   for(const path of ['/api/workspace','/api/studio'])assert.equal((await request(path,'GET',undefined,cookie)).status,401);
   assert.equal((await request('/api/workspace','GET',undefined,{'oai-authenticated-user-id':'unassigned','oai-authenticated-user-email':'unassigned@example.com'})).status,401);
+  const thread=await ok(await request('/api/messages','GET',undefined,cookie));assert.equal(thread.role,'student');assert.equal(thread.studentId,'elena');
+  const ownerThread={...admin};const idMessage=crypto.randomUUID();
+  const teacherHeaders={'oai-authenticated-user-id':'legacy-teacher','oai-authenticated-user-email':'legacy@example.com'};
+  assert.equal((await request('/api/messages?studentId=daniel','GET',undefined,cookie)).status,403);
+  assert.equal((await request('/api/messages','POST',{action:'send',id:idMessage,text:'Forged sender',studentId:'elena',teacherId:'legacy-teacher',sender:'teacher'},cookie)).status,400);
+  const send={action:'send',id:idMessage,studentId:'elena',text:'**Hello learner**'};await ok(await request('/api/messages','POST',send,teacherHeaders),201);
+  await ok(await request('/api/messages','POST',send,teacherHeaders));assert.equal((await request('/api/messages','POST',{...send,text:'Different retry'},teacherHeaders)).status,409);
+  const incoming=await ok(await request('/api/messages','GET',undefined,cookie));assert.equal(incoming.messages.length,1);assert.equal(incoming.messages[0].sender,'teacher');assert.equal(incoming.messages[0].text,send.text);
+  await ok(await request('/api/messages','POST',{action:'read',throughId:idMessage},cookie));
+  const replyId=crypto.randomUUID();await ok(await request('/api/messages','POST',{action:'send',id:replyId,text:'Hello teacher'},cookie),201);
+  const teacherThread=await ok(await request('/api/messages?studentId=elena','GET',undefined,teacherHeaders));assert.equal(teacherThread.messages.length,2);assert(teacherThread.messages[0].readAt);assert.equal(teacherThread.messages[1].sender,'student');
+  const privateAdmin=await ok(await request('/api/messages?teacherId=legacy-teacher&studentId=elena','GET',undefined,admin));assert.equal(privateAdmin.messages.length,2);
+  assert.equal((await request('/api/messages','POST',{action:'send',id:crypto.randomUUID(),studentId:'elena',teacherId:'legacy-teacher',text:'Impersonation'},admin)).status,403);
+  assert.equal((await request('/api/messages','POST',{action:'send',id:crypto.randomUUID(),studentId:'daniel',text:'No linked account'},teacherHeaders)).status,409);
+  assert.equal((await request('/api/messages?studentId=elena&teacherId=someone-else','GET',undefined,teacherHeaders)).status,403);
+  assert.equal((await request('/api/messages')).status,401);
   const {code}=await ok(await request('/api/admin/accounts','PATCH',{id,action:'recovery'},admin));
   const reset={username:creds.username,code,password:fixturePassword()};
   await ok(await request('/api/auth/reset','POST',reset));

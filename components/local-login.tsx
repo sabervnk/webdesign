@@ -1,4 +1,5 @@
 'use client';
+import {LoginCaptcha} from './login-captcha';
 import {useEffect,useState} from 'react';
 import {PasswordField} from '@/components/password-field';
 import {normalizeRecoveryCode} from '@/lib/recovery-policy';
@@ -6,6 +7,7 @@ import {normalizeRecoveryCode} from '@/lib/recovery-policy';
 type Step='login'|'request'|'verify'|'new-password'|'change'|'manual';
 type Reply={next?:string;reset?:boolean;error?:string;message?:string;challenge?:string;grant?:string;resendAfter?:number};
 export default function LocalLogin({initial,forced}:{initial:'login'|'reset'|'change',forced:boolean}){
+ const [captcha,setCaptcha]=useState({captchaId:'',captchaCode:''}),[captchaReset,setCaptchaReset]=useState(0);
  const [step,setStep]=useState<Step>(initial==='reset'?'request':initial);
  const [busy,setBusy]=useState(false),[message,setMessage]=useState(''),[email,setEmail]=useState(''),[code,setCode]=useState('');
  const [challenge,setChallenge]=useState(''),[grant,setGrant]=useState(''),[deadline,setDeadline]=useState(0),[remaining,setRemaining]=useState(0);
@@ -17,7 +19,7 @@ export default function LocalLogin({initial,forced}:{initial:'login'|'reset'|'ch
  const titles:Record<Step,string>={login:'ورود به حساب Classer',request:'بازیابی رمز عبور',verify:'تأیید کد بازیابی','new-password':'تعیین رمز جدید',change:'تغییر رمز عبور',manual:'بازیابی با کد مدیر'};
  const help=step==='request'?'ایمیلی را وارد کنید که هنگام ساخت حساب در سایت ثبت شده است.':step==='verify'?'کد ۶رقمی ایمیل را وارد کنید. کد تا ۱۰ دقیقه معتبر است و حداکثر ۵ بار می‌توانید آن را امتحان کنید.':step==='new-password'?'ایمیل تأیید شد. تا ۵ دقیقه فرصت دارید رمز تازه تعیین کنید.':step==='manual'?'این بخش فقط برای کد بلند بازیابی است که مدیر شخصاً به شما داده است.':forced?'پیش از ورود به پنل، رمز موقت خود را تغییر دهید.':'با نام کاربری و رمزی که مدیر سایت ساخته وارد شوید؛ حساب ChatGPT لازم نیست.';
  async function call(action:string,body:Record<string,unknown>){
-  const r=await fetch('/api/auth/'+action,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const r=await fetch('/api/auth/'+action,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...body,...(['login','reset','recovery-request'].includes(action)?captcha:{})})});
   const j=await r.json() as Reply;
   if(!r.ok)throw Error(j.error||'عملیات انجام نشد.');
   return j;
@@ -29,10 +31,8 @@ export default function LocalLogin({initial,forced}:{initial:'login'|'reset'|'ch
   setDeadline(Date.now()+(j.resendAfter??60)*1000);setStep('verify');setMessage(j.message??'ایمیل و پوشهٔ هرزنامه را بررسی کنید.');
  }
  function begin(){setChallenge('');setGrant('');setCode('');setStep('request');setMessage('')}
- async function resend(){
-  setBusy(true);setMessage('');
-  try{await requestCode()}catch(e){setMessage((e as Error).message)}finally{setBusy(false)}
- }
+ function resend(){setStep('request');setMessage('برای ارسال دوباره، تصویر امنیتی تازه را وارد کنید.');setCaptchaReset(v=>v+1)}
+
  async function submit(e:React.FormEvent<HTMLFormElement>){
   e.preventDefault();setBusy(true);setMessage('');
   try{
@@ -60,8 +60,9 @@ export default function LocalLogin({initial,forced}:{initial:'login'|'reset'|'ch
  {step==='manual'&&<label className="field">کد بازیابی مدیر<input name="code" dir="ltr" autoComplete="one-time-code" required minLength={64} maxLength={64}/></label>}
  {step==='change'&&!forced&&<label className="field">رمز فعلی<input name="current" type="password" dir="ltr" autoComplete="current-password" required maxLength={128}/></label>}
  {step==='login'?<label className="field">رمز عبور<input name="password" dir="ltr" type="password" autoComplete="current-password" required minLength={1} maxLength={128}/></label>:(step==='new-password'||step==='change'||step==='manual')&&<PasswordField label="رمز جدید"/>}
+ {(step==='login'||step==='manual'||step==='request')&&<><div className="auth-honeypot" aria-hidden="true"><label>Website<input name="website" type="text" tabIndex={-1} autoComplete="off"/></label></div><LoginCaptcha key={step} reset={captchaReset} onChange={setCaptcha}/></>}
  {message&&<p role="status" className="status-help">{message}</p>}
- <button className="btn primary" disabled={busy||(step==='request'&&remaining>0)}>{busy?'لطفاً صبر کنید…':step==='request'?(remaining>0?'ارسال دوباره تا '+remaining+' ثانیهٔ دیگر':'ارسال کد به ایمیل'):step==='verify'?'تأیید کد':step==='new-password'?'ذخیرهٔ رمز جدید':titles[step]}</button>
+ <button className="btn primary" disabled={busy||(step==='request'&&remaining>0)||((step==='login'||step==='request'||step==='manual')&&(!captcha.captchaId||captcha.captchaCode.length!==6))}>{busy?'لطفاً صبر کنید…':step==='request'?(remaining>0?'ارسال دوباره تا '+remaining+' ثانیهٔ دیگر':'ارسال کد به ایمیل'):step==='verify'?'تأیید کد':step==='new-password'?'ذخیرهٔ رمز جدید':titles[step]}</button>
  {step==='verify'&&<div className="account-fields"><button type="button" className="btn" disabled={busy||remaining>0} onClick={()=>void resend()}>{remaining>0?'ارسال مجدد تا '+remaining+' ثانیهٔ دیگر':'ارسال مجدد کد'}</button><button type="button" className="text-link" disabled={busy} onClick={begin}>اصلاح آدرس ایمیل</button></div>}
  {step==='new-password'&&<button type="button" className="text-link" disabled={busy} onClick={begin}>شروع دوبارهٔ بازیابی</button>}
  {step==='login'?<button type="button" className="text-link" disabled={busy} onClick={begin}>رمز عبور را فراموش کرده‌ام</button>:<a className="text-link" href="/signin">بازگشت به ورود</a>}

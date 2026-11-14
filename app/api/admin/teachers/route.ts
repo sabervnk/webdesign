@@ -1,3 +1,4 @@
+import {profileContact} from '@/lib/profile-contact';
 import {normalizeFinance} from '@/lib/finance';
 import {commissionPolicy,financialWorkspace} from '@/lib/server/finance';
 import {ownedArticleMedia} from '@/lib/server/blog-media';
@@ -63,6 +64,7 @@ export async function PUT(r:Request){
    const prev=await db.prepare('SELECT data,version FROM teacher_workspaces WHERE owner_id=?').bind(b.id).first<RecordRow>();
    if(!prev||prev.version!==b.version)return json({error:'پرونده تغییر کرده؛ دوباره باز کنید.'},409);
    const previous=workspaceSchema.parse(JSON.parse(prev.data)),policy=await commissionPolicy(b.id);
+ const contactChanged=p.data.profile.email!==previous.profile.email||p.data.profile.phone!==previous.profile.phone;if(false||contactChanged){const contact=profileContact(p.data.profile.email,p.data.profile.phone);if(!contact.valid)return json({error:'ایمیل و شماره موبایل معتبر الزامی است. / A valid email and mobile number are required.'},400);Object.assign(p.data.profile,contact.value);}
    try{validateWorkspace(p.data,previous)}catch(e){return json({error:(e as Error).message},400)}
    const canonical=normalizeFinance({...p.data,sessions:p.data.sessions.map(s=>previous.sessions.find(o=>o.id===s.id)?.paid?s:{...s,paid:false,paidAt:''})},policy);canonical.sessions=canonical.sessions.map(s=>{const submitted=p.data.sessions.find(x=>x.id===s.id)!;return {...s,paid:submitted.paid,paidAt:submitted.paidAt}});
    if(canonical.students.some(s=>s.sourceInquiryId!==previous.students.find(o=>o.id===s.id)?.sourceInquiryId))return json({error:'Referral links are server managed.'},400);

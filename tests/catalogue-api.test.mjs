@@ -20,7 +20,7 @@ test('portfolios, articles, enquiries and admin access preserve ownership and qu
   assert.equal(settings.status,307);
   assert.equal(new URL(settings.headers.get('location'),'https://mahela-classroom.lahzehtv.chatgpt.site').pathname+new URL(settings.headers.get('location'),'https://mahela-classroom.lahzehtv.chatgpt.site').search,'/studio?tab=account');
   const workspace=await ok(await req('/api/workspace','teacher-a'));
-  workspace.data.demo=false;workspace.data.profile.name='Private Account Name';workspace.data.profile.email='private@example.com';
+  workspace.data.demo=false;workspace.data.profile.name='Private Account Name';workspace.data.profile.email='private@example.com';workspace.data.profile.phone='+989121234567';
   await ok(await req('/api/workspace','teacher-a','PUT',workspace));
   const studio=await ok(await req('/api/studio','teacher-a'));
   assert.equal(studio.profile.published,false);

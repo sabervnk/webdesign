@@ -1,3 +1,4 @@
+import {authCaptcha} from './fixtures/captcha.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import * as moduleHooks from 'node:module';
@@ -29,7 +30,8 @@ test('HTTP recovery flow uses the registered email, enforces origin and config, 
  const {db,sqlite}=recoveryDatabase(),emails=[];
  const oldTarget=process.env.NEXT_PUBLIC_HOSTING_TARGET;delete process.env.NEXT_PUBLIC_HOSTING_TARGET;
  globalThis.__recoveryHttp={db,config:null};
- const request=(action,body,headers={Origin:origin})=>POST(new Request(origin+'/api/auth/'+action,{method:'POST',headers:{'Content-Type':'application/json','cf-connecting-ip':'192.0.2.44',...headers},body:JSON.stringify(body)}),{params:Promise.resolve({action})});
+ const request=async(action,body,headers={Origin:origin})=>{const prepared=await authCaptcha(db,action,body,headers);return POST(new Request(origin+'/api/auth/'+action,{method:'POST',headers:{'Content-Type':'application/json','cf-connecting-ip':'192.0.2.44',...prepared.headers},body:JSON.stringify(prepared.body)}),{params:Promise.resolve({action})})};
+
  t.mock.method(globalThis,'fetch',async(url,init)=>{
   assert.equal(url,'https://api.resend.com/emails');emails.push(JSON.parse(init.body));return Response.json({id:'fixture-email'});
  });

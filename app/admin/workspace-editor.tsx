@@ -1,4 +1,5 @@
 'use client';
+import {TeacherMessenger} from '@/components/direct-messenger';
 import {SessionNotebook} from '@/components/session-notebook';
 import {FeeBreakdown} from '@/components/fee-breakdown';
 import {sessionNotes,withSessionNotes} from '@/lib/session-notes';
@@ -52,7 +53,7 @@ function Records<T extends {id:string}>({rows,title,subtitle,empty,children}:{ro
  {filtered.length>limit&&<button className="btn" type="button" onClick={()=>setLimit(l=>l+20)}>نمایش موارد بیشتر ({filtered.length-limit})</button>}
  </div>;
 }
-export function WorkspaceEditor({data,version,onSave}:{data:Workspace;version:number;onSave:(data:Workspace,version:number)=>Promise<void>}){
+export function WorkspaceEditor({data,version,onSave,ownerId}:{ownerId?:string;data:Workspace;version:number;onSave:(data:Workspace,version:number)=>Promise<void>}){
  const [tab,setTab]=useState<Tab>('profile');
  const roster=data.students.map(s=>[s.id,s.name] as const);
  const names=new Map(roster);
@@ -63,7 +64,7 @@ export function WorkspaceEditor({data,version,onSave}:{data:Workspace;version:nu
  {tab==='profile'&&<RecordForm value={data.profile} save={profile=>save({profile})} fields={(p,set)=><div className="form-grid">
  <Field label="نام نمایشی" value={p.name} onChange={name=>set({name})} required max={100}/><Field label="نام فارسی" value={p.nameFa} onChange={nameFa=>set({nameFa})} max={100}/><Field label="نام انگلیسی" value={p.nameEn} onChange={nameEn=>set({nameEn})} max={100}/>
  <Select label="جنسیت" value={p.gender??'unspecified'} onChange={gender=>set({gender})} items={[[ 'unspecified','ثبت نشده'],['man','آقا'],['woman','خانم'],['other','دیگر']]}/>
- <Field label="ایمیل" type="email" value={p.email} onChange={email=>set({email})} max={200}/><Field label="شماره تماس" type="tel" value={p.phone} onChange={phone=>set({phone})} max={30}/>
+ <Field label="ایمیل" type="email" required value={p.email} onChange={email=>set({email})} max={200}/><Field label="شماره تماس" type="tel" required value={p.phone} onChange={phone=>set({phone})} max={30}/>
  <Field label="تخصص" value={p.specialization} onChange={specialization=>set({specialization})} max={100}/><Field label="تخصص به انگلیسی" value={p.specializationEn} onChange={specializationEn=>set({specializationEn})} max={100}/>
  <Select label="تقویم" value={p.calendar} onChange={calendar=>set({calendar})} items={[[ 'auto','خودکار'],['persian','شمسی'],['gregory','میلادی']]}/><Select label="ارز پیش‌فرض" value={p.currency} onChange={currency=>set({currency})} items={currencies}/>
  <Field label="معرفی" value={p.bio} onChange={bio=>set({bio})} area max={1500}/>
@@ -83,7 +84,7 @@ export function WorkspaceEditor({data,version,onSave}:{data:Workspace;version:nu
  </div>}/></>}</Records>}
  {tab==='memos'&&<Records key="memos" rows={data.memos??[]} title={m=>m.title} subtitle={m=>m.updatedAt} empty="یادداشتی ثبت نشده است.">{m=><RecordForm value={m} save={v=>save({memos:data.memos.map(x=>x.id===v.id?{...v,updatedAt:new Date().toISOString()}:x)})} fields={(p,set)=><><Field label="عنوان یادداشت" value={p.title} max={120} required onChange={title=>set({title})}/><Field label="متن یادداشت" value={p.body} area max={10000} required onChange={body=>set({body})}/><Check label="سنجاق‌شده" value={p.pinned} onChange={pinned=>set({pinned})}/></>}/>}</Records>}
  {tab==='assessments'&&<Records key="assessments" rows={data.assessments} title={a=>studentName(a.studentId)} subtitle={a=>[displayDate(a.date),a.note.slice(0,95)].filter(Boolean).join(' · ')} empty="ارزیابی‌ای ثبت نشده است.">{a=><RecordForm value={a} save={v=>save({assessments:data.assessments.map(x=>x.id===v.id?v:x)})} fields={(p,set)=><><div className="form-grid"><Select label="زبان‌آموز" value={p.studentId} onChange={studentId=>set({studentId})} items={roster}/><Field label="تاریخ ارزیابی" type="date" value={displayDate(p.date)} onChange={v=>set({date:inputTimestamp(p.date,v)})} required/></div><Scores skills={p.skills} set={skills=>set({skills})}/><Field label="بازخورد" value={p.note} onChange={note=>set({note})} area max={2000}/></>}/>}</Records>}
- {tab==='messages'&&<Records key="messages" rows={data.messages} title={m=>studentName(m.studentId)} subtitle={m=>[displayDate(m.date),m.direction==='in'?'دریافتی':'ارسالی',m.text.slice(0,95)].join(' · ')} empty="پیامی ثبت نشده است.">{m=><RecordForm value={m} save={v=>save({messages:data.messages.map(x=>x.id===v.id?v:x)})} fields={(p,set)=><><div className="form-grid"><Select label="زبان‌آموز" value={p.studentId} onChange={studentId=>set({studentId})} items={roster}/><Select label="نوع پیام" value={p.direction} onChange={direction=>set({direction})} items={[[ 'in','دریافتی'],['out','ارسالی']]}/><Field label="تاریخ پیام" type="date" value={displayDate(p.date)} onChange={v=>set({date:inputTimestamp(p.date,v)})} required/></div><Field label="متن پیام" value={p.text} onChange={text=>set({text})} area required max={4000}/></>}/>}</Records>}
+ {tab==='messages'&&ownerId&&<TeacherMessenger students={data.students} teacherId={ownerId} legacy={data.messages}/>}
  </div>;
 }
 

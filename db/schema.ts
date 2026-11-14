@@ -42,3 +42,7 @@ export const translations=sqliteTable('classer_translations',{id:text('id').prim
 export const translationLimits=sqliteTable('classer_translation_limits',{id:text('id').primaryKey(),count:integer('count').notNull().default(0)});
 
 export const administratorIds=sqliteTable('classer_administrator_ids',{ownerId:text('owner_id').primaryKey()});
+
+export const directMessages=sqliteTable('classer_direct_messages',{id:text('id').primaryKey(),teacherId:text('teacher_id').notNull(),studentId:text('student_id').notNull(),senderId:text('sender_id').notNull(),senderRole:text('sender_role').notNull(),body:text('body').notNull(),createdAt:text('created_at').notNull(),teacherReadAt:text('teacher_read_at'),studentReadAt:text('student_read_at')},t=>[index('direct_messages_thread_idx').on(t.teacherId,t.studentId,t.createdAt,t.id)]);
+export const captchaChallenges=sqliteTable('classer_captchas',{id:text('id').primaryKey(),answerHash:text('answer_hash').notNull(),bindingHash:text('binding_hash').notNull(),expires:integer('expires').notNull()});
+export const securityLimits=sqliteTable('classer_security_limits',{id:text('id').primaryKey(),count:integer('count').notNull(),expires:integer('expires').notNull()});

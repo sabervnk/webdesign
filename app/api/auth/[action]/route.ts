@@ -1,3 +1,4 @@
+import {captchaLimit,consumeCaptcha} from '@/lib/captcha-policy';
 import {getRecoveryMailConfig} from '@platform/recovery-config';
 import {createEmailRecovery,RecoveryRateLimit} from '@/lib/server/email-recovery';
 import {recoveryEmailSender} from '@/lib/server/recovery-mail';
@@ -22,7 +23,9 @@ export async function POST(r:Request,{params}:{params:Promise<{action:string}>})
    if(token)await db.prepare('DELETE FROM classer_sessions WHERE token=?').bind(await digest(token)).run();
    return withCookie({next:'/signin'},expiredCookie());
   }
-  const b=await payload(r,2500),password=typeof b.password==='string'?b.password:'';
+  const b=await payload(r,2500);
+  if(['login','reset','recovery-request'].includes(action)){if(!await captchaLimit(db,'auth-gate:'+(r.headers.get('cf-connecting-ip')??'unknown'),100,900))return json({error:'Too many requests.'},429);if(b.website||!await consumeCaptcha(db,r,b.captchaId,b.captchaCode))return json({error:'کد تصویر امنیتی معتبر نیست یا منقضی شده؛ تصویر تازه بگیرید. / Invalid or expired security image.'},403)}
+  const password=typeof b.password==='string'?b.password:'';
   if(['recovery-request','recovery-verify','recovery-reset'].includes(action)){
    const config=getRecoveryMailConfig();
    if(!config)return json({error:'ارسال ایمیل بازیابی هنوز فعال نشده است. با مدیر سایت تماس بگیرید.'},503);
