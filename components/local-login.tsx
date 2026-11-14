@@ -50,7 +50,7 @@ export default function LocalLogin({initial,forced}:{initial:'login'|'reset'|'ch
     setMessage('رمز تغییر کرد و ورودهای قبلی پایان یافتند. با نام کاربری و رمز جدید وارد شوید.');return;
    }
    if(j.next?.startsWith('/')&&!j.next.startsWith('//'))window.location.assign(j.next);
-  }catch(e){setMessage((e as Error).message)}finally{setBusy(false)}
+  }catch(e){setMessage((e as Error).message)}finally{setBusy(false);if(step==='login'||step==='manual'||step==='request')setCaptchaReset(v=>v+1)}
  }
  return <main className="classer-login local-account-login"><header className="local-login-brand"><a href="/">Class<span>er</span>.</a><p>ورود امن به حساب شما</p></header><section className="panel"><div className="panel-head"><div><h1>{titles[step]}</h1><p>{help}</p></div></div>
  <form className="panel-body account-fields" key={step} onSubmit={submit}>
