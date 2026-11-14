@@ -6,6 +6,7 @@ import './globals.css';
 import './public.css';
 import './workspace-responsive.css';
 import './admin-design.css';
+import './profile-layout.css';
 const fallback:Metadata={title:'Classer — معلم زبان، همراه مسیر تو',description:'پرتفولیوی معلم‌های زبان را ببینید، هزینه کلاس آنلاین و حضوری را مقایسه کنید و نوشته‌های آموزشی معلم‌ها را بخوانید.',icons:{icon:'/favicon.svg'}};
 export async function generateMetadata():Promise<Metadata>{
  const {values}=await loadSiteCopy();

@@ -814,5 +814,7 @@
   "آرشیو": "Archive",
   "آرشیوشده": "Archived",
   "بازگردانی از آرشیو": "Restore from archive",
-  "ذخیره در آرشیو": "Save in archive"
+  "ذخیره در آرشیو": "Save in archive",
+  "عکس و جنسیتِ انتخابی در پروفایل عمومی نمایش داده می‌شوند؛ ایمیل و تلفن خصوصی می‌مانند.": "Your photo and selected gender appear on your public profile. Email and phone stay private.",
+  "اطلاعات خصوصی ذخیره شد، اما ذخیرهٔ جنسیت کامل نشد؛ دوباره تلاش کنید.": "Private details were saved, but the gender update did not finish. Please retry."
 }

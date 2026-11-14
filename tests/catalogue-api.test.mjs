@@ -170,5 +170,15 @@ test('portfolios, articles, enquiries and admin access preserve ownership and qu
   const older=await req('/teachers/cap-0');assert.equal(older.status,200);assert((await older.text()).includes('Older teacher article'));
   const olderPost=await req('/blog/cap-post');assert.equal(olderPost.status,200);assert((await olderPost.text()).includes('Teacher 0'));
 
+  const beforeGender=(await ok(await req('/api/studio','teacher-a'))).profile;
+  const changedGender=await ok(await req('/api/studio/profile','teacher-a','PATCH',{version:beforeGender.version,gender:'other'}));
+  const afterGender=(await ok(await req('/api/studio','teacher-a'))).profile;
+  assert.equal(afterGender.gender,'other');assert.equal(afterGender.version,changedGender.version);
+  for(const field of ['name','bio','headline','published','currency','rate'])assert.deepEqual(afterGender[field],beforeGender[field],'gender save must preserve '+field);
+  assert.equal((await req('/api/studio/profile','teacher-a','PATCH',{version:beforeGender.version,gender:'woman'})).status,409);
+  assert.equal((await req('/api/studio/profile','teacher-a','PATCH',{version:afterGender.version,gender:'invalid'})).status,400);
+  assert.equal((await req('/api/studio/profile','teacher-a','PATCH',{version:afterGender.version,gender:'woman',published:true})).status,400);
+  assert.equal((await req('/api/studio/profile','admin','PATCH',{version:afterGender.version,gender:'woman'})).status,401);
+  const privateRoster=await ok(await req('/api/workspace','teacher-a'));assert.equal(privateRoster.data.profile.gender,undefined,'private values are not silently promoted to public gender');
  }finally{await mf.dispose()}
 });
