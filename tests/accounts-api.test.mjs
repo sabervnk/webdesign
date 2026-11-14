@@ -164,7 +164,8 @@ test('owner provisions restricted accounts; recovery revokes sessions and site c
   book=await ok(await request('/api/workspace','GET',undefined,teacherCookie));assert.equal(book.data.sessions[0].commissionPercent,32.5,'paid share remains immutable');
   book.data.sessions[0].notes=[{id:crypto.randomUUID(),text:'Separate dated note',createdAt:new Date().toISOString()}];
   book=await ok(await request('/api/workspace','PUT',{version:book.version,data:book.data},teacherCookie));assert.equal(book.data.sessions[0].notes.length,1);
-  const report=await ok(await request('/api/admin/finance','GET',undefined,admin));const row=report.teachers.find(t=>t.id===teacherCreated.id).sessions[0];assert.equal(row.split.admin,row.rate*.2);assert(!JSON.stringify(report).includes('Separate dated note'));
+  assert.equal((await request('/api/admin/finance','PUT',{ownerId:teacherCreated.id,percent:50,version:3,students:{},sessions:{[classId]:10}},limited)).status,409,'settled class commission cannot be rewritten');
+  const report=await ok(await request('/api/admin/finance','GET',undefined,admin));const row=report.teachers.find(t=>t.id===teacherCreated.id).sessions[0];assert.equal(row.split.admin,Math.round(row.rate*.325));assert(!JSON.stringify(report).includes('Separate dated note'));
 
   const t=await ok(await request('/api/admin/teachers?id=legacy-teacher','GET',undefined,admin));
   assert.equal(t.workspace.data.students.length,w.students.length);

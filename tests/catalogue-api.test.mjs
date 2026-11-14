@@ -14,8 +14,9 @@ test('portfolios, articles, enquiries and admin access preserve ownership and qu
   for(const id of ['teacher-a','teacher-b'])await db.prepare('INSERT INTO teacher_workspaces VALUES(?,?,1,?)').bind(id,JSON.stringify(sampleWorkspace('2026-11-10')),new Date().toISOString()).run();
   const req=(path,user,method='GET',body)=>mf.dispatchFetch('https://mahela-classroom.lahzehtv.chatgpt.site'+path,{method,headers:{...(user?{'oai-authenticated-user-id':user,'oai-authenticated-user-email':user==='admin'?'lahzetv@gmail.com':user+'@example.com'}:{}),...(body?{'Content-Type':'application/json',Origin:'https://mahela-classroom.lahzehtv.chatgpt.site'}:{})},...(body?{body:JSON.stringify(body)}:{})});
   const ok=async(response,status=200)=>{assert.equal(response.status,status,await response.clone().text());return response.json()};
-  for(const path of ['/','/teachers','/blog','/contact','/teachers/sample-sara','/blog/sample-small-steps'])assert.equal((await req(path)).status,200,path);
+  for(const path of ['/','/teachers','/blog','/contact'])assert.equal((await req(path)).status,200,path);
   assert.equal((await req('/api/studio')).status,401);
+  for(const path of ['/teachers/sample-sara','/blog/sample-small-steps'])assert.equal((await req(path)).status,404,'sample records are never substituted for real records');
   const settings=await mf.dispatchFetch('https://mahela-classroom.lahzehtv.chatgpt.site/settings',{redirect:'manual'});
   assert.equal(settings.status,307);
   assert.equal(new URL(settings.headers.get('location'),'https://mahela-classroom.lahzehtv.chatgpt.site').pathname+new URL(settings.headers.get('location'),'https://mahela-classroom.lahzehtv.chatgpt.site').search,'/studio?tab=account');
@@ -24,7 +25,7 @@ test('portfolios, articles, enquiries and admin access preserve ownership and qu
   await ok(await req('/api/workspace','teacher-a','PUT',workspace));
   const studio=await ok(await req('/api/studio','teacher-a'));
   assert.equal(studio.profile.published,false);
-  assert.equal((await ok(await req('/api/catalogue'))).teachers.length,0);
+  const pendingCatalogue=await ok(await req('/api/catalogue'));assert.equal(pendingCatalogue.teachers.length,1);assert.equal(pendingCatalogue.teachers[0].directoryOnly,true);assert(!JSON.stringify(pendingCatalogue).includes('private@example.com'));assert.deepEqual(pendingCatalogue.teachers[0].offers,[]);
   const profile={...studio.profile,gender:'woman',name:'معلم آزمایشی',headline:'تمرین مکالمه انگلیسی',educationLevel:'bachelor',educationField:'English literature',certificateItems:['Teaching diploma',' '],specialtyItems:['Interview, exam and travel practice'],bio:'معرفی واقعی برای بررسی مسیر انتشار پرتفولیو و ارائه کلاس‌های زبان با تمرین و بازخورد آموزشی.',published:true,currency:'USD',rate:24.99,languages:['en'],formats:['online']};
   await ok(await req('/api/studio/profile','teacher-a','PUT',{profile,version:1}));
   let listing=await ok(await req('/api/catalogue'));
