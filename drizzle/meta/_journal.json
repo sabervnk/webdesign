@@ -85,6 +85,13 @@
       "when": 1794682800001,
       "tag": "0011_owner_login_cleanup",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1794682800002,
+      "tag": "0012_remove_old_owner_workspace",
+      "breakpoints": true
     }
   ]
 }

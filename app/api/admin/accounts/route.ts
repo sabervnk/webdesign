@@ -21,7 +21,10 @@ export async function GET(r:Request){
  const u=await identity(r);if(!u?.isAdmin)return forbidden();
  if(superAdministrator(u))await drainMedia();
  const a=await database().prepare('SELECT id,username,name,email,phone,role,active,must_change,teacher_id,student_id,created_at FROM classer_accounts ORDER BY created_at DESC LIMIT 1000').all();
- return json({accounts:a.results});
+ const legacy=await database().prepare(`WITH owners AS (SELECT owner_id AS id FROM teacher_workspaces UNION SELECT owner_id FROM teacher_public_profiles)
+ SELECT owners.id,'' AS username,COALESCE(json_extract(w.data,'$.profile.name'),json_extract(p.data,'$.name'),owners.id) AS name,COALESCE(json_extract(w.data,'$.profile.email'),'') AS email,COALESCE(json_extract(w.data,'$.profile.phone'),'') AS phone,'teacher' AS role,1 AS active,0 AS must_change,NULL AS teacher_id,NULL AS student_id,1 AS legacy
+ FROM owners LEFT JOIN teacher_workspaces w ON w.owner_id=owners.id LEFT JOIN teacher_public_profiles p ON p.owner_id=owners.id WHERE NOT EXISTS(SELECT 1 FROM classer_accounts a WHERE a.id=owners.id) AND NOT EXISTS(SELECT 1 FROM classer_administrator_ids r WHERE r.owner_id=owners.id) LIMIT 1000`).all();
+ return json({accounts:[...a.results,...legacy.results]});
 }
 export async function DELETE(r:Request){
  const u=await identity(r);if(!superAdministrator(u)||!u||!validOrigin(r))return forbidden();

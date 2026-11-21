@@ -16,7 +16,7 @@ export async function GET(r:Request){
  if(!id){
   const rows=await db.prepare(`WITH owners AS (SELECT owner_id AS id FROM teacher_workspaces UNION SELECT owner_id FROM teacher_public_profiles UNION SELECT id FROM classer_accounts WHERE role='teacher')
    SELECT owners.id,COALESCE(NULLIF(json_extract(p.data,'$.name'),''),a.name,json_extract(w.data,'$.profile.name'),owners.id) AS name,COALESCE(p.published,0) AS published,a.username,a.email,a.phone,a.active,CASE WHEN a.id IS NULL THEN 0 ELSE 1 END AS hasAccount,CASE WHEN a.role='admin' OR EXISTS(SELECT 1 FROM classer_administrator_ids r WHERE r.owner_id=owners.id) THEN 'admin-legacy' ELSE 'teacher' END AS kind
-   FROM owners LEFT JOIN teacher_workspaces w ON w.owner_id=owners.id LEFT JOIN teacher_public_profiles p ON p.owner_id=owners.id LEFT JOIN classer_accounts a ON a.id=owners.id ORDER BY name LIMIT 1000`).all();
+   FROM owners LEFT JOIN teacher_workspaces w ON w.owner_id=owners.id LEFT JOIN teacher_public_profiles p ON p.owner_id=owners.id LEFT JOIN classer_accounts a ON a.id=owners.id WHERE NOT EXISTS(SELECT 1 FROM classer_administrator_ids r WHERE r.owner_id=owners.id) AND (a.id IS NULL OR a.role='teacher') ORDER BY name LIMIT 1000`).all();
   return json({teachers:rows.results});
  }
  if(id.length>160)return json({},400);

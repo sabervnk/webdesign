@@ -29,9 +29,9 @@ test('owner provisions restricted accounts; recovery revokes sessions and site c
   const ownerDashboard=await request('/dashboard','GET',undefined,admin);assert.equal(ownerDashboard.status,307);assert.equal(new URL(ownerDashboard.headers.get('location'),origin).pathname,'/admin');
   assert.equal((await db.prepare('SELECT count(*) AS count FROM teacher_workspaces WHERE owner_id=?').bind('fixture-owner').first()).count,0,'admin sign-in never creates a teacher workspace');
   await db.prepare('INSERT INTO teacher_workspaces VALUES(?,?,1,?)').bind('fixture-owner',JSON.stringify(w),new Date().toISOString()).run();
-  const adminRecords=await ok(await request('/api/admin/teachers','GET',undefined,admin));assert.equal(adminRecords.teachers.find(t=>t.id==='fixture-owner').kind,'admin-legacy');
+  const adminRecords=await ok(await request('/api/admin/teachers','GET',undefined,admin));assert(!adminRecords.teachers.some(t=>t.id==='fixture-owner'),'owner workspace must never appear as a teacher');const unified=await (await request('/api/admin/accounts','GET',undefined,admin)).json();assert(unified.accounts.some(t=>t.id==='legacy-teacher'&&t.role==='teacher'&&t.legacy));assert(!unified.accounts.some(t=>t.id==='fixture-owner'));
   assert.equal((await request('/api/workspace','GET',undefined,admin)).status,401,'old workspace does not confer a teacher role');
-  const signin=await request('/signin');assert.equal(signin.status,200);assert((await signin.text()).includes('name="username"'));
+  assert.equal((await request('/admin/content','GET',undefined,admin)).status,200);assert.equal((await request('/admin/content')).status,307);const signin=await request('/signin');assert.equal(signin.status,200);assert((await signin.text()).includes('name="username"'));
   const privatePage=await request('/dashboard');assert.equal(privatePage.status,307);assert(new URL(privatePage.headers.get('location'),origin).pathname==='/signin');
   const creds={username:'test-student',password:shortFixture()};
   const a={...creds,name:'Test learner',email:'learner@example.com',phone:'09121234567',role:'student',teacherId:'legacy-teacher',studentId:'elena',active:true};
