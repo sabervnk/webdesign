@@ -18,5 +18,10 @@ test('one-time reset retains owner and admin and deletes dependent users',()=>{
  for(const row of db.prepare('SELECT data FROM teacher_workspaces').all())for(const key of ['students','sessions','assessments','messages'])assert.deepEqual(JSON.parse(row.data)[key],[]);
  assert.equal(db.prepare('PRAGMA foreign_key_check').all().length,0);
  insert('new-teacher','new-teacher','teacher');assert.equal(db.prepare("SELECT count(*) AS n FROM classer_accounts WHERE role='teacher'").get().n,1);
+ db.exec(fs.readFileSync('drizzle/0011_owner_login_cleanup.sql','utf8').replaceAll('--> statement-breakpoint',''));
+ assert.equal(db.prepare("SELECT count(*) AS n FROM classer_accounts WHERE id='owner'").get().n,0);
+ assert.equal(db.prepare("SELECT count(*) AS n FROM classer_administrator_ids WHERE owner_id='owner'").get().n,1);
+ assert.equal(db.prepare("SELECT count(*) AS n FROM classer_accounts WHERE username='admin'").get().n,1);
+ assert.equal(db.prepare("SELECT count(*) AS n FROM teacher_workspaces WHERE owner_id='owner'").get().n,1);
  db.close();
 });

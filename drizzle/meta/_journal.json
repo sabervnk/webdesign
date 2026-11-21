@@ -78,6 +78,13 @@
       "when": 1794682800000,
       "tag": "0010_owner_requested_reset",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1794682800001,
+      "tag": "0011_owner_login_cleanup",
+      "breakpoints": true
     }
   ]
 }
