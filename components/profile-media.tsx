@@ -99,12 +99,12 @@ export function PhotoCrop({file,t,onClose,onSave}:{file:File,t:Translate,onClose
    <div className="crop-tools">
     <div className="crop-live"><canvas ref={canvas} width={AVATAR_EDGE} height={AVATAR_EDGE} aria-label={t('پیش‌نمایش برش','Crop preview')}/><span>{t('پیش‌نمایش','Preview')}</span></div>
     <label className="crop-size">{t('اندازهٔ قاب','Frame size')}<input dir="ltr" type="range" min={22} max={100} value={Math.round(frame.size*100)} disabled={busy} onChange={e=>resize(Number(e.target.value)/100)}/></label>
-    <button type="button" className="btn crop-reset" disabled={busy} onClick={()=>setFrame(centered(w,h))}><RotateCcw size={16}/>{t('بازنشانی','Reset')}</button>
+    <button type="button" className="btn crop-reset" disabled={busy} onClick={()=>setFrame(centered(w,h))} data-action="warning"><RotateCcw size={16}/>{t('بازنشانی','Reset')}</button>
    </div>
   </div>}
   {!image&&!error&&<p role="status" className="small muted">{t('در حال آماده‌سازی عکس…','Opening your photo…')}</p>}
   {error&&<p className="form-error" role="alert">{error}</p>}
-  <div className="form-actions"><button type="button" className="btn" onClick={onClose} disabled={busy}>{t('انصراف','Cancel')}</button><button type="button" className="btn primary" onClick={save} disabled={!image||busy}>{busy?t('در حال ذخیره…','Saving…'):t('ذخیرهٔ عکس','Save photo')}</button></div>
+  <div className="form-actions"><button type="button" className="btn" onClick={onClose} disabled={busy} data-action="neutral">{t('انصراف','Cancel')}</button><button type="button" className="btn primary" onClick={save} disabled={!image||busy} data-action="save">{busy?t('در حال ذخیره…','Saving…'):t('ذخیرهٔ عکس','Save photo')}</button></div>
  </DialogContent></Dialog>
 }
 type Clip={url:string,visible:boolean};
@@ -140,7 +140,7 @@ export function TeacherVideoSettings({t,published}:{t:Translate,published:boolea
    <label className="field">{video?t('جایگزینی ویدئو','Replace video'):t('انتخاب ویدئو','Choose video')}<input type="file" accept="video/mp4,.mp4" disabled={busy} onChange={e=>{const f=e.currentTarget.files?.[0];e.currentTarget.value='';if(!f)return;setStatus('');if(f.size>VIDEO_MAX||(!f.name.toLowerCase().endsWith('.mp4')&&f.type!=='video/mp4')){setError(t('فایل MP4 حداکثر ۲۴ مگابایت انتخاب کنید.','Choose an MP4 up to 24 MB.'));return}void change('POST',f)}}/></label>
    <p className="small muted">{t('MP4، حداکثر ۵ دقیقه و ۲۴ مگابایت. برای پخش بهتر H.264 پیشنهاد می‌شود. ویدئوی تازه ابتدا پنهان است.','MP4, up to 5 minutes and 24 MB. H.264 is recommended. New uploads start hidden.')}</p>
    {video&&<label className="video-visibility"><input type="checkbox" checked={video.visible} disabled={busy} onChange={e=>void change('PATCH',JSON.stringify({visible:e.target.checked,url:video.url}))}/>{t('ویدئو در پروفایل منتشرشده نمایش داده شود','Show video on my published profile')}</label>}
-   {video&&<div className="video-delete-actions">{confirmDelete?<><span className="small">{t('ویدئوی معرفی حذف شود؟','Remove the introduction video?')}</span><button className="btn compact danger" type="button" disabled={busy} onClick={()=>void change('DELETE',JSON.stringify({url:video.url}))}>{t('بله، حذف شود','Yes, remove')}</button><button className="btn compact" type="button" disabled={busy} onClick={()=>setConfirmDelete(false)}>{t('انصراف','Cancel')}</button></>:<button className="btn compact danger" type="button" disabled={busy} onClick={()=>setConfirmDelete(true)}><Trash2 size={16}/>{t('حذف ویدئو','Remove video')}</button>}</div>}
+   {video&&<div className="video-delete-actions">{confirmDelete?<><span className="small">{t('ویدئوی معرفی حذف شود؟','Remove the introduction video?')}</span><button className="btn compact danger" type="button" disabled={busy} onClick={()=>void change('DELETE',JSON.stringify({url:video.url}))} data-action="danger">{t('بله، حذف شود','Yes, remove')}</button><button className="btn compact" type="button" disabled={busy} onClick={()=>setConfirmDelete(false)} data-action="neutral">{t('انصراف','Cancel')}</button></>:<button className="btn compact danger" type="button" disabled={busy} onClick={()=>setConfirmDelete(true)} data-action="danger"><Trash2 size={16}/>{t('حذف ویدئو','Remove video')}</button>}</div>}
    {busy&&<p role="status" className="small muted">{t('لطفاً صبر کنید…','Please wait…')}</p>}
    {status&&<p role="status" className="small">{status}</p>}
    {error&&<p role="alert" className="form-error">{error}</p>}

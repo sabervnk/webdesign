@@ -1,4 +1,5 @@
 import {normalizeMobile,mobileValid} from '@/lib/account-contact';
+import {removeIdentity,drainMedia} from '@/lib/server/delete-account';
 import {isVeryWeakPassword} from '@/lib/password-policy';
 import {z} from 'zod';
 import {identity,json,payload,validOrigin,superAdministrator} from '@/lib/server/access';
@@ -17,9 +18,20 @@ async function validStudent(teacherId?:string,studentId?:string){
  return !!row&&!JSON.parse(row.data).demo&&JSON.parse(row.data).students.some((s:{id:string})=>s.id===studentId);
 }
 export async function GET(r:Request){
- if(!(await identity(r))?.isAdmin)return forbidden();
+ const u=await identity(r);if(!u?.isAdmin)return forbidden();
+ if(superAdministrator(u))await drainMedia();
  const a=await database().prepare('SELECT id,username,name,email,phone,role,active,must_change,teacher_id,student_id,created_at FROM classer_accounts ORDER BY created_at DESC LIMIT 1000').all();
  return json({accounts:a.results});
+}
+export async function DELETE(r:Request){
+ const u=await identity(r);if(!superAdministrator(u)||!u||!validOrigin(r))return forbidden();
+ try{
+  const b=await payload(r,2000);
+  if(typeof b.teacherId==='string'&&typeof b.studentId==='string'&&b.teacherId.length<=160&&b.studentId.length<=80&&b.teacherId&&b.studentId){const status=await removeIdentity('',u.id,{teacherId:b.teacherId,studentId:b.studentId});return json({deleted:status===200},status)}
+  if(typeof b.id!=='string'||!b.id||b.id.length>160)return json({},400);
+  const status=await removeIdentity(b.id,u.id);
+  return json(status===200?{deleted:true}:{error:status===403?'حساب مالک یا حساب خودتان قابل حذف نیست.':'کاربر پیدا نشد.'},status);
+ }catch(e){return requestFailure(e,'حذف کاربر انجام نشد. / Could not delete the user.')}
 }
 export async function POST(r:Request){
  const u=await identity(r);if(!u?.isAdmin||!validOrigin(r))return forbidden();

@@ -178,5 +178,34 @@ test('owner provisions restricted accounts; recovery revokes sessions and site c
   assert(paid);
   paid.rate+=1;
   assert.equal((await request('/api/admin/teachers','PUT',{id:'legacy-teacher',kind:'workspace',data:reloaded.workspace.data,version:reloaded.workspace.version},admin)).status,400);
+
+  assert.equal((await request('/api/admin/accounts','DELETE',{id:teacherCreated.id},limited)).status,403);
+  assert.equal((await request('/api/admin/accounts','DELETE',{id:teacherCreated.id},teacherCookie)).status,403);
+  assert.equal((await request('/api/admin/accounts','DELETE',{id:'fixture-owner'},admin)).status,403);
+  await db.exec("CREATE TRIGGER prevent_fixture_delete BEFORE DELETE ON classer_accounts BEGIN SELECT RAISE(ABORT, 'fixture'); END");
+  assert.equal((await request('/api/admin/accounts','DELETE',{id:teacherCreated.id},admin)).status,500);
+  assert(await db.prepare('SELECT 1 FROM teacher_workspaces WHERE owner_id=?').bind(teacherCreated.id).first());
+  assert.equal(await db.prepare('SELECT 1 FROM classer_deleted_identities WHERE owner_id=?').bind(teacherCreated.id).first(),null);
+  await db.exec('DROP TRIGGER prevent_fixture_delete');
+  await ok(await request('/api/admin/accounts','DELETE',{id},admin));
+  const cleaned=JSON.parse((await db.prepare('SELECT data FROM teacher_workspaces WHERE owner_id=?').bind('legacy-teacher').first()).data);
+  for(const key of ['students','sessions','assessments','messages'])assert(!cleaned[key].some(x=>(key==='students'?x.id:x.studentId)==='elena'));
+  assert(cleaned.students.some(x=>x.id==='daniel'));
+  await ok(await request('/api/admin/accounts','DELETE',{teacherId:'legacy-teacher',studentId:'daniel'},admin));
+  const after=JSON.parse((await db.prepare('SELECT data FROM teacher_workspaces WHERE owner_id=?').bind('legacy-teacher').first()).data);assert(!after.students.some(x=>x.id==='daniel'));assert(after.students.some(x=>x.id==='sara'));
+  const learner=await ok(await request('/api/admin/accounts','POST',{username:'linked-delete',name:'Linked student',email:'linked-delete@example.com',phone:'+989121234566',role:'student',teacherId:teacherCreated.id,studentId:imported.studentId,password:fixturePassword()},admin),201);
+  await db.prepare('INSERT INTO classer_sessions VALUES(?,?,0,9999999999)').bind('linked-token',learner.id).run();
+  await ok(await request('/api/admin/accounts','DELETE',{id:teacherCreated.id},admin));
+  assert.equal(await db.prepare('SELECT 1 FROM classer_accounts WHERE id=?').bind(learner.id).first(),null);
+  assert.equal(await db.prepare('SELECT 1 FROM classer_sessions WHERE account_id=?').bind(learner.id).first(),null);
+  assert.equal(await db.prepare('SELECT 1 FROM teacher_public_profiles WHERE owner_id=?').bind(teacherCreated.id).first(),null);
+  assert.equal(await db.prepare('SELECT 1 FROM site_inquiries WHERE id=?').bind(inquiry.id).first(),null);
+  assert.equal((await request('/api/workspace','GET',undefined,teacherCookie)).status,401);
+  assert.equal((await request('/teachers/'+published.id)).status,404);
+  await ok(await request('/api/admin/accounts','DELETE',{id:'legacy-teacher'},admin));
+  assert.equal((await request('/api/workspace','GET',undefined,teacherHeaders)).status,401);
+  await ok(await request('/api/admin/accounts','DELETE',{id:adminAccount.id},admin));
+  assert.equal((await request('/api/admin/accounts','GET',undefined,limited)).status,403);
+  assert.equal((await request('/api/admin/accounts','GET',undefined,admin)).status,200);
  }finally{await mf.dispose()}
 });

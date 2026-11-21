@@ -71,6 +71,13 @@
       "when": 1794646800004,
       "tag": "0009_messages_captcha",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1794682800000,
+      "tag": "0010_owner_requested_reset",
+      "breakpoints": true
     }
   ]
 }

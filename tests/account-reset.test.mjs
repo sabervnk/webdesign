@@ -1,0 +1,22 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {DatabaseSync} from 'node:sqlite';
+test('one-time reset retains owner and admin and deletes dependent users',()=>{
+ const db=new DatabaseSync(':memory:');db.exec('PRAGMA foreign_keys=ON');
+ for(const name of fs.readdirSync('drizzle').filter(x=>x.endsWith('.sql')&&!x.startsWith('0010_')).sort())db.exec(fs.readFileSync('drizzle/'+name,'utf8').replaceAll('--> statement-breakpoint',''));
+ const insert=(id,username,role)=>db.prepare('INSERT INTO classer_accounts(id,username,name,email,phone,role,password_hash,created_at) VALUES(?,?,?,?,?,?,?,?)').run(id,username,username,username+'@example.com','+989121234567',role,'hash-'+id,'2026-11-15');
+ insert('owner','owner','admin');insert('admin','admin','admin');insert('teacher','teacher','teacher');insert('student','student','student');insert('extra-admin','extra-admin','admin');
+ db.exec("INSERT INTO classer_administrator_ids VALUES('owner')");
+ const w={demo:false,profile:{name:'Owner'},students:[{id:'learner'}],sessions:[{id:'class'}],assessments:[],messages:[]};
+ for(const id of ['owner','admin','teacher'])db.prepare('INSERT INTO teacher_workspaces VALUES(?,?,1,?)').run(id,JSON.stringify(w),'2026-11-15');
+ for(const id of ['admin','teacher','student'])db.prepare('INSERT INTO classer_sessions VALUES(?,?,0,12345)').run('session-'+id,id);
+ db.exec(fs.readFileSync('drizzle/0010_owner_requested_reset.sql','utf8').replaceAll('--> statement-breakpoint',''));
+ assert.deepEqual(db.prepare('SELECT username,password_hash FROM classer_accounts ORDER BY username').all().map(x=>({...x})),[{username:'admin',password_hash:'hash-admin'},{username:'owner',password_hash:'hash-owner'}]);
+ assert.equal(db.prepare('SELECT count(*) AS n FROM classer_sessions').get().n,1);
+ assert.equal(db.prepare('SELECT count(*) AS n FROM teacher_workspaces').get().n,2);
+ for(const row of db.prepare('SELECT data FROM teacher_workspaces').all())for(const key of ['students','sessions','assessments','messages'])assert.deepEqual(JSON.parse(row.data)[key],[]);
+ assert.equal(db.prepare('PRAGMA foreign_key_check').all().length,0);
+ insert('new-teacher','new-teacher','teacher');assert.equal(db.prepare("SELECT count(*) AS n FROM classer_accounts WHERE role='teacher'").get().n,1);
+ db.close();
+});
