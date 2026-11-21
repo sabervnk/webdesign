@@ -183,7 +183,7 @@ test('owner provisions restricted accounts; recovery revokes sessions and site c
   assert.equal((await request('/api/admin/accounts','DELETE',{id:teacherCreated.id},teacherCookie)).status,403);
   assert.equal((await request('/api/admin/accounts','DELETE',{id:'fixture-owner'},admin)).status,403);
   await db.exec("CREATE TRIGGER prevent_fixture_delete BEFORE DELETE ON classer_accounts BEGIN SELECT RAISE(ABORT, 'fixture'); END");
-  assert.equal((await request('/api/admin/accounts','DELETE',{id:teacherCreated.id},admin)).status,500);
+  assert.equal((await request('/api/admin/accounts','DELETE',{id:teacherCreated.id},admin)).status,503);
   assert(await db.prepare('SELECT 1 FROM teacher_workspaces WHERE owner_id=?').bind(teacherCreated.id).first());
   assert.equal(await db.prepare('SELECT 1 FROM classer_deleted_identities WHERE owner_id=?').bind(teacherCreated.id).first(),null);
   await db.exec('DROP TRIGGER prevent_fixture_delete');
