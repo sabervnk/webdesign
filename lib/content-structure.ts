@@ -47,7 +47,7 @@ export function structureContent(catalogue:Entry[]){
   const page=item.area==='برچسب‌ها و دسته‌بندی‌ها'?'اجزای مشترک':item.area==='تصویر و ویدئو'?'رسانهٔ معلم':group?.page??'اجزای مشترک';
   const section=item.area==='برچسب‌ها و دسته‌بندی‌ها'?'نام زبان‌ها و دسته‌بندی‌ها':item.area==='تصویر و ویدئو'?'عکس پروفایل و ویدئو':group?.section??'سایر متن‌ها';
   // Short UI tokens remain editable in the detail view, while editorial content stays prominent.
-  const detail=item.fa.trim().length<12&&!item.label&&!/[؟.!،:]/.test(item.fa);
+  const detail=item.key==='site.logo'||item.key.startsWith('site.color.')||item.fa.trim().length<12&&!item.label&&!/[؟.!،:]/.test(item.fa);
   return {item,page,section,detail,order:index};
  });
  const pages=pageOrder.filter(page=>entries.some(x=>x.page===page));

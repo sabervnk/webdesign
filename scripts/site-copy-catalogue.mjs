@@ -26,6 +26,10 @@ for(const [path,area] of Object.entries(sources)){
 }
 const defaults=[
  {key:'site.brand',fa:'Classer',en:'Classer',area:'هویت و صفحهٔ اصلی',label:'نام سایت'},
+ {key:'site.logo',fa:'',en:'',area:'هویت و صفحهٔ اصلی',label:'لوگوی سایت'},
+ {key:'site.color.primary',fa:'#147d67',en:'#147d67',area:'هویت و صفحهٔ اصلی',label:'رنگ اصلی سایت'},
+ {key:'site.color.hero',fa:'#102b25',en:'#102b25',area:'هویت و صفحهٔ اصلی',label:'پس‌زمینهٔ بنر اصلی'},
+ {key:'site.color.highlight',fa:'#d0ee98',en:'#d0ee98',area:'هویت و صفحهٔ اصلی',label:'رنگ تأکیدی بنر'},
  {key:'home.image',fa:'/images/learning-hero.webp',en:'/images/learning-hero.webp',area:'هویت و صفحهٔ اصلی',label:'نشانی تصویر بنر'},
  {key:'home.metaTitle',fa:'Classer — معلم زبان، همراه مسیر تو',en:'Classer — Find your language teacher',area:'هویت و صفحهٔ اصلی',label:'عنوان صفحه در مرورگر'},
  {key:'home.metaDescription',fa:'پرتفولیوی معلم‌های زبان را ببینید، هزینه کلاس آنلاین و حضوری را مقایسه کنید و نوشته‌های آموزشی معلم‌ها را بخوانید.',en:'Explore language teachers, compare class fees and read their articles.',area:'هویت و صفحهٔ اصلی',label:'توضیح صفحه برای موتور جست‌وجو'},

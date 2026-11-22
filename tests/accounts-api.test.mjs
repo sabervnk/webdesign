@@ -2,12 +2,19 @@ import {authCaptcha} from './fixtures/captcha.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {randomBytes} from 'node:crypto';
+import {deflateSync} from 'node:zlib';
 import {readFile,readdir} from 'node:fs/promises';
 import {Miniflare,convertV4MiniflareOptions} from 'miniflare';
 import {sampleWorkspace} from '../lib/model.ts';
 const fixturePassword=()=>randomBytes(24).toString('base64url');
 const shortFixture=()=>{let value;do{value=[...new Set(fixturePassword().replace(/[-_]/g,''))].slice(0,8).join('')}while(!/[0-9]/.test(value)||!/[a-z]/i.test(value));return value};
 const origin='https://mahela-classroom.lahzehtv.chatgpt.site';
+function logoFixture(){
+ const crc=buf=>{let c=-1;for(const byte of buf){c^=byte;for(let i=0;i<8;i++)c=c&1?(c>>>1)^0xedb88320:c>>>1}return (c^-1)>>>0};
+ const chunk=(name,data)=>{const type=Buffer.from(name),len=Buffer.alloc(4),sum=Buffer.alloc(4);len.writeUInt32BE(data.length);sum.writeUInt32BE(crc(Buffer.concat([type,data])));return Buffer.concat([len,type,data,sum])};
+ const ihdr=Buffer.alloc(13);ihdr.writeUInt32BE(64,0);ihdr.writeUInt32BE(64,4);ihdr[8]=8;ihdr[9]=6;
+ return Buffer.concat([Buffer.from([137,80,78,71,13,10,26,10]),chunk('IHDR',ihdr),chunk('IDAT',deflateSync(Buffer.alloc(64*(1+64*4)))),chunk('IEND',Buffer.alloc(0))]);
+}
 test('owner provisions restricted accounts; recovery revokes sessions and site copy remains admin-only',async()=>{
  const files=(await readdir('dist/server',{recursive:true})).filter(p=>p.endsWith('.js')&&p!=='index.js');
  const mf=new Miniflare(convertV4MiniflareOptions({workers:[{name:'app',modules:[{type:'ESModule',path:'dist/server/index.js'},...files.map(p=>({type:'ESModule',path:'dist/server/'+p}))],compatibilityDate:'2026-05-15',compatibilityFlags:['nodejs_compat'],d1Databases:['DB'],r2Buckets:['BUCKET'],serviceBindings:{ASSETS:()=>new Response('Not found',{status:404})}}]}));
@@ -33,6 +40,21 @@ test('owner provisions restricted accounts; recovery revokes sessions and site c
   assert.equal((await request('/api/workspace','GET',undefined,admin)).status,401,'old workspace does not confer a teacher role');
   assert.equal((await request('/admin/content','GET',undefined,admin)).status,200);assert.equal((await request('/admin/content')).status,307);const signin=await request('/signin');assert.equal(signin.status,200);assert((await signin.text()).includes('name="username"'));
   const privatePage=await request('/dashboard');assert.equal(privatePage.status,307);assert(new URL(privatePage.headers.get('location'),origin).pathname==='/signin');
+  const copy=await ok(await request('/api/admin/content','GET',undefined,admin));
+  assert(copy.catalogue.some(x=>x.key==='site.logo'));
+  assert.equal((await request('/api/admin/content','PATCH',{changes:[{key:'site.color.primary',locale:'fa',value:'#fafafa'}],version:copy.version},admin)).status,400,'unreadable brand colors must be rejected');
+  assert.equal((await request('/api/admin/content','PATCH',{changes:[{key:'site.logo',locale:'fa',value:'https://evil.example/brand.svg'}],version:copy.version},admin)).status,400,'foreign or script-bearing logo URLs must be rejected');
+  const newPalette=await ok(await request('/api/admin/content','PATCH',{changes:[{key:'site.color.primary',locale:'fa',value:'#2458a5'},{key:'site.color.hero',locale:'fa',value:'#142445'},{key:'site.color.highlight',locale:'fa',value:'#f4d77a'}],version:copy.version},admin));
+  assert.equal(newPalette.values['site.color.primary'].fa,'#2458a5');
+  assert.equal((await request('/api/admin/content','PATCH',{key:'site.brand',locale:'fa',value:'Another',version:copy.version},admin)).status,409,'brand changes use the same conflict protection as copy');
+  assert.equal((await request('/api/site-logo?id=wrong')).status,404);
+  assert.equal((await mf.dispatchFetch(origin+'/api/site-logo',{method:'POST',headers:{...admin,'Content-Type':'image/png',Origin:origin},body:new Uint8Array([137,80,78,71,13,10,26,10])})).status,400);
+  assert.equal((await mf.dispatchFetch(origin+'/api/site-logo',{method:'POST',headers:{'Content-Type':'image/png',Origin:origin},body:new Uint8Array([137,80,78,71,13,10,26,10])})).status,403);
+  const uploaded=await ok(await mf.dispatchFetch(origin+'/api/site-logo',{method:'POST',headers:{...admin,'Content-Type':'image/png',Origin:origin},body:logoFixture()}));
+  assert.match(uploaded.url,/^\/api\/site-logo\?id=[\da-f-]{36}$/);
+  const publicLogo=await request(uploaded.url);assert.equal(publicLogo.status,200);assert.equal(publicLogo.headers.get('content-type'),'image/png');assert.equal((await publicLogo.arrayBuffer()).byteLength,logoFixture().byteLength);
+  const withLogo=await ok(await request('/api/admin/content','PATCH',{key:'site.logo',locale:'fa',value:uploaded.url,version:newPalette.version},admin));assert.equal(withLogo.values['site.logo'].fa,uploaded.url);
+  const home=await (await request('/')).text();assert(home.includes(uploaded.url.replaceAll('&','&amp;'))||home.includes(uploaded.url),'published logo appears on the public homepage');
   const creds={username:'test-student',password:shortFixture()};
   const a={...creds,name:'Test learner',email:'learner@example.com',phone:'09121234567',role:'student',teacherId:'legacy-teacher',studentId:'elena',active:true};
   assert.equal((await request('/api/admin/accounts','POST',a)).status,403);

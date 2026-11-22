@@ -14,7 +14,7 @@ import './content-workbench.css';
 const fallback:Metadata={title:'Classer — معلم زبان، همراه مسیر تو',description:'پرتفولیوی معلم‌های زبان را ببینید، هزینه کلاس آنلاین و حضوری را مقایسه کنید و نوشته‌های آموزشی معلم‌ها را بخوانید.',icons:{icon:'/favicon.svg'}};
 export async function generateMetadata():Promise<Metadata>{
  const {values}=await loadSiteCopy();
- return {...fallback,title:values['home.metaTitle']?.fa??(values['site.brand']?.fa?values['site.brand'].fa+' — فضای یادگیری زبان':fallback.title),description:values['home.metaDescription']?.fa??fallback.description};
+ return {...fallback,title:values['home.metaTitle']?.fa??(values['site.brand']?.fa?values['site.brand'].fa+' — فضای یادگیری زبان':fallback.title),description:values['home.metaDescription']?.fa??fallback.description,icons:{icon:values['site.logo']?.fa||'/favicon.svg'}};
 }
 export default async function RootLayout({children}:{children:React.ReactNode}){
  const {values}=await loadSiteCopy();
