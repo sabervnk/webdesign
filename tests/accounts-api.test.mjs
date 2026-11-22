@@ -54,7 +54,7 @@ test('owner provisions restricted accounts; recovery revokes sessions and site c
   assert.match(uploaded.url,/^\/api\/site-logo\?id=[\da-f-]{36}$/);
   const publicLogo=await request(uploaded.url);assert.equal(publicLogo.status,200);assert.equal(publicLogo.headers.get('content-type'),'image/png');assert.equal((await publicLogo.arrayBuffer()).byteLength,logoFixture().byteLength);
   const withLogo=await ok(await request('/api/admin/content','PATCH',{key:'site.logo',locale:'fa',value:uploaded.url,version:newPalette.version},admin));assert.equal(withLogo.values['site.logo'].fa,uploaded.url);
-  const home=await (await request('/')).text();assert(home.includes(uploaded.url.replaceAll('&','&amp;'))||home.includes(uploaded.url),'published logo appears on the public homepage');
+  const brandedHome=await (await request('/')).text();assert(brandedHome.includes(uploaded.url.replaceAll('&','&amp;'))||brandedHome.includes(uploaded.url),'published logo appears on the public homepage');
   const creds={username:'test-student',password:shortFixture()};
   const a={...creds,name:'Test learner',email:'learner@example.com',phone:'09121234567',role:'student',teacherId:'legacy-teacher',studentId:'elena',active:true};
   assert.equal((await request('/api/admin/accounts','POST',a)).status,403);
