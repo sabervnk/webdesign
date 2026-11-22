@@ -104,7 +104,7 @@ test('owner provisions restricted accounts; recovery revokes sessions and site c
   const fresh=await request('/api/auth/login','POST',{username:creds.username,password:reset.password});await ok(fresh);
   await ok(await request('/api/admin/accounts','PATCH',{id,action:'deactivate'},admin));
   assert.equal((await request('/api/student','GET',undefined,{Cookie:fresh.headers.get('set-cookie').split(';')[0]})).status,403);
-  await ok(await request('/api/admin/content','PATCH',{key:'site.brand',locale:'fa',value:'Classer Test',version:0},admin));
+  await ok(await request('/api/admin/content','PATCH',{key:'site.brand',locale:'fa',value:'Classer Test',version:withLogo.version},admin));
   assert.equal((await request('/api/admin/content','PATCH',{key:'site.brand',locale:'fa',value:'stale',version:0},admin)).status,409);
   const home=await request('/');assert((await home.text()).includes('Classer Test'),'SSR should include the custom brand; status '+home.status);
   // A local administrator must change their temporary password and cannot manage accounts.
