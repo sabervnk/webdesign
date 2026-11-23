@@ -134,3 +134,17 @@ html.dark .public-site{--accent-foreground:var(--primary);--secondary-foreground
 .studio-account-content>.settings-layout{margin-top:16px}
 @media(max-width:760px){.studio-fee-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:520px){.studio-text-pair{grid-template-columns:minmax(0,1fr)}}
+
+/* Public navigation stays anchored without shifting the page during scrolling. */
+.public-site{padding-block-start:83px;scroll-padding-top:96px}
+.public-site>.pub-header{position:fixed;inset:0 0 auto;width:100%;height:83px;z-index:40;background:var(--card)}
+.public-site>.pub-header.is-scrolled{height:73px;background:color-mix(in srgb,var(--card) 94%,transparent);box-shadow:0 8px 30px #102b2522}
+.pub-header .pub-nav{box-shadow:inset 0 1px 0 #ffffff40,0 4px 14px #102b2508}
+.pub-header .pub-nav a{min-height:42px;display:flex;align-items:center;justify-content:center}
+.pub-header .pub-nav a:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--primary) 24%,transparent)}
+.pub-header .pub-nav a.active{box-shadow:0 3px 12px color-mix(in srgb,var(--primary) 26%,transparent)}
+.public-site .pub-back-top{width:auto;min-width:48px;padding-inline:14px;display:flex;align-items:center;gap:7px;border-radius:100px;min-height:48px}
+.pub-back-top span{font-size:14px;font-weight:650;white-space:nowrap}
+.public-site main[id],.public-site section[id]{scroll-margin-top:100px}
+@media(max-width:850px){.pub-header .pub-mobile-menu{width:42px;height:42px}.pub-mobile-sheet nav a{min-height:46px;display:flex;align-items:center;border-radius:10px;padding-inline:13px}.pub-mobile-sheet nav a:hover{background:var(--accent);color:var(--primary)}}
+@media(max-width:520px){.public-site{padding-block-start:73px}.public-site>.pub-header{height:73px}.public-site>.pub-header.is-scrolled{height:67px}.public-site .pub-back-top{min-height:44px;padding-inline:12px}.pub-back-top span{font-size:13px}}
