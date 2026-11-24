@@ -1,44 +1,33 @@
-# Classer static demonstration
+# Classer: original interface on Cloudflare Pages
 
-This independent demo preserves the Classer branding and original homepage image, font, public styles and sample catalogue. It provides public pages and browser-local demonstrations of teacher, student and admin dashboards. It is not the production application and does not provide real authentication, email, payments, uploads or shared storage.
+The demo now imports the actual application components directly from `app/` and `components/`. It imports all the original layout styles from `app/layout.tsx`. The public site, sticky header, teacher workspace, administrator workspace, learner panel, login form, profile editors and Quill editor are the originals, not separately rebuilt imitations.
 
-All records are invented. Requests and changes stay in the visitor's browser. Use **Reset demo** to restore the initial records. There are no API calls, third-party scripts, dependencies, Cloudflare Workers, D1 or R2 bindings.
+Only the server connection is adapted: a browser Service Worker handles the application's existing `/api/` contracts using a dedicated IndexedDB database. This is a browser feature; it does **not** deploy a Cloudflare Worker or require R2, D1, a subscription or a payment card.
 
-## Cloudflare Pages via GitHub
+All records are fictional and stay on the visitor's device. There is no real authentication, shared storage, payment, email or automatic external translation. Demo sign-in uses `teacher`, `admin`, or `student`, password `demo1234`, captcha `123456`. The original recovery form displays a demo code without sending email. Uploaded demonstration media is stored locally in the browser.
 
-Create a **Pages** project, not a Worker, connected to this repository:
+## Existing Pages settings
 
-| Setting | Value |
-| --- | --- |
-| Production branch | `main` |
-| Root directory | `demo` |
-| Framework preset | `None` |
-| Build command | `node build.mjs` |
-| Build output directory | `dist` |
-| Environment variables | None |
+Keep either of these existing configurations:
 
-Do not use `npx wrangler deploy` for this demo. No deploy command is required in the Pages Git setup. The existing full application remains in the repository root; point the demo project at `demo`.
+| Setting | Repository root | Demo root |
+| --- | --- | --- |
+| Root directory | empty | `demo` |
+| Build command | `node demo/build.mjs` | `node build.mjs` |
+| Build output directory | `demo/dist` | `dist` |
 
-Both `demo/` and `public/` must be present in the checkout because the build copies existing public assets from `../public`. Cloudflare checks out the whole repository before running the build. GitHub updates to the connected production branch can rebuild the demo automatically. Production UI changes are not automatically converted into demo interactions; update the demo source when its relevant design or behavior changes.
+Use Framework preset `None`. Do not run `wrangler deploy`. The normal dependency installation must run; the build uses Vite, React and Tailwind to compile the original source. No runtime server is required.
 
-## Local build and checks
+Future changes to the original imported components and CSS are used automatically by the demo build. New backend endpoints may need corresponding adapters in `src/runtime.ts`. Original production files are not modified by this demo.
 
-From this directory:
+## Validation
 
 ```sh
-node build.mjs
-node --test demo.test.mjs render.test.mjs
+npm ci
+node demo/build.mjs --test
+node --test demo/exact-demo.test.mjs
 ```
 
-Serve `dist/` over HTTP with a fallback to `index.html` for client-side routes. The included `_redirects` provides this on Pages. The deployable ZIP must contain the contents of `dist/` at its root.
+`dist/demo-version.json` records hashes of original component and stylesheet inputs. The build rejects imports of server-only application modules. Tests cover original API contracts, local media, version conflicts and public/admin/student data shapes.
 
-## Scope
-
-- Home, searchable/filterable teacher directory, teacher profiles, journal, article detail, contact form.
-- Persian/English interface, dark/light themes, sticky navigation, back-to-top control and responsive layouts.
-- Teacher dashboard: local student records, class calendar and duration-based fees, status updates, sample settlements, notes, sample conversations, profile settings and sample journal posts.
-- Student and admin overviews, including requests saved in the same browser.
-- No genuine login or permission isolation: role entry is intentionally a public demo switcher.
-- Post editor uses plain text and `##` headings. Rich media uploads and recovery email are absent.
-
-Requests do not reach a real administrator. A request created on one device is not visible on another. Do not enter personal details or real records.
+HTTPS and Service Worker/IndexedDB support are required. The browser worker only intercepts API routes; it does not cache HTML or static assets. Browsing directly to a nested path is supported by the Pages redirect configuration. Resetting the demo affects only its dedicated local state.

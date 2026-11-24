@@ -1,15 +1,22 @@
-import {cp, mkdir, readFile, writeFile} from 'node:fs/promises';
-import {fileURLToPath} from 'node:url';
+import {build} from 'vite';
+import react from '@vitejs/plugin-react';
+import tailwind from '@tailwindcss/postcss';
+import {cp,readFile,writeFile} from 'node:fs/promises';
 import path from 'node:path';
-const root = path.dirname(fileURLToPath(import.meta.url));
-const out = path.join(root, 'dist');
-await mkdir(out, {recursive:true});
-for (const name of ['index.html','app.js','data.js','state.js','base.css','public.css','action-colors.css','demo.css','_redirects','_headers']) {
-  await cp(path.join(root,name),path.join(out,name));
-}
-await cp(path.join(root,'../public'),out,{recursive:true,filter:source=>!source.endsWith('.base64')});
-// Never publish backend entry points, runtime data or environment files.
-const html=await readFile(path.join(out,'index.html'),'utf8');
-if (!html.includes('src="/app.js"')) throw new Error('Missing demo entry point');
-await writeFile(path.join(out,'demo-version.json'),JSON.stringify({version:'0.14.2-demo.1',static:true}));
-console.log('Static Classer demo ready in demo/dist — no database, R2, Worker or dependencies.');
+import {fileURLToPath} from 'node:url';
+import {createHash} from 'node:crypto';
+const root=path.dirname(fileURLToPath(import.meta.url));
+const repository=path.resolve(root,'..');
+const pkg=JSON.parse(await readFile(path.join(root,'package.json'),'utf8'));
+const aliases=[{find:/^next\/link$/,replacement:path.join(root,'src/next-link.tsx')},{find:/^next\/navigation$/,replacement:path.join(root,'src/navigation.ts')},{find:/^next\/dynamic$/,replacement:path.join(root,'src/next-dynamic.tsx')},{find:'@',replacement:repository}];
+const guard={name:'demo-browser-only',resolveId(id){if(id.startsWith('cloudflare:')||id.startsWith('@platform')||/[/\\](lib[/\\]server|db)[/\\]/.test(id))throw Error('Server module reached the static demo: '+id)}};
+const common={configFile:false,root,publicDir:false,resolve:{alias:aliases,dedupe:Object.keys(pkg.dependencies)},plugins:[guard],define:{'process.env.NEXT_PUBLIC_HOSTING_TARGET':JSON.stringify('demo')},css:{postcss:{plugins:[tailwind({base:repository})]}},build:{outDir:path.join(root,'dist'),emptyOutDir:true}};
+await build({...common,plugins:[guard,react()],build:{...common.build,rollupOptions:{input:path.join(root,'index.html')}}});
+await build({...common,build:{...common.build,emptyOutDir:false,lib:{entry:path.join(root,'src/worker.ts'),formats:['es'],fileName:()=> 'demo-worker.js'},rollupOptions:{output:{inlineDynamicImports:true}}}});
+await cp(path.join(repository,'public'),path.join(root,'dist'),{recursive:true,filter:p=>!p.endsWith('.base64')});
+for(const name of ['_headers','_redirects'])await cp(path.join(root,name),path.join(root,'dist',name));
+const originals=['app/public-site.tsx','app/workspace.tsx','app/studio.tsx','app/admin/panel.tsx','app/student/student-panel.tsx','components/public-header.tsx','components/local-login.tsx','app/globals.css','app/public.css'];
+const sourceHashes=Object.fromEntries(await Promise.all(originals.map(async p=>[p,createHash('sha256').update(await readFile(path.join(repository,p))).digest('hex')])));
+await writeFile(path.join(root,'dist/demo-version.json'),JSON.stringify({version:pkg.version,ui:'original-components',sourceHashes},null,2));
+console.log('Classer demo built from original application components and CSS. No Worker hosting, D1 or R2 required.');
+if(process.argv.includes('--test'))await build({...common,build:{...common.build,outDir:path.join(root,'.test'),lib:{entry:path.join(root,'src/runtime.ts'),formats:['es'],fileName:()=> 'runtime.mjs'},rollupOptions:{output:{inlineDynamicImports:true}}}});

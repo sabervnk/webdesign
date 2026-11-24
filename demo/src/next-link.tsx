@@ -1,0 +1,4 @@
+import React from 'react';
+import {navigate} from './navigation';
+const Link=React.forwardRef<HTMLAnchorElement,React.AnchorHTMLAttributes<HTMLAnchorElement>&{href:any;prefetch?:unknown;replace?:boolean;scroll?:boolean;legacyBehavior?:boolean}>(function Link({href,prefetch,replace,scroll,legacyBehavior,onClick,...props},ref){const url=typeof href==='string'?href:href.pathname+(href.query?'?'+new URLSearchParams(href.query):'');return <a ref={ref} href={url} {...props} onClick={e=>{onClick?.(e);if(e.defaultPrevented||e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||props.target==='_blank'||props.download!==undefined)return;const next=new URL(url,location.href);if(next.origin!==location.origin)return;e.preventDefault();navigate(url,replace,scroll!==false)}}/>});
+export default Link;

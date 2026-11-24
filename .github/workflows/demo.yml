@@ -3,12 +3,17 @@ on:
   push:
     paths:
       - 'demo/**'
+      - 'app/**'
+      - 'components/**'
+      - 'lib/**'
       - 'public/**'
       - '.github/workflows/demo.yml'
   pull_request:
     paths:
       - 'demo/**'
-      - 'public/**'
+      - 'app/**'
+      - 'components/**'
+      - 'lib/**'
 jobs:
   static-demo:
     runs-on: ubuntu-latest
@@ -17,9 +22,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node demo/build.mjs
-      - run: node --test demo/demo.test.mjs demo/render.test.mjs
+      - run: npm ci
+      - run: node demo/build.mjs --test
+      - run: node --test demo/exact-demo.test.mjs
       - uses: actions/upload-artifact@v4
         with:
-          name: classer-static-demo
+          name: classer-original-ui-demo
           path: demo/dist/
