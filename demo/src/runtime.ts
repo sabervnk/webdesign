@@ -93,7 +93,7 @@ export async function handle(request:Request,s:DemoState,blobs:BlobStore):Promis
  }
  if(p==='/api/studio/video'||p.startsWith('/api/public-video/')){
   const ownerId=p.startsWith('/api/public-video/')?p.split('/').at(-1)!:id;
-  if(method==='POST'){const blob=await request.blob();if(blob.size>50*1024*1024)throw new DemoError('برای دمو ویدئوی کمتر از ۵۰ مگابایت انتخاب کنید.');await blobs.put('video:'+id,blob);s.videos[id]={visible:false,bytes:blob.size,uploadedAt:now()}}
+  if(method==='POST'){const blob=await request.blob();if(blob.size>50*1024*1024)throw new DemoError('برای دمو ویدئوی کمتر از ۵۰ مگابایت انتخاب کنید.');await blobs.put('video:'+id,blob);s.videos[id]={visible:false,bytes:blob.size,size:blob.size,uploadedAt:now()}}
   if(method==='PATCH'&&s.videos[id])s.videos[id].visible=!!b.visible;
   if(method==='DELETE'){delete s.videos[id];await blobs.remove('video:'+id)}
   if(p.startsWith('/api/public-video/')||url.searchParams.get('stream')==='1'){const blob=await blobs.get('video:'+ownerId);return blob?new Response(blob,{headers:{'Content-Type':blob.type,'Accept-Ranges':'bytes'}}):new Response(null,{status:404})}
@@ -155,7 +155,11 @@ export async function handle(request:Request,s:DemoState,blobs:BlobStore):Promis
   if(method==='POST'){if(b.action==='send'&&!s.messages.some(m=>m.id===b.id))s.messages.push({id:b.id||crypto.randomUUID(),teacherId,studentId,text:String(b.text).slice(0,4000),sender:role==='student'?'student':'teacher',sentAt:now(),readAt:null});if(b.action==='read')for(const m of s.messages.filter(m=>m.studentId===studentId&&m.sender!==role))m.readAt=now();return json({ok:true,sentAt:now()})}
   return json({actorId:a?.id,role,teacherId,studentId,teacherName:doc.data.profile.name,studentName:st.name,available:true,hasMore:false,olderCursor:null,messages:s.messages.filter(m=>m.teacherId===teacherId&&m.studentId===studentId)});
  }
- if(p==='/api/admin/media')return json({photo:s.workspaces[id]?.data.profile.photo||'',video:s.videos[id]||null});
+ if(p==='/api/admin/media'){
+  const kind=url.searchParams.get('kind');
+  if(kind==='photo'||kind==='video'){const blob=await blobs.get(kind+':'+id);return blob?new Response(blob,{headers:{'Content-Type':blob.type}}):new Response(null,{status:404})}
+  return json({photo:!!s.workspaces[id]?.data.profile.photo,video:s.videos[id]||null});
+ }
  return json({error:'این عملیات در نسخهٔ نمایشی محلی هنوز پشتیبانی نمی‌شود. / This operation is not available in the local demo.'},501);
  }catch(error:any){return json({error:error.issues?.[0]?.message||error.message||'خطا در اطلاعات نمونه.'},error.status||400)}
 }
