@@ -1,12 +1,15 @@
 import {build} from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwind from '@tailwindcss/postcss';
-import {cp,readFile,writeFile} from 'node:fs/promises';
+import {cp,readFile,writeFile,lstat,symlink} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
 const root=path.dirname(fileURLToPath(import.meta.url));
 const repository=path.resolve(root,'..');
+// Original components and CSS resolve dependencies from the repository root.
+// When Pages installs only demo/, expose that same dependency tree to them.
+try{await lstat(path.join(repository,'node_modules'))}catch(error){if(error.code!=='ENOENT')throw error;await symlink(path.join(root,'node_modules'),path.join(repository,'node_modules'),'junction')}
 const pkg=JSON.parse(await readFile(path.join(root,'package.json'),'utf8'));
 const aliases=[{find:/^next\/link$/,replacement:path.join(root,'src/next-link.tsx')},{find:/^next\/navigation$/,replacement:path.join(root,'src/navigation.ts')},{find:/^next\/dynamic$/,replacement:path.join(root,'src/next-dynamic.tsx')},{find:'@',replacement:repository}];
 const guard={name:'demo-browser-only',resolveId(id){if(id.startsWith('cloudflare:')||id.startsWith('@platform')||/[/\\](lib[/\\]server|db)[/\\]/.test(id))throw Error('Server module reached the static demo: '+id)}};
