@@ -12,3 +12,11 @@
 @source '../../hooks';
 .classer-demo-notice{background:#133f35;color:#fff;padding:7px 18px;font:12px/1.8 Vazirmatn,Arial,sans-serif;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .classer-demo-notice a{color:#fff;text-decoration:underline}.classer-demo-notice button{font:inherit;background:transparent;border:0;color:inherit;cursor:pointer;text-decoration:underline}
+
+/* Reserve the measured notice height for fixed public and dashboard navigation. */
+.classer-demo-notice{position:sticky;top:0;z-index:45;isolation:isolate;box-shadow:0 1px 0 #ffffff26;font-size:14px}
+.classer-demo-notice button{min-height:32px;padding:3px 6px;border-radius:6px}
+.classer-demo-notice button:focus-visible{outline:2px solid white;outline-offset:2px}
+[data-slot="sidebar-container"]{top:var(--classer-demo-notice-height,0px);bottom:0;height:calc(100svh - var(--classer-demo-notice-height,0px))}
+.public-site>.pub-header{top:var(--classer-demo-notice-height,0px)}
+[data-slot="sidebar-wrapper"]{min-height:calc(100svh - var(--classer-demo-notice-height,0px))}

@@ -1,4 +1,4 @@
-import React,{useEffect,useState} from 'react';
+import React,{useEffect,useLayoutEffect,useRef,useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import PublicSite from '../../app/public-site';
 import TeacherWorkspace from '../../app/workspace';
@@ -10,6 +10,11 @@ import {SiteCopyProvider} from '../../components/site-copy-provider';
 import {AutomaticTranslation} from '../../components/automatic-translation';
 import {useLocation,navigate} from './navigation';
 import type {Catalogue} from '../../lib/catalogue';
+function DemoNotice({children}:{children:React.ReactNode}){
+ const ref=useRef<HTMLElement>(null);
+ useLayoutEffect(()=>{const element=ref.current;if(!element)return;const update=()=>document.documentElement.style.setProperty('--classer-demo-notice-height',element.getBoundingClientRect().height+'px');update();const observer=new ResizeObserver(update);observer.observe(element);return()=>{observer.disconnect();document.documentElement.style.removeProperty('--classer-demo-notice-height')}},[]);
+ return <aside ref={ref} className="classer-demo-notice" data-no-translate>{children}</aside>;
+}
 function Application(){
  const url=useLocation(),[data,setData]=useState<any>(null),[error,setError]=useState('');
  useEffect(()=>{let active=true;fetch('/__classer_demo__/state').then(r=>r.json()).then(j=>{if(active){setData(j);setError('')}}).catch(e=>{if(active)setError(e.message)});return()=>{active=false}},[url]);
@@ -27,6 +32,6 @@ function Application(){
  else if(section==='blog')page=<PublicSite view={id?'article':'blog'} initialCatalogue={catalogue} recordId={id}/>;
  else if(section==='contact')page=<PublicSite view="contact" initialCatalogue={catalogue}/>;
  else page=<main className="classer-console"><h1>صفحه پیدا نشد</h1><a href="/">صفحهٔ اصلی</a></main>;
- return <SiteCopyProvider values={data.values}><aside className="classer-demo-notice" data-no-translate><span>نسخهٔ نمایشی · اطلاعات فقط در همین مرورگر ذخیره می‌شوند.</span><span>ورود نمونه: <bdi>teacher / admin / student</bdi> · رمز: <bdi>demo1234</bdi> · کد تصویر: <bdi>123456</bdi></span><button type="button" onClick={async()=>{if(!confirm('تغییرات همین نسخهٔ نمایشی بازنشانی شوند؟'))return;await fetch('/__classer_demo__/reset',{method:'POST'});window.location.assign('/')}}>بازنشانی دمو</button></aside>{page}<AutomaticTranslation/></SiteCopyProvider>;
+ return <SiteCopyProvider values={data.values}><DemoNotice><span>نسخهٔ نمایشی · اطلاعات فقط در همین مرورگر ذخیره می‌شوند.</span><span>ورود نمونه: <bdi>teacher / admin / student</bdi> · رمز: <bdi>demo1234</bdi> · کد تصویر: <bdi>123456</bdi></span><button type="button" onClick={async()=>{if(!confirm('تغییرات همین نسخهٔ نمایشی بازنشانی شوند؟'))return;await fetch('/__classer_demo__/reset',{method:'POST'});window.location.assign('/')}}>بازنشانی دمو</button></DemoNotice>{page}<AutomaticTranslation/></SiteCopyProvider>;
 }
 createRoot(document.getElementById('app')!).render(<Application/>);
