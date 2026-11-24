@@ -22,7 +22,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: npm ci
+      - run: npm ci --prefix demo
       - run: node demo/build.mjs --test
       - run: node --test demo/exact-demo.test.mjs
       - uses: actions/upload-artifact@v4
