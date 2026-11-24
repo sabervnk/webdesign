@@ -1,0 +1,25 @@
+name: Verify static demo
+on:
+  push:
+    paths:
+      - 'demo/**'
+      - 'public/**'
+      - '.github/workflows/demo.yml'
+  pull_request:
+    paths:
+      - 'demo/**'
+      - 'public/**'
+jobs:
+  static-demo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node demo/build.mjs
+      - run: node --test demo/demo.test.mjs demo/render.test.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: classer-static-demo
+          path: demo/dist/
