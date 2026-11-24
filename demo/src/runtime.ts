@@ -132,7 +132,12 @@ export async function handle(request:Request,s:DemoState,blobs:BlobStore):Promis
  if(p==='/api/admin/finance'){
   const ownerId=b.ownerId||url.searchParams.get('ownerId');
   if(method==='PUT'){const policy=policies(s,ownerId);versionCheck(b.version,policy.version);s.policies[ownerId]={percent:Number(b.percent),students:b.students||{},sessions:b.sessions||{},version:policy.version+1}}
-  return json({teachers:s.teachers.filter(t=>!ownerId||t.id===ownerId).map(t=>({id:t.id,name:t.name,policy:policies(s,t.id),students:s.workspaces[t.id]?.data.students||[],sessions:(s.workspaces[t.id]?.data.sessions||[]).map(x=>({...x,commissionPercent:(policies(s,t.id).sessions as any)[x.id]??(policies(s,t.id).students as any)[x.studentId]??policies(s,t.id).percent}))})});
+  const teachers=s.teachers.filter(t=>!ownerId||t.id===ownerId).map(t=>{
+   const policy=policies(s,t.id);
+   const sessions=(s.workspaces[t.id]?.data.sessions||[]).map(x=>({...x,commissionPercent:(policy.sessions as any)[x.id]??(policy.students as any)[x.studentId]??policy.percent}));
+   return {id:t.id,name:t.name,policy,students:s.workspaces[t.id]?.data.students||[],sessions};
+  });
+  return json({teachers});
  }
  if(p==='/api/admin/requests'){
   if(method==='PUT'){const item=requireValue(s.requests.find(x=>x.id===b.id));versionCheck(b.version,item.version);item.status=b.status??item.status;item.adminNote=b.adminNote??item.adminNote;item.version++;item.updatedAt=now();if(b.action==='forward'){item.teacherOwnerId=item.teacherId;item.forwardedAt=now()}return json({request:item,...item})}
